@@ -42,7 +42,7 @@ BL 0x19EC714 // ; Lp::Utl::getCtrl
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end // ; Minus button hold
+TBZ W0, #9, end // ; Minus button not held
 
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0x850] // ; _ZN4sead7Vector2IfE4zeroE
@@ -69,7 +69,7 @@ RET
 
 ; Return to function end by modifying hook's return address: LR + 0xC = 0x107BBE0
 
-CBNZ X0, original
+CBNZ X0, original // ; Valid pointer
 
 ADD X30, X30, #0xC
 RET
@@ -129,14 +129,14 @@ MOV W0, WZR
 BL 0x19EC714 // ; Lp::Utl::getCtrl
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isMarchOrLead // ; Minus button hold
+TBZ W8, #9, isMarchOrLead // ; Minus button not held
 
 LDR W10, [X19, #0x358]
 LDRB W8, [X25, #0x14]
-CBZ W8, isStickUp
+CBZ W8, isStickUp // ; Debug Marching/Leading disabled
 
 LDR W8, [X0, #0x94]
-TBZ W8, #9, isStickUp // ; Minus button trigger
+TBZ W8, #9, isStickUp // ; Minus button not triggered
 
 CBNZ W10, isStickUp // ; Not controlled player
 
@@ -158,9 +158,9 @@ B end
 
 isStickUp:
 LDR W8, [X0, #0x94]
-TBZ W8, #24, isMarchOrLead // ; Right Stick Up trigger
+TBZ W8, #24, isMarchOrLead // ; Right Stick Up not triggered
 
-CBNZ W10, changeRemoteAILoop
+CBNZ W10, changeRemoteAILoop // ; Not controlled player
 
 LDRB W8, [X25, #0x14]
 ADD W8, W8, #1
@@ -336,11 +336,11 @@ RET
 
 ; Respawn does NOT reset players, and the features stay enabled after respawn
 
-STRB WZR, [X19, #0x431] // ; Debug Move
-STRB WZR, [X19, #0x432] // ; Debug Muteki
+STRB WZR, [X19, #0x431] // ; Disable Debug Moving
+STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
 
 ADRP X8, #0x29E7000
-STRB WZR, [X8, #0x14] // ; Debug Marching/Leading
+STRB WZR, [X8, #0x14] // ; Disable Debug Marching/Leading
 
 MOV W8, #0xFFFF // ; Original instruction
 RET
@@ -489,9 +489,9 @@ STP X29, X30, [SP, #-0x10]!
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0xCF8]
 LDR X0, [X0]
-CBZ X0, end
+CBZ X0, end // ; Nullptr
 BL 0x10E6D2C // ; Game::PlayerMgr::getControlledPerformer
-CBZ X0, end
+CBZ X0, end // ; Nullptr
 
 ADRP X8, #0x29E7000
 LDRB W9, [X8, #0x14]

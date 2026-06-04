@@ -43,7 +43,7 @@ LDR W8, [X0, #0x10]
 LDR W9, buttons_L_Down
 AND W0, W8, W9
 CMP W0, W9
-BNE isPendingResetShort
+BNE isPendingResetShort // ; L and D-Pad Down not held together
 
 MOV W0, #1
 STRB W0, [X28, #0x10A]
@@ -73,7 +73,7 @@ LDR W8, [X27, #0x10]
 LDR W9, buttons_L_Up
 AND W0, W8, W9
 CMP W0, W9
-BNE clearHold
+BNE clearHold // ; L and D-Pad Up not held together
 
 MOV W0, #2
 STRB W0, [X28, #0x10A]

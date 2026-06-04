@@ -35,17 +35,17 @@ RET
 ; Disables Debug Moving when toggled
 
 LDR W8, [X19, #0x358]
-CBNZ W8, end // ; Not controlled performer
+CBNZ W8, end // ; Not controlled player
 
 STP X29, X30, [SP, #-0x40]!
 
 MOV W0, WZR
 BL 0x10A4808 // ; Lp::Utl::getCtrl
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isInDebugMuteki // ; Minus button hold
+TBZ W8, #9, isInDebugMuteki // ; Minus button not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #13, isInDebugMuteki // ; L button trigger
+TBZ W0, #13, isInDebugMuteki // ; L button not triggered
 
 LDRB W8, [X19, #0x37E]
 EOR W8, W8, #1
@@ -125,11 +125,11 @@ string: .asciz "Debug @ Muteki"
 
 ; Respawn does NOT reset players, and the features stay enabled after respawn
 
-STRB WZR, [X19, #0x37D] // ; Debug Move
-STRB WZR, [X19, #0x37E] // ; Debug Muteki
+STRB WZR, [X19, #0x37D] // ; Disable Debug Moving
+STRB WZR, [X19, #0x37E] // ; Disable Debug Muteki
 
 ADRP X8, #0x2968000
-STRB WZR, [X8, #0x14] // ; Debug Marching/Leading
+STRB WZR, [X8, #0x14] // ; Disable Debug Marching/Leading
 
 MOV W8, #0xFFFF // ; Original instruction
 RET
@@ -144,7 +144,7 @@ RET
 ; with returning W0 bool
 
 LDRB W0, [X19, #0xDE4] // ; Original instruction
-LDRB W1, [X19, #0x37D] // ; Debug Move
+LDRB W1, [X19, #0x37D] // ; Debug Moving
 LDRB W2, [X19, #0x37E] // ; Debug Muteki
 ORR W1, W1, W2
 ORR W0, W0, W1
@@ -281,7 +281,7 @@ LDP X8, X9, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
 
 LDR W0, [X0, #0x94]
-TBZ W0, #16, end // ; D-Pad Up trigger
+TBZ W0, #16, end // ; D-Pad Up not triggered
 
 MOV W9, W8
 

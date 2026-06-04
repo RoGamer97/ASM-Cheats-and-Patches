@@ -42,7 +42,7 @@ BL 0x1A65E14 // ; Lp::Utl::getCtrl
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end // ; Minus button hold
+TBZ W0, #9, end // ; Minus button not held
 
 ADRP X0, #0x4156000
 LDR X0, [X0, #0x818] // ; _ZN4sead7Vector2IfE4zeroE
@@ -67,12 +67,12 @@ TBZ W0, #0, end
 MOV W0, WZR
 BL 0x1A65E14 // ; Lp::Utl::getCtrl
 LDR W8, [X0, #0x10]
-TBZ W8, #9, end // ; Minus button hold
+TBZ W8, #9, end // ; Minus button not held
 
 LDR W12, [X0, #0x94]
 MOV W8, #0xC000000
 TST W12, W8
-BEQ end// ; Right Stick Left/Right trigger
+BEQ end// ; Right Stick Left/Right not triggered
 
 MOV X0, X19
 BL 0xF07B1C // ; Game::PlayerMgr::getControlledPerformer
@@ -106,8 +106,8 @@ BL 0xF07928 // ; Game::PlayerMgr::onChangeControlledPlayer
 
 ADRP X8, #0x3DFE000
 LDRB W8, [X8, #0x14]
-CMP W8, #1 // ; Debug Marching
-BNE end
+CMP W8, #1
+BNE end // ; Debug Marching disabled or mode is not Marching
 
 // ; Disable AI for controlled player if in Debug Marching
 // ; To allow controlling the player you just changed to

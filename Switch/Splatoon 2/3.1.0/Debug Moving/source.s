@@ -42,7 +42,7 @@ BL 0x1A65E14 // ; Lp::Utl::getCtrl
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end // ; Minus button hold
+TBZ W0, #9, end // ; Minus button not held
 
 ADRP X0, #0x4156000
 LDR X0, [X0, #0x818] // ; _ZN4sead7Vector2IfE4zeroE
@@ -80,7 +80,7 @@ RET
 
 
 LDR W8, [X19, #0x358]
-CBNZ W8, end // ; Not controlled performer
+CBNZ W8, end // ; Not controlled player
 
 STP X29, X30, [SP, #-0x40]!
 
@@ -90,7 +90,7 @@ MOV W0, WZR
 BL 0x1A65E14 // ; Lp::Utl::getCtrl
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isToggleTrig // ; Minus button hold
+TBZ W8, #9, isToggleTrig // ; Minus button not held
 
 LDR S0, [X19, #0x910]
 LDR S1, velMultiplier
@@ -99,10 +99,10 @@ STR S0, [X19, #0x910]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #9, isInDebugMove // ; Minus button trigger
+TBZ W0, #9, isInDebugMove // ; Minus button not triggered
 
-LDRB W8, [X26, #0x14] // ; Debug Marching/Leading
-CBNZ W8, isInDebugMove
+LDRB W8, [X26, #0x14]
+CBNZ W8, isInDebugMove // ; Debug Leading/Marching enabled
 
 LDRB W8, [X19, #0x431]
 EOR W8, W8, #1
@@ -248,11 +248,11 @@ positionString: .asciz "Pos : %.2f, %.2f, %.2f"
 
 ; Respawn does NOT reset players, and the features stay enabled after respawn
 
-STRB WZR, [X19, #0x431] // ; Debug Move
-STRB WZR, [X19, #0x432] // ; Debug Muteki
+STRB WZR, [X19, #0x431] // ; Disable Debug Moving
+STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
 
 ADRP X8, #0x3DFE000
-STRB WZR, [X8, #0x14] // ; Debug Marching/Leading
+STRB WZR, [X8, #0x14] // ; Disable Debug Marching/Leading
 
 MOV W8, #0xFFFF // ; Original instruction
 RET
@@ -267,7 +267,7 @@ RET
 ; with returning W0 bool
 
 LDRB W0, [X19, X8] // ; Original instruction
-LDRB W1, [X19, #0x431] // ; Debug Move
+LDRB W1, [X19, #0x431] // ; Debug Moving
 LDRB W2, [X19, #0x432] // ; Debug Muteki
 ORR W1, W1, W2
 ORR W0, W0, W1
@@ -278,7 +278,7 @@ RET
 ; Game::Player::prepareDokanWarp_Start + 0x114
 ; 0xE57118 -> BL 0x1B612E4
 
-; Set IsInDebugMove bool to false
+; Set padding byte "IsInDebugMove" bool to false
 
 STRB WZR, [X21, #0x431]
 MOV W8, #0x12E8 // ; Original instruction
