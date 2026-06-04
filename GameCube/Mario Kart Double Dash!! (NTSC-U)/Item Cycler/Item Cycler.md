@@ -1,4 +1,4 @@
-## Item Cycler (Debug and Infinite)
+## Item Cycler
 
 This code allows you to cycle through items in item ID order. When cycling, the currently selected item in the cycle is set to the item slot, replacing the slot item if one is present.
 
@@ -14,7 +14,7 @@ For both versions, you can cycle to the "Empty" item in the cycle to clear the s
 
 This code is useful for testing and debugging, and it can be enabled at all times even if you do not want to set items during a race. Items are only set if you ever cycle, otherwise gameplay remains completely legitimate.
 
-The code works independently for each local player in Multiplayer. To cycle items, hold R and press D-Pad Left/Right.
+The code works independently for each local player in Multiplayer. To cycle items, hold R and press D-Pad Left/Right. Triple Items are not included because they're problematic.
 
 <details>
 <summary>Debug</summary>
@@ -100,36 +100,33 @@ B8610008 38210080
 <details>
 <summary>Infinite</summary>
 ```
-C22BCA08 0000004F
+C22BCA08 0000004C
 9421FF80 BC610008
 7C7D1B78 806DA3C8
 80030038 1C7B0018
 38630030 7C601A14
 80630004 28030000
-41820240 83EDAB20
+41820228 83EDAB20
 3A1FFFD0 7F10D8AE
 8B5E05B2 6B5A0001
 7FE3FB78 7F64DB78
 7F45D378 3D808020
 618CB5E8 7D8903A6
 4E800421 2C030000
-40820208 3D80803A
+408201F0 3D80803A
 618C4D9C 1C9B0030
 7D8C2214 80AC0004
 818C0000 38C00000
 808DA3C8 80840038
 80840008 2C040006
-4082000C 38C00001
-4800000C 70A90C00
-40820130 718C0020
-41820020 70A90003
-41820018 2C060000
-41820080 6B180001
-7F10D9AE 4800000C
-2C060000 41820104
-2C180000 41820194
-807F0574 70630080
-40820188 807E0574
+40820008 38C00001
+718C0020 41820020
+70A90003 41820018
+2C060000 41820074
+6B180001 7F10D9AE
+4800000C 2C060000
+418200F8 2C180000
+41820188 807F0574
 70630080 4082017C
 7FE3FB78 7F64DB78
 7F45D378 3D808020

@@ -399,7 +399,6 @@ cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
 bne isCycle
 
 li r6, 1 ; Set Bob-omb Blast bool
-b isCycle
 
 isCycle:
 andi. r12, r12, BUTTON_R

@@ -390,15 +390,9 @@ lwz r4, -0x5C38 (r13)
 lwz r4, 0x38 (r4)
 lwz r4, 8 (r4)
 cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
-bne isUseButton
-
+bne isCycle
 
 li r6, 1 ; Set Bob-omb Blast bool
-b isCycle
-
-isUseButton:
-andi. r9, r5, BUTTON_X | BUTTON_Y
-bne isKartEquipItem
 
 isCycle:
 andi. r12, r12, BUTTON_R
@@ -577,4 +571,4 @@ stwx r5, r3, r4
 end:
 lmw r3, 8 (sp)
 addi sp, sp, 0x80
-mr. r29, r3
+mr. r29, r3 ; Original instruction
