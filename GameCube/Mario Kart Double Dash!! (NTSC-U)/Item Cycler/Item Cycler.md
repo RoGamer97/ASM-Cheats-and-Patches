@@ -4,9 +4,9 @@ This code allows you to cycle through items in item ID order. When cycling, the 
 
 There are two versions of the code, please read below for details:
 
-* Debug - Recreation of the Debug Item Cycler found in the Mario Kart 8 Deluxe Prototype: Once an item is used, it disappears from the slot like a normal item. If the slot is empty, not spinning and no item is dragged or rotating the kart, pressing the item use button sets the currently selected item in the cycle to the slot again. Recommended for testing and debugging.
+* Debug - Recreation of the Debug Item Cycler feature from the Mario Kart 8/Deluxe debug build: Once an item is used, it disappears from the slot like a normal item. If the slot is empty and not spinning, pressing the item use button sets the currently selected item in the cycle to the slot again. In Bob-omb Blast, pressing the cycle button will set a Bob-omb instead.
 
-* Infinite - Same as Debug, except items don't disappear from the slot when used; they’re infinite. Recommended for spamming items.
+* Infinite - Same as Debug, except items don't disappear from the slot when used; they’re infinite. In Bob-omb Blast, pressing the cycle button will toggle infinite Bob-ombs instead.
 
 You can only cycle or set items when the kart is in a state that can use items (for example, not in damage or a cannon), when the item slot is not spinning, when the item limit for the selected item has not been reached (for example, the game prevents you from obtaining a Chain Chomp if one is already in play, since the limit is 1) and when the second character chosen on the character select screen is in the back of the kart (this character manages item cycling and setting).
 
@@ -18,6 +18,7 @@ The code works independently for each local player in Multiplayer. To cycle item
 
 <details>
 <summary>Debug</summary>
+
 ```
 C22BCA08 0000004A
 9421FF80 BC610008
@@ -99,6 +100,7 @@ B8610008 38210080
 
 <details>
 <summary>Infinite</summary>
+
 ```
 C22BCA08 0000004C
 9421FF80 BC610008

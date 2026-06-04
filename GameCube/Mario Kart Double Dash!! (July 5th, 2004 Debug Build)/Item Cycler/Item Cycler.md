@@ -18,6 +18,7 @@ The code works independently for each local player in Multiplayer. To cycle item
 
 <details>
 <summary>Debug</summary>
+
 ```
 C22FE950 0000004B
 9421FF80 BC610008
@@ -100,6 +101,7 @@ B8610008 38210080
 
 <details>
 <summary>Infinite</summary>
+
 ```
 C22FE950 0000004D
 9421FF80 BC610008
