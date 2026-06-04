@@ -1,0 +1,187 @@
+## Item Cycler
+
+This code allows you to cycle through items in item ID order. When cycling, the currently selected item in the cycle is set to the item slot, replacing the slot item if one is present.
+
+There are two versions of the code, please read below for details:
+
+* Debug - Recreation of the Debug Item Cycler feature from the Mario Kart 8/Deluxe debug build: Once an item is used, it disappears from the slot like a normal item. If the slot is empty and not spinning, pressing the item use button sets the currently selected item in the cycle to the slot again. In Bob-omb Blast, pressing the cycle button will set a Bob-omb instead.
+
+* Infinite - Same as Debug, except items don't disappear from the slot when used; they’re infinite. In Bob-omb Blast, pressing the cycle button will toggle infinite Bob-ombs instead.
+
+You can only cycle or set items when the kart is in a state that can use items (for example, not in damage or a cannon), when the item slot is not spinning, when the item limit for the selected item has not been reached (for example, the game prevents you from obtaining a Chain Chomp if one is already in play, since the limit is 1) and when the second character chosen on the character select screen is in the back of the kart (this character manages item cycling and setting).
+
+For both versions, you can cycle to the "Empty" item in the cycle to clear the slot and set the current item in the cycle to Empty. While this item is selected, pressing the item use button will not set any item. This is also the initial item in the cycle when starting a race.
+
+This code is useful for testing and debugging, and it can be enabled at all times even if you do not want to set items during a race. Items are only set if you ever cycle, otherwise gameplay remains completely legitimate.
+
+The code works independently for each local player in Multiplayer. To cycle items, hold R and press D-Pad Left/Right. Triple Items are not included because they're problematic.
+
+<details>
+<summary>Debug</summary>
+
+```
+C22FE950 0000004B
+9421FF80 BC610008
+7C7C1B78 807F0000
+80630004 7C781B78
+7FC4F378 3D80801B
+618C0B44 7D8903A6
+4E800421 2C030000
+41820218 816DABD0
+3A0BFFD0 7F10F0AE
+8B7F05B2 6B7B0001
+7D635B78 7FC4F378
+7F65DB78 3D808024
+618C131C 7D8903A6
+4E800421 2C030000
+408201E0 3D80803F
+618CA794 1C9E0030
+7D8C2214 80AC0004
+818C0000 38C00000
+808DA428 80840038
+80840008 2C040006
+4082000C 38C00001
+4800000C 70A90C00
+40820108 718C0020
+41820198 70A90003
+41820190 2C060000
+41820058 807F0574
+70630080 4082017C
+7D635B78 7FC4F378
+7F65DB78 3D808024
+618C1928 7D8903A6
+4E800421 888D8A20
+7C032000 40800154
+7D635B78 7FC4F378
+38A00000 3D808024
+618C1534 7D8903A6
+4E800421 48000134
+70A50001 4082000C
+3B180001 48000008
+3B18FFFF 2C180000
+40800008 3B000010
+2C180010 40810008
+3B000000 7F10F1AE
+2C1C0000 41820064
+809C007C 2C040007
+40820030 809C0118
+2C040002 40820024
+7F83E378 3D808025
+618CB094 7D8903A6
+4E800421 3B000008
+7F10F1AE 480000C4
+7F83E378 3D808024
+618CBF44 7D8903A6
+4E800421 7F83E378
+3D808024 618CA958
+7D8903A6 4E800421
+7D635B78 7FC4F378
+7F65DB78 3D808023
+618CED84 7D8903A6
+4E800421 2C030000
+40820078 48000019
+10000102 03040506
+0708090A 0B0C0D0E
+0F000000 7C8802A6
+7C84C0AE 2C040010
+41820050 7D635B78
+7FC5F378 7F66DB78
+38E00000 39000000
+3D808023 618CE3D0
+7D8903A6 4E800421
+3C60803C 6063A270
+1CBE0008 7C632A14
+1C9B0004 7CA3202E
+2C050000 4082000C
+38A00009 7CA3212E
+B8610008 38210080
+7C7C1B79 00000000
+```
+</details>
+
+<details>
+<summary>Infinite</summary>
+
+```
+C22FE950 0000004D
+9421FF80 BC610008
+7C7C1B78 807F0000
+80630004 7C781B78
+7FC4F378 3D80801B
+618C0B44 7D8903A6
+4E800421 2C030000
+41820224 816DABD0
+3A0BFFD0 7F10F0AE
+8B7F05B2 6B7B0001
+7D635B78 7FC4F378
+7F65DB78 3D808024
+618C131C 7D8903A6
+4E800421 2C030000
+408201EC 3D80803F
+618CA794 1C9E0030
+7D8C2214 80AC0004
+818C0000 38C00000
+808DA428 80840038
+80840008 2C040006
+40820008 38C00001
+718C0020 41820020
+70A90003 41820018
+2C060000 41820070
+6B180001 7F10F1AE
+4800000C 2C060000
+418200F4 2C180000
+41820184 807F0574
+70630080 40820178
+7D635B78 7FC4F378
+7F65DB78 3D808024
+618C1928 7D8903A6
+4E800421 888D8A20
+7C032000 40800150
+7D635B78 7FC4F378
+3D808024 618C1534
+7D8903A6 4E800421
+48000134 70A50001
+4082000C 3B180001
+48000008 3B18FFFF
+2C180000 40800008
+3B000010 2C180010
+40810008 3B000000
+7F10F1AE 2C1C0000
+41820064 809C007C
+2C040007 40820030
+809C0118 2C040002
+40820024 7F83E378
+3D808025 618CB094
+7D8903A6 4E800421
+3B000008 7F10F1AE
+480000C4 7F83E378
+3D808024 618CBF44
+7D8903A6 4E800421
+7F83E378 3D808024
+618CA958 7D8903A6
+4E800421 7D635B78
+7FC4F378 7F65DB78
+3D808023 618CED84
+7D8903A6 4E800421
+2C030000 40820078
+48000019 10000102
+03040506 0708090A
+0B0C0D0E 0F000000
+7C8802A6 7C84C0AE
+2C040010 41820050
+7D635B78 7FC5F378
+7F66DB78 38E00000
+39000000 3D808023
+618CE3D0 7D8903A6
+4E800421 3C60803C
+6063A270 1CBE0008
+7C632A14 1C9B0004
+7CA3202E 2C050000
+4082000C 38A00009
+7CA3212E B8610008
+38210080 7C7C1B79
+60000000 00000000
+```
+</details>
+
+You can find the ASM source code by clicking [here](source.s)
