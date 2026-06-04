@@ -24,7 +24,10 @@ Note that source code is only included for codes that use hooks, excluding pure 
 
 Games that had codes updated and source code included, after *May 27th, 2026*:
 
+- [GameCube] Mario Kart Double Dash!! (Retail and Debug)
 - [Switch] Splatoon 2
+
+New codes made after the updates will still be added.
 
 ---
 

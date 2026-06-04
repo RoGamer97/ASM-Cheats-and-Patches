@@ -12,4 +12,6 @@ Allows you to reload or exit a scene.
  
 `Hold L and D-Pad Down`: Long Full Reload; Exits the scene and reloads it
 
+If having issues with .pchtxt on console, please use .ips instead!
+
 The ASM source code can be found [here](source.s).

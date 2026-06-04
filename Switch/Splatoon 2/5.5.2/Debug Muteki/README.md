@@ -10,4 +10,6 @@ Hold `Minus` and press `L` to toggle.
 
 When enabled, a debug print is shown on-screen. You can disable it using the `Disable Debug Text Draw` patch.
 
+If having issues with .pchtxt on console, please use .ips instead!
+
 The ASM source code can be found [here](source.s).
