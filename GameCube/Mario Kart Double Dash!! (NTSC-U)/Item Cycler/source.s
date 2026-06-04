@@ -1,28 +1,28 @@
-; Game: Mario Kart: Double Dash!! (July 5th, 2004 Debug Build)
-; Code: Item Cycler
+# Game: Mario Kart: Double Dash!! (July 5th, 2004 Debug Build)
+# Code: Item Cycler
 
 
-; This code has two versions: Debug and Infinite
+# This code has two versions: Debug and Infinite
 
 
-; Debug version
-; DoTandemItemRelease__8KartItemFv + 0x34
-; 802BCA08
+# Debug version
+# DoTandemItemRelease__8KartItemFv + 0x34
+# 802BCA08
 
-; Current item in the cycle is stored in padding byte
-; Cycling items in Bob-omb Blast will give Bob-ombs instead
-; Can't cycle during driver swap in Bob-omb Blast to avoid a bug
-; where it can give Bomb-ombs past the max limit
-; Cycling while in an active Chain Chomp item will separate you from
-; it (Avoids a crash, and to be able to get out of it at will)
-; When giving item, some race2D item window value is set to force the 
-; item to appear and update on the slot HUD
+# Current item in the cycle is stored in padding byte
+# Cycling items in Bob-omb Blast will give Bob-ombs instead
+# Can't cycle during driver swap in Bob-omb Blast to avoid a bug
+# where it can give Bomb-ombs past the max limit
+# Cycling while in an active Chain Chomp item will separate you from
+# it (Avoids a crash, and to be able to get out of it at will)
+# When giving item, some race2D item window value is set to force the 
+# item to appear and update on the slot HUD
 
-; Globals
+# Globals
 .set addr_buttons, 0x803A4D9C
 .set addr_race2D_itemSlotWindow, 0x8037FF70
 
-; Functions
+# Functions
 .set setChildStateForceDisappear__7ItemObjFv, 0x8021522C
 .set doDeleteList__7ItemObjFv, 0x80213C40
 .set separate__13ItemWanWanObjFv, 0x80222CE4
@@ -32,7 +32,7 @@
 .set getKartEquipItem__10ItemObjMgrFiUc, 0x80209A18
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x80209120
 
-; Defines
+# Defines
 .set ITEM_GREEN_SHELL, 0
 .set ITEM_BOWSER_SHELL, 1
 .set ITEM_RED_SHELL, 2
@@ -67,7 +67,7 @@
 stwu sp, -0x80 (sp)
 stmw r3, 8 (sp)
 
-mr r29, r3 ; ItemObj of hand item
+mr r29, r3 # ItemObj of hand item
 
 lwz r3, -0x5C38 (r13)
 lwz r0, 0x38 (r3)
@@ -78,11 +78,11 @@ lwz r3, 4 (r3)
 cmplwi r3, 0
 beq end
 
-lwz r31, -0x54E0 (r13) ; ItemObjMgr
-subi r16, r31, 0x30 ; Address of index of current item in cycle
-lbzx r24, r16, r27 ; Index of current item in cycle for that player (Not item ID! Table index)
+lwz r31, -0x54E0 (r13) # ItemObjMgr
+subi r16, r31, 0x30 # Address of index of current item in cycle
+lbzx r24, r16, r27 # Index of current item in cycle for that player (Not item ID! Table index)
 lbz r26, 0x5B2 (r30)
-xori r26, r26, 1 ; Slot ID, but inverted
+xori r26, r26, 1 # Slot ID, but inverted
 
 mr r3, r31
 mr r4, r27
@@ -97,12 +97,12 @@ bne end
 lis r12, addr_buttons@h
 ori r12, r12, addr_buttons@l
 mulli r4, r27, 0x30
-add r12, r12, r4 ; Controller address
+add r12, r12, r4 # Controller address
 
 lwz r5, 4 (r12)
 lwz r12, 0 (r12)
 
-li r6, 0 ; Is in Bob-omb Blast bool (False by default)
+li r6, 0 # Is in Bob-omb Blast bool (False by default)
 
 lwz r4, -0x5C38 (r13)
 lwz r4, 0x38 (r4)
@@ -110,7 +110,7 @@ lwz r4, 8 (r4)
 cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
 bne isUseButton
 
-li r6, 1 ; Set Bob-omb Blast bool
+li r6, 1 # Set Bob-omb Blast bool
 b isCycle
 
 isUseButton:
@@ -128,7 +128,7 @@ cmpwi r6, 0
 beq isCycleLeft
 
 lwz r3, 0x574 (r30)
-andi. r3, r3, 0x80 ; Swapping drivers
+andi. r3, r3, 0x80 # Swapping drivers
 bne end
 
 mr r3, r31
@@ -141,7 +141,7 @@ bctrl
 
 lbz r4, -0x7610 (r13)
 cmpw r3, r4
-bge end ; Max Bob-omb count on hand/item slot
+bge end # Max Bob-omb count on hand/item slot
 
 mr r3, r31
 mr r4, r27
@@ -178,7 +178,7 @@ store:
 stbx r24, r16, r27
 
 cmpwi r29, 0
-beq isKartEquipItem ; Hand ItemObj is nullptr, no item on hand
+beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
 
 lwz r4, 0x7C (r29)
 cmpwi r4, ITEM_CHAIN_CHOMP
@@ -232,7 +232,7 @@ itemList:
 .byte ITEM_GIANT_BANANA
 .byte ITEM_MUSHROOM
 .byte ITEM_STAR
-itemChainChomp: .byte ITEM_CHAIN_CHOMP ; Label used for Chain Chomp separate part of code
+itemChainChomp: .byte ITEM_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
 .byte ITEM_BOBOMB
 .byte ITEM_FIREBALL
 .byte ITEM_LIGHTNING
@@ -245,7 +245,7 @@ itemListEnd:
 
 .balign 4
 
-; Labels used for index bounds
+# Labels used for index bounds
 .set ITEM_LIST_COUNT, itemListEnd - itemList
 .set ITEM_LIST_LAST_INDEX, ITEM_LIST_COUNT - 1
 .set ITEM_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
@@ -282,29 +282,29 @@ stwx r5, r3, r4
 end:
 lmw r3, 8 (sp)
 addi sp, sp, 0x80
-mr. r29, r3 ; Original instruction
+mr. r29, r3 # Original instruction
 
 
 
 
 # Infinite version
-; DoTandemItemRelease__8KartItemFv + 0x34
-; 802BCA08
+# DoTandemItemRelease__8KartItemFv + 0x34
+# 802BCA08
 
-; Current item in the cycle is stored in padding byte
-; Cycling items in Bob-omb Blast will toggle infinite Bob-ombs
-; Can't cycle during driver swap in Bob-omb Blast to avoid a bug
-; where it can give Bomb-ombs past the max limit
-; Cycling while in an active Chain Chomp item will separate you from
-; it (Avoids a crash, and to be able to get out of it at will)
-; When giving item, some race2D item window value is set to force the 
-; item to appear and update on the slot HUD
+# Current item in the cycle is stored in padding byte
+# Cycling items in Bob-omb Blast will toggle infinite Bob-ombs
+# Can't cycle during driver swap in Bob-omb Blast to avoid a bug
+# where it can give Bomb-ombs past the max limit
+# Cycling while in an active Chain Chomp item will separate you from
+# it (Avoids a crash, and to be able to get out of it at will)
+# When giving item, some race2D item window value is set to force the 
+# item to appear and update on the slot HUD
 
-; Globals
+# Globals
 .set addr_buttons, 0x803A4D9C
 .set addr_race2D_itemSlotWindow, 0x8037FF70
 
-; Functions
+# Functions
 .set setChildStateForceDisappear__7ItemObjFv, 0x8021522C
 .set doDeleteList__7ItemObjFv, 0x80213C40
 .set separate__13ItemWanWanObjFv, 0x80222CE4
@@ -314,7 +314,7 @@ mr. r29, r3 ; Original instruction
 .set getKartEquipItem__10ItemObjMgrFiUc, 0x80209A18
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x80209120
 
-; Defines
+# Defines
 .set ITEM_GREEN_SHELL, 0
 .set ITEM_BOWSER_SHELL, 1
 .set ITEM_RED_SHELL, 2
@@ -349,7 +349,7 @@ mr. r29, r3 ; Original instruction
 stwu sp, -0x80 (sp)
 stmw r3, 8 (sp)
 
-mr r29, r3 ; ItemObj of hand item
+mr r29, r3 # ItemObj of hand item
 
 lwz r3, -0x5C38 (r13)
 lwz r0, 0x38 (r3)
@@ -360,11 +360,11 @@ lwz r3, 4 (r3)
 cmplwi r3, 0
 beq end
 
-lwz r31, -0x54E0 (r13) ; ItemObjMgr
-subi r16, r31, 0x30 ; Address of index of current item in cycle
-lbzx r24, r16, r27 ; Index of current item in cycle for that player (Not item ID! Table index)
+lwz r31, -0x54E0 (r13) # ItemObjMgr
+subi r16, r31, 0x30 # Address of index of current item in cycle
+lbzx r24, r16, r27 # Index of current item in cycle for that player (Not item ID! Table index)
 lbz r26, 0x5B2 (r30)
-xori r26, r26, 1 ; Slot ID, but inverted
+xori r26, r26, 1 # Slot ID, but inverted
 
 mr r3, r31
 mr r4, r27
@@ -379,12 +379,12 @@ bne end
 lis r12, addr_buttons@h
 ori r12, r12, addr_buttons@l
 mulli r4, r27, 0x30
-add r12, r12, r4 ; Controller address
+add r12, r12, r4 # Controller address
 
 lwz r5, 4 (r12)
 lwz r12, 0 (r12)
 
-li r6, 0 ; Is in Bob-omb Blast bool (False by default)
+li r6, 0 # Is in Bob-omb Blast bool (False by default)
 
 lwz r4, -0x5C38 (r13)
 lwz r4, 0x38 (r4)
@@ -392,7 +392,7 @@ lwz r4, 8 (r4)
 cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
 bne isCycle
 
-li r6, 1 ; Set Bob-omb Blast bool
+li r6, 1 # Set Bob-omb Blast bool
 
 isCycle:
 andi. r12, r12, BUTTON_R
@@ -417,7 +417,7 @@ cmpwi r24, 0
 beq end 
 
 lwz r3, 0x574 (r31)
-andi. r3, r3, 0x80 ; Swapping drivers
+andi. r3, r3, 0x80 # Swapping drivers
 bne end
 
 mr r3, r31
@@ -430,7 +430,7 @@ bctrl
 
 lbz r4, -0x7610 (r13)
 cmpw r3, r4
-bge end ; Max Bob-omb count on hand/item slot
+bge end # Max Bob-omb count on hand/item slot
 
 mr r3, r31
 mr r4, r27
@@ -467,7 +467,7 @@ store:
 stbx r24, r16, r27
 
 cmpwi r29, 0
-beq isKartEquipItem ; Hand ItemObj is nullptr, no item on hand
+beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
 
 lwz r4, 0x7C (r29)
 cmpwi r4, ITEM_CHAIN_CHOMP
@@ -521,7 +521,7 @@ itemList:
 .byte ITEM_GIANT_BANANA
 .byte ITEM_MUSHROOM
 .byte ITEM_STAR
-itemChainChomp: .byte ITEM_CHAIN_CHOMP ; Label used for Chain Chomp separate part of code
+itemChainChomp: .byte ITEM_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
 .byte ITEM_BOBOMB
 .byte ITEM_FIREBALL
 .byte ITEM_LIGHTNING
@@ -534,7 +534,7 @@ itemListEnd:
 
 .balign 4
 
-; Labels used for index bounds
+# Labels used for index bounds
 .set ITEM_LIST_COUNT, itemListEnd - itemList
 .set ITEM_LIST_LAST_INDEX, ITEM_LIST_COUNT - 1
 .set ITEM_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
@@ -571,4 +571,4 @@ stwx r5, r3, r4
 end:
 lmw r3, 8 (sp)
 addi sp, sp, 0x80
-mr. r29, r3 ; Original instruction
+mr. r29, r3 # Original instruction
