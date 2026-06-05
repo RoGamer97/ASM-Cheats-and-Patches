@@ -1,4 +1,4 @@
-# Game: Mario Kart: Double Dash!! (July 5th, 2004 Debug Build)
+# Game: Mario Kart: Double Dash!!
 # Code: Item Cycler
 
 
