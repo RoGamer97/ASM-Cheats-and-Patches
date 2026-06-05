@@ -8,7 +8,7 @@ There are two versions of the code, please read below for details:
 
 * Infinite - Same as Debug, except items don't disappear from the slot when used; they’re infinite. In Bob-omb Blast, pressing the cycle button will toggle infinite Bob-ombs instead.
 
-You can only cycle or set items when the kart is in a state that can use items (for example, not in damage or a cannon), when the item slot is not spinning, when the item limit for the selected item has not been reached (for example, the game prevents you from obtaining a Chain Chomp if one is already in play, since the limit is 1) and when the second character chosen on the character select screen is in the back of the kart (this character manages item cycling and setting).
+You can only cycle or set items when the kart is in a state that can use items (for example, not in damage or a cannon), when the item slot is not spinning and when the item limit for the selected item has not been reached (for example, the game prevents you from obtaining a Chain Chomp if one is already in play, since the limit is 1).
 
 For both versions, you can cycle to the "Empty" item in the cycle to clear the slot and set the current item in the cycle to Empty. While this item is selected, pressing the item use button will not set any item. This is also the initial item in the cycle when starting a race.
 
