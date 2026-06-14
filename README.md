@@ -1,6 +1,6 @@
 ## About
 
-This is a collection of public cheat codes, patches, and ASM hacks for various Nintendo console games.
+This is a collection of public ASM cheat codes, patches, and hacks for various Nintendo console games. 
 
 You'll find a variety of codes, including quality-of-life improvements, gameplay fixes, debug features, experimental or fun codes, and much more.
 
@@ -10,11 +10,11 @@ All codes are by me.
 
 As of **May 27, 2026**, this repository is currently being updated. Many existing codes are being rewritten and improved.
 
-Source code will also be added over time.
+Source code is also being added over time.
 
-The update will be done per game, so once a game has its codes updated, they will be pushed all at once instead of in parts. Note that there might still be changes after its initial update has been pushed. New codes made after the updates will still be added.
+The update is being done per game, so once a game's codes have been updated, they will be pushed all at once instead of in parts. Note that there might still be changes after the initial update has been pushed. New codes created after the updates will continue to be added.
 
-## Source Code (WIP)
+## Source code (WIP)
 
 Source code is being added.
 
