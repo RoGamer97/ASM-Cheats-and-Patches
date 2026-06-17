@@ -1,7 +1,7 @@
 ## Replace Versus with FreeTest
 
-When holding `Minus` button on Versus loading screen, it will be replaced with [FreeTest](https://tcrf.net/Splatoon_2/Debug_Scenes#FreeTest), allowing you to play that scene.
+When holding `Minus` on Versus loading screen, you'll load in [FreeTest](https://tcrf.net/Splatoon_2/Debug_Scenes#FreeTest) instead.
 
-If having issues with .pchtxt on console, please use .ips instead!
+If you experience issues building from .pchtxt on console, use .ips instead.
 
 The ASM source code can be found [here](source.s).

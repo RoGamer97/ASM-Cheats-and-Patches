@@ -2,16 +2,16 @@
 
 Reimplements the Debug Moving feature from the debug build in retail.
 
-Allows you to freely move around, basically like NoClip.
+Allows you to freely move in the air, basically like NoClip.
 
-You can move around freely and fly up/down with `Right Stick Up/Down`. While in squid form, you'll move much faster. You'll pass through collision and cannot die.
+You can also fly up/down with `Right Stick Up/Down`. While in squid form, you'll move/fly much faster.
 
-Other minor game behaviors are affected as well (read source for full details).
+You can pass through collision and be invincible to damage. For additional details, see the source code.
 
 Press `Minus` to toggle.
 
-When enabled, a debug print is shown on-screen. You can disable it using the `Disable Debug Text Draw` patch.
+To disable the debug print on-screen when enabled, use the [`Disable Debug Text Draw`](https://github.com/RoGamer97/ASM-Cheats-and-Patches/tree/main/Switch/Splatoon%202/3.1.0/Disable%20Debug%20Text%20Draw) patch.
 
-If having issues with .pchtxt on console, please use .ips instead!
+If you experience issues building from .pchtxt on console, use .ips instead.
 
 The ASM source code can be found [here](source.s).

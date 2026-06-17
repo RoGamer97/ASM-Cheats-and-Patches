@@ -3,17 +3,17 @@
 Reimplements the Debug Marching and Debug Leading features from the debug build in retail.
 
 ### Debug Marching 
-Every player will copy your movements and actions, making you control everyone.
+Every dummy player will copy your movements and actions, making you control everyone.
 
 ### Debug Leading
-Every player walks to follow you and stops when they're close enough. They will also copy your actions.
+Every dummy player will follow you, stopping when they get close enough. They will also copy your actions.
 
 ---
 
-Hold `Minus` and push `Right Stick Up` to change the mode (`Debug Marching -> Debug Leading -> Cancel`). You can cancel it by pressing `Minus` as well.
+Hold `Minus` and push `Right Stick Up` to enable and change the mode (`Debug Marching -> Debug Leading -> Cancel`). You can cancel it by pressing `Minus` as well.
 
-When enabled, a debug print is shown on-screen. You can disable it using the `Disable Debug Text Draw` patch.
+To disable the debug print on-screen when enabled, use the [`Disable Debug Text Draw`](https://github.com/RoGamer97/ASM-Cheats-and-Patches/tree/main/Switch/Splatoon%202/Global%20Testfire/Disable%20Debug%20Text%20Draw) patch.
 
-If having issues with .pchtxt on console, please use .ips instead!
+If you experience issues building from .pchtxt on console, use .ips instead.
 
 The ASM source code can be found [here](source.s).

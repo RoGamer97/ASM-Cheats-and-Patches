@@ -2,14 +2,14 @@
 
 Reimplements the Debug Muteki feature from the debug build in retail.
 
-It makes you invincible and unaffected by enemy ink on the ground. You also cannot drown and die in water, and your ink will not be consumed, allowing you to shoot and throw bombs infinitely.
+Makes you invincible to damage, enemy ink on the ground, and water. Your special is always fully charged, and your ink is infinite.
 
 If using an Umbrella, pressing `D-Pad Up` will restore the canopy, allowing you to shoot another one.
 
 Hold `Minus` and press `L` to toggle.
 
-When enabled, a debug print is shown on-screen. You can disable it using the `Disable Debug Text Draw` patch.
+To disable the debug print on-screen when enabled, use the [`Disable Debug Text Draw`](https://github.com/RoGamer97/ASM-Cheats-and-Patches/tree/main/Switch/Splatoon%202/Global%20Testfire/Disable%20Debug%20Text%20Draw) patch.
 
-If having issues with .pchtxt on console, please use .ips instead!
+If you experience issues building from .pchtxt on console, use .ips instead.
 
 The ASM source code can be found [here](source.s).
