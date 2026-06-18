@@ -12,7 +12,8 @@
 ; 0xD5D38 -> BL 0x1AA96AC
 ; 0xD5D68 -> BL 0x1AA96AC
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -21,6 +22,7 @@ AND X1, X1, #0x3F // ; Original instruction
 RET
 
 
+; The Debug Muteki bool is not present in retail.
 ; Game::Player + 0x432 is a padding byte; use it for the "IsInDebugMuteki" bool
 ; You will see Debug Muteki bool checks in every hook
 
@@ -31,7 +33,7 @@ RET
 
 ; Code will only run for controlled player (You)
 ; Sets custom "dirty" bool when toggled, for Display Dirty (D) Debug Mark patch
-; Draws text if enabled
+; Increments text flash timer if enabled (Text draw is done in another hook for 5.5.2)
 ; Disables Debug Moving when toggled
 
 LDR W8, [X19, #0x358]
@@ -81,10 +83,9 @@ RET
 ; Game::Player::reset_Impl + 0x3AC
 ; 0xFE7EC0 -> BL 0x1AA9808
 
-; Resets Debug Moving, Muteki and Marching/Leading on player RESET,
-; so, when players are loaded in or reset by using Debug Scene Reload
-
-; Respawn does NOT reset players, and the features stay enabled after respawn
+; Resets Debug Moving, Muteki and Marching/Leading on player reset
+; Only used to cancel Debug Moving, Muteki and Marching/Leading on
+; scene reload/reset by using Debug Scene Reload & Exit
 
 STRB WZR, [X19, #0x431] // ; Disable Debug Moving
 STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
@@ -102,7 +103,7 @@ RET
 ; 0x1010E8C -> BL 0x1AA982C
 
 ; ORR Debug Move and Debug Muteki bools together and ORR them
-; with returning W0 bool
+; with returning W0 bool (invincible if either is true)
 
 LDRB W0, [X19, X8] // ; Original instruction
 LDRB W1, [X19, #0x431] // ; Debug Moving
@@ -112,11 +113,11 @@ ORR W0, W0, W1
 RET
 
 
-; Special Always Charged
+; Special Always Fully Charged
 ; Game::Player::calcPaintGauge + 0x440
 ; 0x100C6A8 -> BL 0x1AA9C2C
 
-; If in Debug Muteki, charge special
+; If in Debug Muteki, make special always fully charged
 
 LDRB W8, [X19, #0x432]
 CBZ W8, end
@@ -150,7 +151,7 @@ RET
 ; Unless there are specific scenarios
 
 ; Skip by modifying hook's return address: LR + 0x18C = 0x10105D8
-; Returns back to function end
+; Returns to the function's end
 
 MOV X22, X0 // ; Original instruction
 
@@ -197,6 +198,7 @@ RET
 ; 0x1129350 -> BL 0x1AA9CA0
 
 ; If in Debug Muteki, store zero to some step paint related member variable
+; to be unaffected by it
 
 LDR X8, [X20] // ; Original instruction
 

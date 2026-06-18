@@ -12,7 +12,8 @@
 ; 0x8ADB0 -> BL 0x1B61088
 ; 0x8ADE0 -> BL 0x1B61088
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -29,9 +30,12 @@ RET
 ; skip getting the controller's right stick address
 ; (since Vector2 address is loaded instead)
 
+; Probably done to avoid the camera from moving when enabling debug features
+; or other reason that I don't know (Similar to player inputs being disabled)
+
 ; Skip by modifying hook's return address: LR + 0x10 = 0xEA1988
-; Returns past getRightStick call, where it loads the stick's values
-; from the pointer
+; Returns past the getRightStick call, where the stick values are loaded
+; from the returned pointer
 
 MOV X29, SP // ; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -80,6 +84,8 @@ RET
 
 
 ; Debug Marching & Leading
+; Game::Player::calcControl + 0x2D60
+; 0xE253DC -> BL 0x1B6169C
 
 ; Nintendo coded Debug Marching differently, 
 ; it doesn't transform the player into an AI and
@@ -93,16 +99,16 @@ RET
 ; controlled player's inputs to the AI's inputs
 
 ; For my reimplementation, Debug Leading is 
-; the exact same as the debug build, but Marching
-; is different, it does transform the player into an
-; AI and copies the controlled player's inputs and
-; stick to the AI. Works perfectly, I don't know why
-; Nintendo didn't do this in the debug build
+; the exact same as the debug build, copying Nintendo's code
+; (but changing offsets etc because of version difference ofc),
+; with minor changes but Marching is different, it does transform 
+; the player into an AI and copies the controlled player's inputs and
+; stick to the AI. Works perfectly, I don't know why Nintendo didn't do this
 
 ; For changing players to AI and changing mode, it
 ; only does it when iterated player is controlled player,
-; because else it would happen multiple times instead of once,
-; and to avoid desync with Debug Moving toggle
+; because else it would happen multiple times a frame instead 
+; of once, and to avoid desync with Debug Moving toggle
 ; Sets "dirty" bool when toggled, for Display Dirty (D) Debug Mark patch
 
 ; It loops through every player to enable/disable the AI,
@@ -111,10 +117,8 @@ RET
 ; Hook location is different than Nintendo's, but works and
 ; behaves the same way
 
-; Game::Player::calcControl + 0x2D60
-; 0xE253DC -> BL 0x1B6169C
-
-; X25 + 0x14 = Debug Marching/Leading modes (0 -> Disabled, 1 -> Marching, 2 -> Leading)
+; Modes are stored in R-W area at 0x3DFE014 and text flash timer at 0x3DFE010
+; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
 STP X29, X30, [SP, #-0x40]!
 
@@ -387,10 +391,9 @@ cancelString: .asciz "  Push [-] -> Cancel"
 ; Game::Player::reset_Impl + 0x3AC
 ; 0xE17288 -> BL 0x1B612CC
 
-; Resets Debug Moving, Muteki and Marching/Leading on player RESET,
-; so, when players are loaded in or reset by using Debug Scene Reload
-
-; Respawn does NOT reset players, and the features stay enabled after respawn
+; Resets Debug Moving, Muteki and Marching/Leading on player reset
+; Only used to cancel Debug Moving, Muteki and Marching/Leading on
+; scene reload/reset by using Debug Scene Reload & Exit
 
 STRB WZR, [X19, #0x431] // ; Debug Move
 STRB WZR, [X19, #0x432] // ; Debug Muteki

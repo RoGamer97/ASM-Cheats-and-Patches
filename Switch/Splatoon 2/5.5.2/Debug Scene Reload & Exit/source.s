@@ -15,8 +15,8 @@
 ; Resets, reloads or exits a scene depending on the button combination
 ; Added match checks to avoid resets and reloads in menus (Avoids crash)
 
-; Store an action hold to padding byte (0x10A) to avoid spamming the 
-; action or happening on trig, and to make it only happen if releasing
+; Store action hold to padding bytes (0x10A and 0x10B) to avoid spamming the 
+; action or happening on trig, and to make it only happen after releasing
 ; the button
 
 STP X29, X30, [SP, #-0x20]!

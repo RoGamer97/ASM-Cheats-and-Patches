@@ -8,11 +8,12 @@
 
 
 ; Disable player inputs if Minus is held
-;  Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
 ; 0x8ADB0 -> BL 0x1B61088
 ; 0x8ADE0 -> BL 0x1B61088
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -21,6 +22,7 @@ AND X1, X1, #0x3F // ; Original instruction
 RET
 
 
+; The Debug Muteki bool is not present in retail.
 ; Game::Player + 0x432 is a padding byte; use it for the "IsInDebugMuteki" bool
 ; You will see Debug Muteki bool checks in every hook
 
@@ -120,10 +122,9 @@ string: .asciz "Debug @ Muteki"
 ; Game::Player::reset_Impl + 0x3AC
 ; 0xE17288 -> BL 0x1B612CC
 
-; Resets Debug Moving, Muteki and Marching/Leading on player RESET,
-; so, when players are loaded in or reset by using Debug Scene Reload
-
-; Respawn does NOT reset players, and the features stay enabled after respawn
+; Resets Debug Moving, Muteki and Marching/Leading on player reset
+; Only used to cancel Debug Moving, Muteki and Marching/Leading on
+; scene reload/reset by using Debug Scene Reload & Exit
 
 STRB WZR, [X19, #0x431] // ; Disable Debug Moving
 STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
@@ -141,7 +142,7 @@ RET
 ; 0xE3D46C -> BL 0x1B612F0
 
 ; ORR Debug Move and Debug Muteki bools together and ORR them
-; with returning W0 bool
+; with returning W0 bool (invincible if either is true)
 
 LDRB W0, [X19, X8] // ; Original instruction
 LDRB W1, [X19, #0x431] // ; Debug Moving
@@ -151,11 +152,11 @@ ORR W0, W0, W1
 RET
 
 
-; Special Always Charged
+; Special Always Fully Charged
 ; Game::Player::calcPaintGauge + 0x2C8
 ; 0xE39004 -> BL 0x1B615DC
 
-; If in Debug Muteki, charge special
+; If in Debug Muteki, make special always fully charged
 
 LDRB W8, [X19, #0x432]
 CBZ W8, end
@@ -178,7 +179,7 @@ RET
 ; Unless there are specific scenarios
 
 ; Skip by modifying hook's return address: LR + 0x16C = 0xE3CA98
-; Returns back to function end
+; Returns to the function's end
 
 MOV X22, X0 // ; Original instruction
 
@@ -225,6 +226,7 @@ RET
 ; 0xF43868 -> BL 0x1B6162C
 
 ; If in Debug Muteki, store zero to some step paint related member variable
+; to be unaffected by it
 
 LDR X8, [X20] // ; Original instruction
 
@@ -293,7 +295,6 @@ RET
 ; Disable Debug Muteki on Octa 8-Ball Fall for Explosion Death
 ; Game::PlayerMissionOctaSeqPinch::stateExplosion + 0x50
 ; 0xF0B858 -> 0x1B619F0
-
 
 ; Octa didn't exist when debug build got leaked, but I added this
 ; because if your tank explodes due to 8-Ball falling on Octa 

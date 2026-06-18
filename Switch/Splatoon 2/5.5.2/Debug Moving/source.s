@@ -12,7 +12,8 @@
 ; 0xD5D38 -> BL 0x1AA96AC
 ; 0xD5D68 -> BL 0x1AA96AC
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -29,9 +30,12 @@ RET
 ; skip getting the controller's right stick address
 ; (since Vector2 address is loaded instead)
 
+; Probably done to avoid the camera from moving when enabling debug features
+; or other reason that I don't know (Similar to player inputs being disabled)
+
 ; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
-; Returns past getRightStick call, where it loads the stick's values
-; from the pointer
+; Returns past the getRightStick call, where the stick values are loaded
+; from the returned pointer
 
 MOV X29, SP // ; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -53,8 +57,8 @@ end:
 RET
 
 
-
-; Game::Player + 0x431 is a padding byte; use it for the "IsInDebugMove" bool
+; The Debug Moving bool is not present in retail.
+; Game::Player + 0x431 is a padding byte; use it for the "IsInDebugMove" bool.
 ; You will see Debug Moving bool checks in every hook
 
 
@@ -74,7 +78,7 @@ RET
 
 ; Code will only run for controlled player (You)
 ; Sets custom "dirty" bool when toggled, for Display Dirty (D) Debug Mark patch
-; Draws text if enabled
+; Increments text flash timer if enabled (Text draw is done in another hook for 5.5.2)
 
 ; If in Debug Marching/Leading, you can't toggle Debug Move (Minus
 ; should cancel those, and not enable Debug Move at the same time)
@@ -133,10 +137,10 @@ RET
 velMultiplier: .float 0.7
 
 
-; Return the IsInDebugMove bool from padding in Game::Player::isInDebugMove_UpDown
-; This leftover function was changed to always return zero in retail
-; It is called to check for Debug Move for something with the 
-; camera and the player walk animation fix
+; Return the "IsInDebugMove" bool from padding in Game::Player::isInDebugMove_UpDown
+; This leftover function was changed to always return false in retail
+; It is checked for something with the camera and the player walk animation fix
+; (Allow walk and idle animations in air and slow walk animation)
 
 ; In the debug build, for Debug Move checks, the game just loads the offset directly
 ; instead of calling this function everywhere
@@ -150,10 +154,9 @@ velMultiplier: .float 0.7
 ; Game::Player::reset_Impl + 0x3AC
 ; 0xFE7EC0 -> BL 0x1AA9808
 
-; Resets Debug Moving, Muteki and Marching/Leading on player RESET,
-; so, when players are loaded in or reset by using Debug Scene Reload
-
-; Respawn does NOT reset players, and the features stay enabled after respawn
+; Resets Debug Moving, Muteki and Marching/Leading on player reset
+; Only used to cancel Debug Moving, Muteki and Marching/Leading on
+; scene reload/reset by using Debug Scene Reload & Exit
 
 STRB WZR, [X19, #0x431] // ; Disable Debug Moving
 STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
@@ -171,7 +174,7 @@ RET
 ; 0x1010E8C -> BL 0x1AA982C
 
 ; ORR Debug Move and Debug Muteki bools together and ORR them
-; with returning W0 bool
+; with returning W0 bool (invincible if either is true)
 
 LDRB W0, [X19, X8] // ; Original instruction
 LDRB W1, [X19, #0x431] // ; Debug Moving
@@ -227,7 +230,7 @@ walkVel: .float 3.6
 ; the speed calculated in the hook
 
 ; Skip by modifying hook's return address: LR + 0xE0 = 0xFFCDF4
-; Returns back to max speed calculation after other speed calcs
+; Returns to the point where the calculated max speed value (S11) is used
 
 LDRB W8, [X19, #0x431]
 CBZ W8, end
@@ -258,8 +261,9 @@ walkSpeed: .float 3.6
 ; Game::Player::calcMove + 0x6B58
 ; 0xFFED3C -> BL 0x1AA98A0
 
-; If Debug Moving, skip velocity clamp call
+; If Debug Moving, skip velocity clamp call to avoid limiting it
 ; Skip by modifying hook's return address: LR + 4 = 0xFFED44
+; Returns to the instruction after the clampLen call (Skipped)
 
 MOV X0, X20 // ; Original instruction
 
@@ -277,10 +281,11 @@ RET
 ; 0xFFE400 -> BL 0x1AA98B4
 
 ; If Debug Moving, skip air velocity decrease calculations
-; it slows you down by a bit (Barely noticeable, but makes you
-; slower by around 3.0).
+; It slows you down by a bit (Barely noticeable, but makes you
+; slower by around ~3.0).
 
 ; Skip by modifying hook's return address: LR + 0x304 = 0xFFE708
+; Returns past the air velocity decrease calculations
 
 LDRB W8, [X19, #0x431]
 CBZ W8, end
@@ -296,10 +301,11 @@ RET
 ; Game::Player::calcMove + 0x68B0
 ; 0xFFEA94 -> BL 0x1AA98C8
 
-; If Debug Moving, set some velocities to zero, 
-; get the right stick Y value, multiply it by 
+; If Debug Moving, set some velocities to zero,
+; it makes you stay in air (resets some horizontal and vertical velocities)
+; Then get the right stick Y value, multiply it by 
 ; the up/down velocity (1.8 if not in squid, 3.6 if in squid)
-; and set it as one of the fall velocity to move up/down
+; and set it as one of the fall velocity to fly up/down
 
 LDRB W8, [X19, #0x431]
 CBZ W8, end
@@ -337,12 +343,12 @@ upDownVelSquid: .float 3.6
 ; Game::Player::thirdCalc + 0x1600
 ; 0x1003A10 -> BL 0x1AA9920
 
-; If Debug Moving, skip original instruction,
-; after the hook, it checks if W8 is 2 and skips 
-; collision call if it is
-; So, load Debug Move bool in W8 and skip original
-; instruction if it is true, so it checks 1 and branches,
-; else, load original instruction for default behavior
+; If Debug Moving, pass through stage collision
+; Load Debug Moving bool, if it's true, skip original
+; instruction; after the hook, it checks if W8 is 2 and 
+; skips collision call if it is, so, if Debug Moving,
+; W8 is 1: Skip, otherwise, load original instruction
+; for normal behavior
 
 LDRB W8, [X19, #0x431]
 CBNZ W8, end
@@ -361,8 +367,8 @@ RET
 ; in the air for too long outside of the stage
 
 ; ORR Debug Move bool with W8, after the hook
-; it checks if W8 is greater than 0, so it will
-; branch if Debug Moving is true
+; it checks if W8 is greater than 0 and skips airfall if so,
+; so it will branch if Debug Moving
 
 LDR W8, [X0, #0x4C] // ; Original instruction
 LDRB W9, [X19, #0x431]
@@ -376,6 +382,7 @@ RET
 
 ; If Debug Moving, skip spawn barrier collision
 ; Skip by modifying hook's return address: LR + 0x84C = 0xB768D8 
+; Returns to the function's end
 
 MOV X20, X1 // ; Original instruction
 
@@ -393,7 +400,7 @@ RET
 ; 0xEC6CF4 -> 0x1AA9954
 
 ; If Debug Moving, set W8 to zero. After the hook,
-; it checks if W8 is not one and branches to function end
+; it checks if W8 is not 1 and branches to function end if so
 
 LDRB W9, [X20, #0x431]
 CMP W9, #0
@@ -411,6 +418,7 @@ RET
 
 ; If Debug Moving, skip collision calculation call
 ; Skip by modifying hook's return address: LR + 0x88 = 0xD1555C
+; Returns to the function's end
 
 MOV X19, X1 // ; Original instruction
 
@@ -435,7 +443,7 @@ RET
 ; there is another call, so the pointer is lost
 
 ; Skip by modifying hook's return address: LR + 0x8 = 0xF12B58
-; Returns to part of the function that returns 0 and branches to end
+; Returns to part of the function that returns false and branches to end
 
 STP X29, X30, [SP, #-0x10]!
 
@@ -469,7 +477,7 @@ RET
 ; Debug Moving
 
 ; Skip by modifying hook's return address: LR + 0x64 = 0xDC7BE8
-; Returns to part of the function that returns 0 and ends
+; Returns to part of the function that returns false and ends
 
 CBZ X0, return // ; Replicating original instruction
 
@@ -491,10 +499,10 @@ RET
 
 ; Replicate nullptr check (For getControlledPerformer call)
 ; which branches to part of the function that changes 
-; door state to close
+; door state to "Close"
 
 ; Skip by modifying hook's return address: LR + 0x50 = 0xDC7CCC
-; Returns to part of the function that changes door state to close
+; Returns to part of the function that changes the door state to "Close"
 
 CBZ X0, return // ; Replicating original instruction
 
@@ -516,10 +524,10 @@ RET
 
 ; Replicate nullptr check (For getControlledPerformer call)
 ; which branches to part of the function that changes 
-; door state to close
+; door state to "Close"
 
 ; Skip by modifying hook's return address: LR + 0x6C = 0xDC7B1C
-; Returns to part of the function that changes door state to close
+; Returns to part of the function that changes door state to "Close"
 
 CBZ X0, return // ; Replicating original instruction
 
@@ -624,7 +632,7 @@ RET
 
 ; If enabling Debug Move while dunking the rainmaker, it will
 ; cancel the dunk, avoiding the goal.
-; In FreeTest, you normally softlocks after goal, but this unsoftlocks it
+; In FreeTest, you normally get softlocked after goal, but this unsoftlocks it
 
 ; Store zero to some VictoryGoal bool and skip some calculations
 
@@ -650,7 +658,8 @@ RET
 ; If Debug Moving, you can start a Super Jump while in the air
 
 ; After this hook, it checks if W8 is 2 and branches to call
-; DokanWarp start even if in air, so override W8 with 2
+; DokanWarp start even if in air, so override W8 with 2 if
+; Debug Moving
 
 LDR W8, [X19, #0xA0] // ; Original instruction
 
@@ -667,9 +676,8 @@ RET
 ; Super Jump (DokanWarp) land animation can start in air
 
 ; In retail, it loads zero to W8 and branches, never
-; using W8, while in debug build, it's the Debug Move 
-; bool and cnditional Branch
-
+; using W8, while in debug build, it's the Debug Moving
+; bool load and conditional branch
 ; Likely an inline of IsInDebugMove_UpDown or weird ifdef
 
 ; Replace it with the actual bool load and conditional branch

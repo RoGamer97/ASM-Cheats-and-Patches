@@ -12,7 +12,8 @@
 ; 0x64048 -> BL 0x1180260
 ; 0x64074 -> BL 0x1180260
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -21,6 +22,7 @@ AND X1, X1, #0x3F // ; Original instruction
 RET
 
 
+; The Debug Muteki bool is not present in retail.
 ; Game::Player + 0x37E is a padding byte; use it for the "IsInDebugMuteki" bool
 ; You will see Debug Muteki bool checks in every hook
 
@@ -120,10 +122,9 @@ string: .asciz "Debug @ Muteki"
 ; Game::Player::reset_Impl + 0x3D4
 ; 0x71B51C -> BL 0x1180470
 
-; Resets Debug Moving, Muteki and Marching/Leading on player RESET,
-; so, when players are loaded in or reset by using Debug Scene Reload
-
-; Respawn does NOT reset players, and the features stay enabled after respawn
+; Resets Debug Moving, Muteki and Marching/Leading on player reset
+; Only used to cancel Debug Moving, Muteki and Marching/Leading on
+; scene reload/reset by using Debug Scene Reload & Exit
 
 STRB WZR, [X19, #0x37D] // ; Disable Debug Moving
 STRB WZR, [X19, #0x37E] // ; Disable Debug Muteki
@@ -141,7 +142,7 @@ RET
 ; 0x7371D4 -> BL 0x1180494
 
 ; ORR Debug Move and Debug Muteki bools together and ORR them
-; with returning W0 bool
+; with returning W0 bool (invincible if either is true)
 
 LDRB W0, [X19, #0xDE4] // ; Original instruction
 LDRB W1, [X19, #0x37D] // ; Debug Moving
@@ -150,11 +151,12 @@ ORR W1, W1, W2
 ORR W0, W0, W1
 RET
 
-; Special Always Charged
+
+; Special Always Fully Charged
 ; Game::Player::calcPaintGauge + 0x2B0
 ; 0x73417C -> BL 0x1180774
 
-; If in Debug Muteki, charge special
+; If in Debug Muteki, make special always fully charged
 
 LDRB W8, [X19, #0x37E]
 CBZ W8, end
@@ -224,6 +226,7 @@ RET
 ; 0x7F5AEC -> BL 0x11807C4
 
 ; If in Debug Muteki, store zero to some step paint related member variable
+; to be unaffected by it
 
 LDR X0, [X20] // ; Original instruction
 

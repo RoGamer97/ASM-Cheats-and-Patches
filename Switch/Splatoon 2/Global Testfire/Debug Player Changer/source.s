@@ -11,7 +11,8 @@
 ; 0x64048 -> BL 0x1180260
 ; 0x64074 -> BL 0x1180260
 
-; If Minus is held, replace requested input mask with zero
+; If Minus is held, replace requested input mask with zero.
+; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
 TST W8, #0x200 // ; Minus button hold
@@ -28,9 +29,12 @@ RET
 ; skip getting the controller's right stick address
 ; (since Vector2 address is loaded instead)
 
+; Probably done to avoid the camera from moving when enabling debug features
+; or other reason that I don't know (Similar to player inputs being disabled)
+
 ; Skip by modifying hook's return address: LR + 0x10 = 0x758984
-; Returns past getRightStick call, where it loads the stick's values
-; from the pointer
+; Returns past the getRightStick call, where the stick values are loaded
+; from the returned pointer
 
 MOV X29, SP // ; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -57,6 +61,8 @@ RET
 
 ; Changes the controlled player if holding Minus and Right Stick Left/Right,
 ; but only if playing offline and at least 2 players are in a match
+; Disables AI if Debug Marching is enabled on change (To allow controlling the 
+; player you just changed to - fix because of how my Marching implementation works)
 
 STP X29, X30, [SP, #-0x10]!
 
@@ -105,11 +111,9 @@ BL 0x7CB8D8 // ; Game::PlayerMgr::onChangeControlledPlayer
 
 ADRP X8, #0x2968000
 LDRB W8, [X8, #0x14]
-CMP W8, #1
-BNE end // ; Debug Marching disabled or mode is not Marching
+CMP W8, #1 // Debug Marching
+BNE end
 
-// ; Disable AI for controlled player if in Debug Marching
-// ; To allow controlling the player you just changed to
 MOV X0, X19
 BL 0x7CBACC // ; Game::PlayerMgr::getControlledPerformer
 BL 0x73929C // ; Game::Player::finish_RemoteAI
