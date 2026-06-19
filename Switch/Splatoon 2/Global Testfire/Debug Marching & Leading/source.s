@@ -387,18 +387,17 @@ marchingString: .asciz "Debug Marching..."
 leadingString: .asciz "Debug Leading..."
 cancelString: .asciz "  Push [-] -> Cancel"
 
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-//; Disable Debug Moving, Debug Muteki and Debug Marching/Leading on Player Reset
+
+//; Disable Debug Marching/Leading on Player Reset
 //; Same code used in all three patches
 //; Game::Player::reset_Impl + 0x3AC
 //; 0x71B51C -> BL 0x1180470
 
-//; Resets Debug Moving, Muteki and Marching/Leading on player reset
-//; Only used to cancel Debug Moving, Muteki and Marching/Leading on
-//; scene reload/reset by using Debug Scene Reload & Exit
+//; Disables Debug Marching/Leading on player reset
+//; (Loading in a match or resetting it with Debug Scene Reload & Exit)
 
 ADRP X8, #0x2968000
-STRB WZR, [X8, #0x14] //; Disable Debug Marching/Leading
+STRB WZR, [X8, #0x14]
 
 MOV W8, #0xFFFF //; Original instruction
 RET

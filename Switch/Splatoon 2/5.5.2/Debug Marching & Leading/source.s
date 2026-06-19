@@ -358,8 +358,11 @@ RET
 //; Game::Player::reset_Impl + 0x3AC
 //; 0xFE7EC0 -> BL 0x19677A4
 
+//; Disables Debug Marching/Leading on player reset
+//; (Loading in a match or resetting it with Debug Scene Reload & Exit)
+
 ADRP X8, #0x29E7000
-STRB WZR, [X8, #0x14] //; Disable Debug Marching/Leading
+STRB WZR, [X8, #0x14]
 
 MOV W8, #0xFFFF //; Original instruction
 RET
