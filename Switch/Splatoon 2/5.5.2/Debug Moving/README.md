@@ -6,7 +6,9 @@ Allows you to freely move in the air, basically like NoClip.
 
 You can also fly up/down with `Right Stick Up/Down`. While in squid form, you'll move/fly much faster.
 
-You can pass through collision and be invincible to damage. For additional details, see the source code.
+You can pass through collision and be invincible to damage.
+
+A few other gameplay behaviors are changed; see the source code for full details.
 
 Press `Minus` to toggle.
 

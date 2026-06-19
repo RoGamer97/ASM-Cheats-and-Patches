@@ -1,55 +1,55 @@
-; Game: Splatoon 2
-; Game version: 5.5.2
-; Code: Debug Marching & Leading
+//; Game: Splatoon 2
+//; Game version: 5.5.2
+//; Code: Debug Marching & Leading
 
 
-; Hooks are written in unused functions because there is no space left in .text
-; Format is: *ADDRESS IT IS HOOKED AT* -> BL **ADDRESS OF HOOK**
+//; Hooks are written in unused functions because there is no space left in .text
+//; Format is: *ADDRESS IT IS HOOKED AT* -> BL **ADDRESS OF HOOK**
 
 
-; Disable player inputs if Minus is held
-; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
-; 0xD5D38 -> BL 0x1AA96AC
-; 0xD5D68 -> BL 0x1AA96AC
+//; Disable player inputs if Minus is held
+//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; 0xD5D38 -> BL 0x1AA96AC
+//; 0xD5D68 -> BL 0x1AA96AC
 
-; If Minus is held, replace requested input mask with zero
-; Done in the debug build for some reason, so replicating it
+//; If Minus is held, replace requested input mask with zero
+//; Done in the debug build for some reason, so replicating it
 
 LDR W8, [X19, #0x10]
-TST W8, #0x200 // ; Minus button hold
+TST W8, #0x200 //; Minus button hold
 CSEL X1, XZR, X1, NE
-AND X1, X1, #0x3F // ; Original instruction
+AND X1, X1, #0x3F //; Original instruction
 RET
 
 
-; Disable right stick if Minus is held
-; Game::PlayerGamePad::getRightStick + 0x20
-; 0x107BCE4 -> BL 0x1AA96C0
+//; Disable right stick if Minus is held
+//; Game::PlayerGamePad::getRightStick + 0x20
+//; 0x107BCE4 -> BL 0x1AA96C0
 
-; If Minus is held, load Vector2 zero address and
-; skip getting the controller's right stick address
-; (since Vector2 address is loaded instead)
+//; If Minus is held, load Vector2 zero address and
+//; skip getting the controller's right stick address
+//; (since Vector2 address is loaded instead)
 
-; Probably done to avoid the camera from moving when enabling debug features
-; or other reason that I don't know (Similar to player inputs being disabled)
+//; Probably done to avoid the camera from moving when enabling debug features
+//; or other reason that I don't know (Similar to player inputs being disabled)
 
-; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
-; Returns past the getRightStick call, where the stick values are loaded
-; from the returned pointer
+//; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
+//; Returns past the getRightStick call, where the stick values are loaded
+//; from the returned pointer
 
-MOV X29, SP // ; Original instruction
+MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
 MOV W0, WZR
-BL 0x19EC714 // ; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl
 
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end // ; Minus button not held
+TBZ W0, #9, end //; Minus button not held
 
 ADRP X0, #0x2CFD000
-LDR X0, [X0, #0x850] // ; _ZN4sead7Vector2IfE4zeroE
+LDR X0, [X0, #0x850] //; _ZN4sead7Vector2IfE4zeroE
 
 ADD X30, X30, #0x10
 
@@ -57,23 +57,23 @@ end:
 RET
 
 
-; Fix Rival crash
+//; Fix Rival crash
 
-; Controlling rivals doesn't really work and will crash the game, 
-; even in the debug build, so fix the crash to avoid it just in case.
-; You will still be unable to control them, and may bug them out,
-; making them not move anymore if you try, so don't it.
-; Adding this for safety
+//; Controlling rivals doesn't really work and will crash the game, 
+//; even in the debug build, so fix the crash to avoid it just in case.
+//; You will still be unable to control them, and may bug them out,
+//; making them not move anymore if you try, so don't it.
+//; Adding this for safety
 
-; Game::PlayerGamePad::isHold + 0xC
-; 0x107BBD0 -> BL 0x1AA9D70
+//; Game::PlayerGamePad::isHold + 0xC
+//; 0x107BBD0 -> BL 0x1AA9D70
 
-; If X0 is nullptr, skip original instruction and return to
-; function's return false and end
+//; If X0 is nullptr, skip original instruction and return to
+//; function's return false and end
 
-; Return to function end by modifying hook's return address: LR + 0xC = 0x107BBE0
+//; Return to function end by modifying hook's return address: LR + 0xC = 0x107BBE0
 
-CBNZ X0, original // ; Valid pointer
+CBNZ X0, original //; Valid pointer
 
 ADD X30, X30, #0xC
 RET
@@ -83,42 +83,64 @@ LDR X8, [X0]
 RET
 
 
-; Debug Marching & Leading
-; Game::Player::calcControl + 0x33C0
-; 0xFF6D54 -> BL 0x1AA92BC
+//; I've ran out of space, so the hook below is 
+//; placed in Lp::Sys::TimeStamp::prepare.
+//; TimeStamp is some sort of debug print 
+//; that prints the product type, revision
+//; and stuff like this. The print itself
+//; doesn't work in 5.5.2, so it's useless.
+//; So, stub its prepare function and then 
+//; use it to write Debug Marching/leading
+//; hooks.
 
-; Nintendo coded Debug Marching differently, 
-; it doesn't transform the player into an AI and
-; it checks for Marching mode in 189 different
-; functions, likely patching each thing for 
-; every marching player
+//; 0x1967564 -> RET
 
-; Debug Leading doesn't do this, it transforms the
-; players into AI (to follow a point, which is the player)
-; and the input action copy is just directly copying the
-; controlled player's inputs to the AI's inputs
 
-; For my reimplementation, Debug Leading is 
-; the exact same as the debug build, copying Nintendo's code
-; (but changing offsets etc because of version difference ofc),
-; with minor changes but Marching is different, it does transform 
-; the player into an AI and copies the controlled player's inputs and
-; stick to the AI. Works perfectly, I don't know why Nintendo didn't do this
+//; Debug Marching & Leading
+//; Game::Player::calcControl + 0x33C0
+//; 0xFF6D54 -> BL 0x1967568
 
-; For changing players to AI and changing mode, it
-; only does it when iterated player is controlled player,
-; because else it would happen multiple times a frame instead 
-; of once, and to avoid desync with Debug Moving toggle
-; Sets "dirty" bool when toggled, for Display Dirty (D) Debug Mark patch
+//; Nintendo coded Debug Marching differently, 
+//; it doesn't transform the player into an AI and
+//; it checks for Marching mode in 189 different
+//; functions, likely patching each thing for 
+//; every marching player
 
-; It loops through every player to enable/disable the AI,
-; but it will never set the controlled player to an AI
+//; Debug Leading doesn't do this, it transforms the
+//; players into AI (to follow a point, which is the player)
+//; and the input action copy is just directly copying the
+//; controlled player's inputs to the AI's inputs
 
-; Hook location is different than Nintendo's, but works and
-; behaves the same way
+//; For my reimplementation, Debug Leading is 
+//; the exact same as the debug build, copying Nintendo's code
+//; (but changing offsets etc because of version difference ofc),
+//; with minor changes but Marching is different, it does transform 
+//; the player into an AI and copies the controlled player's inputs and
+//; stick to the AI. Works perfectly, I don't know why Nintendo didn't do this
 
-; Modes are stored in R-W area at 0x29E7014 and text flash timer at 0x29E7010
-; 0 -> Disabled, 1 -> Marching, 2 -> Leading
+//; For changing players to AI and changing mode, it
+//; only does it when iterated player is controlled player,
+//; because else it would happen multiple times a frame instead 
+//; of once, and to avoid desync with Debug Moving toggle
+
+//; Sets custom "dirty" bool when toggled, for Display Dirty (D) Debug Mark patch
+
+//; Disables Debug Moving when toggled
+
+//; Increments text flash timer in R-W if enabled.
+//; Can't draw text here, so there is another hook for text drawing
+//; but text flash timer must be incremented here because doing it in the 
+//; text draw code would make the timer increase differently the function
+//; it is hooked at may not run only once every frame
+
+//; It loops through every player to enable/disable the AI,
+//; but it will never set the controlled player to an AI
+
+//; Hook location is different than Nintendo's, but works and
+//; behaves the same way
+
+//; Modes are stored in R-W area at 0x29E7014 and text flash timer at 0x29E7010
+//; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
 STP X29, X30, [SP, #-0x40]!
 
@@ -126,33 +148,33 @@ ADRP X25, #0x29E7000
 
 LDR X27, [X19, #0x490]
 MOV X0, X27
-BL 0x10E6CC8 // ; Game::PlayerMgr::getControlledAllKindPlayer
-MOV X26, X0 // ; X26 is your Game::Player
+BL 0x10E6CC8 //; Game::PlayerMgr::getControlledAllKindPlayer
+MOV X26, X0 //; X26 is your Game::Player
 
 MOV W0, WZR
-BL 0x19EC714 // ; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isMarchOrLead // ; Minus button not held
+TBZ W8, #9, isMarchOrLead //; Minus button not held
 
 LDR W10, [X19, #0x358]
 LDRB W8, [X25, #0x14]
-CBZ W8, isStickUp // ; Debug Marching/Leading disabled
+CBZ W8, isStickUp //; Debug Marching/Leading disabled
 
 LDR W8, [X0, #0x94]
-TBZ W8, #9, isStickUp // ; Minus button not triggered
+TBZ W8, #9, isStickUp //; Minus button not triggered
 
-CBNZ W10, isStickUp // ; Not controlled player
+CBNZ W10, isStickUp //; Not controlled player
 
-STRB WZR, [X25, #0x14] // ; Disable Debug Marching/Leading
+STRB WZR, [X25, #0x14] //; Disable Debug Marching/Leading
 
 MOV W24, #0
 
 disableAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x10E6EE4 // ; Game::PlayerMgr::getPerformerAt
-BL 0x10138A8 // ; Game::Player::finish_RemoteAI
+BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt
+BL 0x10138A8 //; Game::Player::finish_RemoteAI
 
 ADD W24, W24, #1
 LDR W25, [X27, #0x624]
@@ -162,9 +184,9 @@ B end
 
 isStickUp:
 LDR W8, [X0, #0x94]
-TBZ W8, #24, isMarchOrLead // ; Right Stick Up not triggered
+TBZ W8, #24, isMarchOrLead //; Right Stick Up not triggered
 
-CBNZ W10, changeRemoteAILoop // ; Not controlled player
+CBNZ W10, changeRemoteAILoop //; Not controlled player
 
 LDRB W8, [X25, #0x14]
 ADD W8, W8, #1
@@ -172,28 +194,29 @@ CMP W8, #2
 CSEL W8, W8, WZR, LE
 STRB W8, [X25, #0x14]
 
-STRB WZR, [X19, #0x431] // ; Disable Debug Moving
+MOV W8, #0x10C0
+STRB WZR, [X19,X8] //; Disable Debug Moving
 
 MOV W8, #1
-STRB W8, [X25, #0x15] // ; Set custom "dirty" bool
+STRB W8, [X25, #0x15] //; Custom "dirty" bool
 
 MOV W24, WZR
 
 changeRemoteAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x10E6EE4 // ; Game::PlayerMgr::getPerformerAt
+BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt
 
 LDRB W8, [X25, #0x14]
 LDR W9, [X0, #0x358]
 CMP W8, #0
 CCMP W9, #0, #0, NE
-BEQ nextPlayer // ; Controlled player
+BEQ nextPlayer //; Controlled player
 
 CMP W8, #0
 CSET W8, GT
 MOV W9, #0x10E0
-STRB W8, [X0,X9] // ; RemoteAI bool
+STRB W8, [X0,X9] //; RemoteAI bool
 
 nextPlayer:
 ADD W24, W24, #1
@@ -203,24 +226,24 @@ BLT changeRemoteAILoop
 
 isMarchOrLead:
 LDRB W24, [X25, #0x14]
-CBZ W24, end // ; Debug Marching/Leading disabled
+CBZ W24, end //; Debug Marching/Leading disabled
 
 LDR W8, [X19, #0x358]
-CBNZ W8, calcMarchAndLead // ; Not controlled player
+CBNZ W8, calcMarchAndLead //; Not controlled player
 
-// ; Increase text timer in R-W region for text flash
-// ; Hooked here because text write function may execute
-// ; multiple times a frame, making the flash timing innacurates
+//; Increase text timer in R-W region for text flash
+//; Hooked here because text write function may execute
+//; multiple times a frame, making the flash timing innacurates
 LDR W8, [X25, #0x10]
 ADD W8, W8, #1
 STR W8, [X25, #0x10]
 B end
 
 calcMarchAndLead:
-CMP W24, #1 // ; Debug Marching
+CMP W24, #1 //; Debug Marching
 BEQ marchingCopyStick
 
-// ; Calculate controlled player point for AI follow
+//; Calculate controlled player point for AI follow
 
 LDR W8, [X26, #0x328]
 LDR W9, [X19, #0x328]
@@ -230,7 +253,7 @@ LDR S3, [X26, #0x750]
 CMP W8, W9
 
 ADRP X8, #0x24BB000
-LDR S0, [X8, #0xE4C] // ; 35.0
+LDR S0, [X8, #0xE4C] //; 35.0
 FMOV S1, #20.0
 
 FCSEL S8, S1, S0, EQ
@@ -253,14 +276,14 @@ FCMP S0, S0
 BVC notNaN
 
 MOV V0.16B, V1.16B
-BL 0x1B06E70 // ; sqrt
+BL 0x1B06E70 //; sqrt
 
 notNaN:
-LDR S1, [X8, #0x9F0] // ; 0.2
+LDR S1, [X8, #0x9F0] //; 0.2
 FCMP S0, S8
 BLS walkToControlledPlayer
 
-LDR S2, [X8, #0x930] // ; 100.0
+LDR S2, [X8, #0x930] //; 100.0
 FCMP S0, S2
 BLT cont
 
@@ -273,9 +296,9 @@ FCMP S2, #0.0
 BEQ walkToControlledPlayer
 
 FSUB S0, S0, S8
-LDR S1, [X8, #0xAA0] // ; 0.8
+LDR S1, [X8, #0xAA0] //; 0.8
 FMUL S0, S0, S1
-LDR S1, [X8, #0x9F0] // ; 0.2
+LDR S1, [X8, #0x9F0] //; 0.2
 FDIV S0, S0, S2
 FADD S1, S0, S1
 B walkToControlledPlayer
@@ -326,63 +349,56 @@ STRB W9, [X8, #0x2F]
 
 end:
 LDP X29, X30, [SP], #0x40
-LDP D9, D8, [SP, #0xA0] // ; Original instruction
+LDP D9, D8, [SP, #0xA0] //; Original instruction
 RET
 
 
-; Disable Debug Moving, Debug Muteki and Debug Marching/Leading on Player Reset
-; Same code used in all three patches
-; Game::Player::reset_Impl + 0x3AC
-; 0xFE7EC0 -> BL 0x1AA9808
-
-; Resets Debug Moving, Muteki and Marching/Leading on player reset
-; Only used to cancel Debug Moving, Muteki and Marching/Leading on
-; scene reload/reset by using Debug Scene Reload & Exit
-
-STRB WZR, [X19, #0x431] // ; Disable Debug Moving
-STRB WZR, [X19, #0x432] // ; Disable Debug Muteki
+//; Disable Debug Marching/Leading on Player Reset
+//; Same code used in all three patches
+//; Game::Player::reset_Impl + 0x3AC
+//; 0xFE7EC0 -> BL 0x19677A4
 
 ADRP X8, #0x29E7000
-STRB WZR, [X8, #0x14] // ; Disable Debug Marching/Leading
+STRB WZR, [X8, #0x14] //; Disable Debug Marching/Leading
 
-MOV W8, #0xFFFF // ; Original instruction
+MOV W8, #0xFFFF //; Original instruction
 RET
 
 
 
-; DbgTextWriter functions were removed after 3.1.0, but there is TextWriter debug text present in the game.
-; In gsys::SystemTask::invokeDrawTV_, there is some debug text that prints the TV draw information, such as the 
-; resolution width, scale, color etc. Trying to call TextWriter print is way complicated because it requires creating 
-; and ; calling so many things for it to work, and I wasn't even able to do it because of how it is handled. 
-; So, I decided to make my own system by enabling the debug TV draw info, removing the info draw, and making my own
-; hooks there since everything I need to draw is already present there. Additionally, I even made my own function
-; to print both text and text outline (they're separated) with the blink flash animation to make drawing text easier, 
-; or else I'd have to replicate the draw setup multiple times, enlarging the code size by way too much...
+//; DbgTextWriter functions were removed after 3.1.0, but there is TextWriter debug text present in the game.
+//; In gsys::SystemTask::invokeDrawTV_, there is some debug text that prints the TV draw information, such as the 
+//; resolution width, scale, color etc. Trying to call TextWriter print is way complicated because it requires creating 
+//; and //; calling so many things for it to work, and I wasn't even able to do it because of how it is handled. 
+//; So, I decided to make my own system by enabling the debug TV draw info, removing the info draw, and making my own
+//; hooks there since everything I need to draw is already present there. Additionally, I even made my own function
+//; to print both text and text outline (they're separated) with the blink flash animation to make drawing text easier, 
+//; or else I'd have to replicate the draw setup multiple times, enlarging the code size by way too much...
 
-; Starlight does the same thing to draw text (Enables TV draw, removes info draw etc) so I made some modifications in the
-; function to make my text drawingcompatible with Starlight draws
+//; Starlight does the same thing to draw text (Enables TV draw, removes info draw etc) so I made some modifications in the
+//; function to make my text drawingcompatible with Starlight draws
 
-; Enable debug TV draw info
-; gsys::SystemTask::invokeDrawTV_ +0x284
-; 0x185153C -> NOP
-
-
-; Change one of the texts to nothing, to avoid printing it (Can't kill the text draw call because Starlight writes to that address)
-; So doing this for compatibility
-; 024AB808 -> 00 (Null terminator on first character)
+//; Enable debug TV draw info
+//; gsys::SystemTask::invokeDrawTV_ +0x284
+//; 0x185153C -> NOP
 
 
-; Skip drawing rest of debug text, at this point in the function, Starlight already hooked past all text, adding this if Starlight is 
-; not being used
-; 01851658 -> B 0x185190C
+//; Change one of the texts to nothing, to avoid printing it (Can't kill the text draw call because Starlight writes to that address)
+//; So doing this for compatibility
+//; 024AB808 -> 00 (Null terminator on first character)
 
 
-; My own function to draw the text, text outline and color flash. For Debug Moving, Debug Muteki and Debug Marching/Leading draw. Dirty (D) doesn't use this function
-; 0185165C (Placed inside of the function, the part that is skipped. Other hooks will call this to draw text)
+//; Skip drawing rest of debug text, at this point in the function, Starlight already hooked past all text, adding this if Starlight is 
+//; not being used
+//; 01851658 -> B 0x185190C
 
-; Arguments: SP Address, String Address, Text Coords Address, Blink Timer, Address for Coords Vector3 (for Debug Moving Pos draw, pass null for none)
 
-; Print text outline first, then text after
+//; My own function to draw the text, text outline and color flash. For Debug Moving, Debug Muteki and Debug Marching/Leading draw. Dirty (D) doesn't use this function
+//; 0185165C (Placed inside of the function, the part that is skipped. Other hooks will call this to draw text)
+
+//; Arguments: SP Address, String Address, Text Coords Address, Blink Timer, Address for Coords Vector3 (for Debug Moving Pos draw, pass null for none)
+
+//; Print text outline first, then text after
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -393,13 +409,13 @@ MOV X20, X2
 MOV X21, X4
 
 ADRP X8, #0x2CFE000
-LDR X9, [X8, #0x440] // ; _ZN4sead7Color4f6cBlackE
-LDR X8, [X8, #0x448] // ; _ZN4sead7Color4f6cWhiteE
+LDR X9, [X8, #0x440] //; _ZN4sead7Color4f6cBlackE
+LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
 AND W3, W3, #0x60
 CMP W3, #0x60
-CSEL X22, X9, X8, EQ // ; Load black or white color depending on text timer (Text)
-CSEL X8, X9, X8, NE // ; Load black or white color depending on text timer (Text Outline, inverted)
+CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
+CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
 
 LDP X8, X9, [X8]
 STR X8, [X19, #0x460]
@@ -408,14 +424,14 @@ STR X9, [X19, #0x468]
 FMOV S0, #1.0
 FMOV S1, #-1.0
 
-// ; Offset text outline
+//; Offset text outline
 LDP S2, S3, [X20]
 FADD S2, S2, S0
 FADD S3, S3, S1
 ADD X0, X19, #0x450
 STP S2, S3, [X0]
 
-// ; Load coords XYZ for string format if not null
+//; Load coords XYZ for string format if not null
 CBZ X21, formatString
 LDP S0, S1, [X21]
 LDR S2, [X21, #8]
@@ -425,20 +441,20 @@ FCVT D2, S2
 
 formatString:
 ADD X0, X19, #0x10
-BL 0x13D030 // ; sead::FormatFixedSafeString<1024>::FormatFixedSafeString
+BL 0x13D030 //; sead::FormatFixedSafeString<1024>::FormatFixedSafeString
 
 ADD X0, X19, #0x10
 LDR X8, [X19, #0x10]
 LDR X8, [X8,#0x18]
-BLR X8 // ; sead::BufferedSafeStringBase<char>::assureTerminationImpl_
+BLR X8 //; sead::BufferedSafeStringBase<char>::assureTerminationImpl_
 
-// ; Print text outline
+//; Print text outline
 ADD X0, X19, #0x428
 LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C // ; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_
 
 LDP X0, X1, [X22]
 STR X0, [X19, #0x460]
@@ -447,43 +463,32 @@ STR X1, [X19, #0x468]
 LDR X0, [X20]
 STR X0, [X19, #0x450]
 
-// ; Print text
+//; Print text
 ADD X0, X19, #0x428
 LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C // ; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_
 
 LDP X19, X20, [SP, #0x10]
 LDP X21, X22, [SP, #0x20]
 LDP X29, X30, [SP], #0x30
 RET
 
-; I've ran out of space, so the hook below is 
-; placed in Lp::Sys::TimeStamp::entryDraw(void),
-; a debug function that prints the game's product
-; version and region language. This function is 
-; always running and checks if the print is enabled,
-; and returns if so. Since these prints no longer 
-; work in 5.5.2, I've stubbed this function so I 
-; could hook the code below there without crashing
 
-; 0x1967D54 -> RET
+//; Debug Marching/Leading Text
+//; gsys::SystemTask::invokeDrawTV_ + 0x65C
+//; 0x1851914 -> BL 0x19677B4
 
+//; Call my own text draw function for text draw
 
-; Debug Marching/Leading Text
-; gsys::SystemTask::invokeDrawTV_ + 0x65C
-; 0x1851914 -> BL 0x0x1967D58
+//; This code is always executing, but it will only
+//; draw text if Debug Marching/Leading is enabled
 
-; Call my own text draw function for text draw
-
-; This code is always executing, but it will only
-; draw text if Debug Marching/Leading is enabled
-
-; Since it always runs, nullptr checks must be
-; done when trying to load PlayerMgr and 
-; get the ControlledPerformer Game::Player
+//; Since it always runs, nullptr checks must be
+//; done when trying to load PlayerMgr and 
+//; get the ControlledPerformer Game::Player
 
 MOV X26, SP
 
@@ -492,38 +497,38 @@ STP X29, X30, [SP, #-0x10]!
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0xCF8]
 LDR X0, [X0]
-CBZ X0, end // ; Nullptr
-BL 0x10E6D2C // ; Game::PlayerMgr::getControlledPerformer
-CBZ X0, end // ; Nullptr
+CBZ X0, end //; Nullptr
+BL 0x10E6D2C //; Game::PlayerMgr::getControlledPerformer
+CBZ X0, end //; Nullptr
 
 ADRP X8, #0x29E7000
 LDRB W9, [X8, #0x14]
-CBZ W9, end // ; Debug Marching/Leading disabled
+CBZ W9, end //; Debug Marching/Leading disabled
 
-LDR W24, [X8, #0x10] // ; Text flash timer
+LDR W24, [X8, #0x10] //; Text flash timer
 
 MOV X0, X26
 ADR X1, marchingString
 ADR X2, leadingString
 CMP W9, #1
-CSEL X1, X1, X2, EQ // ; Choose string based on mode
+CSEL X1, X1, X2, EQ //; Choose string based on mode
 ADR X2, posX
 MOV W3, W24
 MOV X4, XZR
-BL 0x185165C // ; My own text draw function
+BL 0x185165C //; My own text draw function
 
 MOV X0, X26
 ADR X1, cancelString
 ADR X2, posXCancel
 MOV W3, W24
 MOV X4, XZR
-BL 0x185165C // ; My own text draw function
+BL 0x185165C //; My own text draw function
 
 end:
 LDP X29, X30, [SP], #0x10
-LDR W8, [X19, #0x558] // ; W8 is lost, reload it
-LDUR X26, [X29, #-0x78] // ; Restore X26
-LDR W24, [SP, #0xC] // ; Original instruction
+LDR W8, [X19, #0x558] //; W8 is lost, reload it
+LDUR X26, [X29, #-0x78] //; Restore X26
+LDR W24, [SP, #0xC] //; Original instruction
 RET
 
 posX: .float -610
