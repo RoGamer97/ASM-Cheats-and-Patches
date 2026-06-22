@@ -8,6 +8,6 @@ Makes you boot directly into a race, skipping the frontend. Certain things are f
 <summary>Show code</summary>
 
 ```
-04745A48 00000001
+046D9DA0 00000001
 ```
 </details>
