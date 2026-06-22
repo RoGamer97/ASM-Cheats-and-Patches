@@ -6,7 +6,7 @@ There are two Debug Camera modes left in the game:
 
 ### Debug World Camera
 
-Free-fly camera that allows you to move the camera freely anywhere. Pressing `Plus` drops the car to the camera's location.
+Free fly camera that allows you to move the camera freely anywhere. Pressing `Plus` drops the car to the camera's location.
 
 Normally, there are buttons for Turbo and Super Turbo movement speeds, which make the camera move faster. However, these buttons are not assigned in the Wii version.
 
@@ -22,7 +22,7 @@ This code restores the toggle, allowing `Minus` to enter Debug Camera mode, and 
 Note that you must be using a Wiimote and Nunchuk on port 2 (Wiimote 2).
 
 #### Controls:
-`Minus` toggles camera modes.
+`Minus` cycles camera modes.
 
 `D-Pad` moves camera (Debug World Camera).
 
@@ -58,3 +58,5 @@ C20653E0 0000000D
 60000000 00000000
 ```
 </details>
+
+The ASM source code can be found [here](source.s).

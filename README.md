@@ -27,6 +27,7 @@ Note that source code is only included for codes that use hooks, excluding pure 
 Games that had codes updated and source code included after **May 27, 2026**:
 
 - **[GameCube]** Mario Kart: Double Dash!! (Retail and Debug)
+- **[Wii]** Need for Speed Nitro (Retail and Prototype)
 - **[Switch]** Splatoon 2
 
 ---

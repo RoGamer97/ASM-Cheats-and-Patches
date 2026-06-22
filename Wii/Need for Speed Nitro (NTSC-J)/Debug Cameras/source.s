@@ -11,7 +11,7 @@
 
 # Based on Wiimote connected to port 2 (Because Debug Camera is controlled by controller on 2nd port)
 
-# Game handles camera control and camera modes toggle
+# Game handles camera control and camera mode change
 
 
 # Functions
