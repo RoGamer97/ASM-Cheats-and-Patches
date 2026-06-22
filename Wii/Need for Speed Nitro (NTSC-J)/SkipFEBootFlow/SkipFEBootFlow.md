@@ -1,6 +1,6 @@
 ## SkipFEBootFlow
 
-Enables SkipFEBootFlow.
+Enables SkipFEBootFlow debug flag.
 
 Makes it so you boot directly to the main menu, skipping opening movies and such.
 
