@@ -18,5 +18,5 @@ MOV X0, X21
 BL 0x18F0FC //; Cmn::SaveData::fullOpen
 
 LDP X29, X30, [SP], #0x10
-LDR X19, [X21, #0x18]
+LDR X19, [X21, #0x18] //; Original instruction
 RET

@@ -61,4 +61,4 @@ mtctr r12
 bctrl
 
 end:
-lwz r4, 0x18 (r29)
+lwz r4, 0x18 (r29) # Original instruction
