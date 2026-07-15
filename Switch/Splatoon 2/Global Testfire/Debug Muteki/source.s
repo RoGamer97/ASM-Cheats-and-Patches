@@ -8,15 +8,21 @@
 
 
 //; Disable player inputs if Minus is held
-//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; Cmn::PlayerCtrl::isHold(ulong) + 0x10 and Cmn::PlayerCtrl::isTrig(ulong) + 0x10
 //; 0x64048 -> BL 0x1180260
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+//; Register reference:
+//; X19 = Lp::Sys::Ctrl*
+
+
+.set BUTTON_MINUS, 0x200
+
 LDR W8, [X19, #0x10]
-TST W8, #0x200 //; Minus button hold
+TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
@@ -25,8 +31,8 @@ RET
 //; The Debug Muteki "bool" member variable exists in retail at Game::Player + 0xD94
 //; It is never read, but it is written to by 2 different functions:
 
-//; Game::Player::reset_Impl + 0x3EC -> Sets it to "false"
-//; Game::Player::calcPrepare + 0x50 -> Sets it to "false"
+//; Game::Player::reset_Impl(bool,Cmn::Def::ResetType) + 0x3EC -> Sets it to "false"
+//; Game::Player::calcPrepare(void) + 0x50 -> Sets it to "false"
 
 //; In reality, it's not a "bool", it is actually an enum. The debug build shows that there were
 //; supposed to be 5 types of Muteki (Normal, Shot, Player, MapObj and Bullet), thanks to the 
@@ -39,7 +45,7 @@ RET
 
 
 //; Debug Muteki Toggle and Text
-//; Game::Player::calcControl + 0x9A8
+//; Game::Player::calcControl(void) + 0x9A8
 //; 0x722D04 -> BL 0x1180690
 
 //; Code will only run for controlled player (You)
@@ -50,13 +56,17 @@ RET
 
 //; Disables Debug Moving when toggled
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
 
 STP X29, X30, [SP, #-0x40]!
 
 MOV W0, WZR
-BL 0x10A4808 //; Lp::Utl::getCtrl
+BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
 TBZ W8, #9, isInDebugMuteki //; Minus button not held
 
@@ -69,7 +79,7 @@ STR W8, [X19, #0xD94]
 
 STRB WZR, [X19, #0xD90] //; Disable Debug Moving
  
-BL 0x2C364 //; Cmn::SetDbgMenuDirty
+BL 0x2C364 //; Cmn::SetDbgMenuDirty(void)
 
 isInDebugMuteki:
 LDRB W8, [X19, #0xD94]
@@ -115,7 +125,7 @@ MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
 ADR X4, string 
-BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 restore:
 LDP X29, X30, [SP], #0x40
@@ -133,11 +143,15 @@ string: .asciz "Debug @ Muteki"
 
 //; No Damage in Debug Moving and Debug Muteki
 //; Same code used in both patches
-//; Game::Player::isInState_NoDamage + 0x2C4
+//; Game::Player::isInState_NoDamage(void) + 0x2C4
 //; 0x7371D4 -> BL 0x1180494
 
 //; ORR Debug Moving bool and Debug Muteki "bool" together and ORR them
 //; with returning W0 bool (invincible if either is true)
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 LDRB W0, [X19, #0xDE4] //; Original instruction
 
@@ -154,6 +168,10 @@ RET
 
 //; If in Debug Muteki, make special always fully charged
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X19, #0xD94]
 CBZ W8, end
 
@@ -166,7 +184,7 @@ RET
 
 
 //; No damage voice and rumble (?)
-//; Game::Player::informDamage_WithVoiceAndRumble + 0x34
+//; Game::Player::informDamage_WithVoiceAndRumble(int,Cmn::Def::DMG,Game::DamageReason const&,bool,bool,bool) + 0x34
 //; 0x736BE4 -> BL 0x118078C
 
 //; If in Debug Muteki, skips damage voice and rumble
@@ -176,6 +194,10 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x1A8 = 0x736D90
 //; Returns back to function end
+
+//; Register reference:
+//; X0 = Game::Player*
+
 
 MOV X22, X0 //; Original instruction
 
@@ -197,6 +219,10 @@ RET
 //; after this hook, it branches to water fall death
 //; if S11 is less than S0
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X19, #0xD94]
 CMP W8, #0
 FCSEL S11, S0, S11, NE
@@ -205,11 +231,15 @@ RET
 
 
 //; No ink consume
-//; Game::PlayerInkAction::consumeInk + 0x74
+//; Game::PlayerInkAction::consumeInk(float,bool,bool,bool) + 0x74
 //; 0x787C30 -> BL 0x11807B4
 
 //; ORR Debug Muteki bool with W8, ink is not
 //; consumed if W8 is 1
+
+//; Register reference:
+//; X0 = Game::Player*
+
 
 LDR W9, [X0, #0xD94]
 ORR W8, W8, W9
@@ -218,11 +248,15 @@ RET
 
 
 //; Unaffected by enemy ink on the ground
-//; Game::PlayerStepPaint::extractPaintTextureResult_Impl + 0xB30
+//; Game::PlayerStepPaint::extractPaintTextureResult_Impl(float *,float *,int *,sead::Vector3<float> *,float *,sead::Vector3<float> const*,bool) + 0xB30
 //; 0x7F5AEC -> BL 0x11807C4
 
 //; If in Debug Muteki, store zero to some step paint related member variable
 //; to be unaffected by it
+
+//; Register reference:
+//; X20 = Game::Player*StepPaint
+
 
 LDR X0, [X20] //; Original instruction
 
@@ -235,7 +269,7 @@ end:
 RET
 
 //; Process for Die (?)
-//; Game::PlayerTrouble::commonProcess_ForDie_Tmp + 0x4C
+//; Game::PlayerTrouble::commonProcess_ForDie_Tmp(int,sead::Vector3<float> const&,int,uint) + 0x4C
 //; 0x7FB9AC -> BL 0x11807D8
 
 //; No idea what this is either. Something with death
@@ -246,6 +280,10 @@ RET
 //; ORR Debug Muteki bool with W8, after the hook it 
 //; checks if W8 is not 0
 
+//; Register reference:
+//; X0 = Game::Player*
+
+
 LDR W8, [X0, #0x350] //; Original instruction
 LDR W9, [X0, #0xD94]
 ORR W8, W8, W9
@@ -253,7 +291,7 @@ RET
 
 
 //; Restore Umbrella Canopy
-//; Game::PlayerInkActionUmbrella::calc + 0xE8
+//; Game::PlayerInkActionUmbrella::calc(void) + 0xE8
 //; 0x7B33BC -> BL 0x11807E8
 
 //; If in Debug Muteki, you can restore a canopy 
@@ -263,6 +301,10 @@ RET
 //; Replaces canopy restore timer (W9) with current timer (W8)
 //; for timer equality check so it restores it, only if 
 //; D-Pad Up is triggered
+
+//; Register reference:
+//; X19 = Game::PlayerInkActionUmbrella*
+
 
 LDR W9, [X8, #0x44C] //; Original instruction
 
@@ -274,7 +316,7 @@ STP X29, X30, [SP, #-0x20]!
 STP X8, X9, [SP, #0x10]
 
 MOV W0, WZR
-BL 0x10A4808 //; Lp::Utl::getCtrl
+BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 
 LDP X8, X9, [SP, #0x10]
 LDP X29, X30, [SP], #0x20

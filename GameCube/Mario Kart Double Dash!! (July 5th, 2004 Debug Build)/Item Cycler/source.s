@@ -18,11 +18,15 @@
 # When giving item, some race2D item window value is set to force the 
 # item to appear and update on the slot HUD
 
-# Globals
+# Register reference:
+# r3 = ItemObj* of hand item
+# r30 = Player ID
+# r31 = KartBody*
+
+
 .set addr_buttons, 0x803FA794
 .set addr_race2D_itemSlotWindow, 0x803CA270
 
-# Functions
 .set isPlayerKart__8KartInfoCFv, 0x801B0B44
 .set setChildStateForceDisappear__7ItemObjFv, 0x8024BF44
 .set doDeleteList__7ItemObjFv, 0x8024A958
@@ -33,7 +37,6 @@
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
-# Defines
 .set ITEM_GREEN_SHELL, 0
 .set ITEM_BOWSER_SHELL, 1
 .set ITEM_RED_SHELL, 2
@@ -64,7 +67,6 @@
 .set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
 
 .SET RACE2D_ITEMWINDOW_FORCE_APPEAR, 9
-
 
 stwu sp, -0x80 (sp)
 stmw r3, 8 (sp)

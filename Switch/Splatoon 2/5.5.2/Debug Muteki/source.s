@@ -8,15 +8,21 @@
 
 
 //; Disable player inputs if Minus is held
-//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; Cmn::PlayerCtrl::isHold(ulong) + 0x10 and Cmn::PlayerCtrl::isTrig(ulong) + 0x10
 //; 0xD5D38 -> BL 0x1AA96AC
 //; 0xD5D68 -> BL 0x1AA96AC
 
 //; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+//; Register reference:
+//; X19 = Lp::Sys::Ctrl*
+
+
+.set BUTTON_MINUS, 0x200
+
 LDR W8, [X19, #0x10]
-TST W8, #0x200 //; Minus button hold
+TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
@@ -25,8 +31,8 @@ RET
 //; The Debug Muteki "bool" member variable exists in retail at Game::Player + 0x10C4
 //; It is never read, but it is written to by 2 different functions:
 
-//; Game::Player::reset_Impl + 0x3D0 -> Sets it to "false"
-//; Game::Player::calcPrepare + 0x50 -> Sets it to "false"
+//; Game::Player::reset_Impl(bool,Cmn::Def::ResetType) + 0x3D0 -> Sets it to "false"
+//; Game::Player::calcPrepare(void) + 0x50 -> Sets it to "false"
 
 //; In reality, it's not a "bool", it is actually an enum. The debug build shows that there were
 //; supposed to be 5 types of Muteki (Normal, Shot, Player, MapObj and Bullet), thanks to the 
@@ -39,7 +45,7 @@ RET
 
 
 //; Debug Muteki Toggle and Text Timer Increment
-//; Game::Player::calcControl + 0xFE8
+//; Game::Player::calcControl(void) + 0xFE8
 //; 0xFF497C -> BL 0x1AA9C18
 
 //; Code will only run for controlled player (You)
@@ -54,13 +60,17 @@ RET
 
 //; Disables Debug Moving when toggled
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
 
 STP X29, X30, [SP, #-0x40]!
 
 MOV W0, WZR
-BL 0x19EC714 //; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 
 ADRP X9, #0x29E7000
 
@@ -102,11 +112,15 @@ RET
 
 //; No Damage in Debug Moving and Debug Muteki
 //; Same code used in both patches
-//; Game::Player::isInState_NoDamage + 0x334
+//; Game::Player::isInState_NoDamage(void) + 0x334
 //; 0x1010E8C -> BL 0x1AA980C
 
 //; ORR Debug Moving bool and Debug Muteki "bool" together and ORR them
 //; with returning W0 bool (invincible if either is true)
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 LDRB W0, [X19, X8] //; Original instruction
 
@@ -123,6 +137,10 @@ RET
 //; 0x100C6A8 -> BL 0x1AA9C80
 
 //; If in Debug Muteki, make special always fully charged
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 LDR W8, [X19, #0x10C4]
 CBZ W8, end
@@ -147,7 +165,7 @@ RET
 
 
 //; No damage voice and rumble (?)
-//; Game::Player::informDamage_WithVoiceAndRumble + 0x30
+//; Game::Player::informDamage_WithVoiceAndRumble(int,Cmn::Def::DMG,Game::DamageReason const&,bool,bool,bool) + 0x30
 //; 0x1010448 -> BL 0x1AA9CB8
 
 //; If in Debug Muteki, skips damage voice and rumble
@@ -157,6 +175,10 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x18C = 0x10105D8
 //; Returns to the function's end
+
+//; Register reference:
+//; X0 = Game::Player*
+
 
 MOV X22, X0 //; Original instruction
 
@@ -170,13 +192,17 @@ RET
 
 
 //; No water fall drown death
-//; Game::Player::calcGndCol_WaterFall + 0x64
+//; Game::Player::calcGndCol_WaterFall(void) + 0x64
 //; 0x10164A4 -> BL 0x1AA9CCC
 
 //; If in Debug Muteki, override player coordinate (S9)
 //; in the function with water fall Y (S0),
 //; after this hook, it branches to water fall death
 //; if S9 is less than S0
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 LDR W8, [X19, #0x10C4]
 CMP W8, #0
@@ -186,11 +212,15 @@ RET
 
 
 //; No ink consume
-//; Game::PlayerInkAction::consumeInk + 0x44
+//; Game::PlayerInkAction::consumeInk(float,bool,bool,bool) + 0x44
 //; 0x108A91C -> BL 0x1AA9CE0
 
 //; ORR Debug Muteki bool with W8, ink is not
 //; consumed if W8 is 1
+
+//; Register reference:
+//; X0 = Game::Player*
+
 
 LDR W9, [X0, #0x10C4]
 ORR W8, W8, W9
@@ -199,11 +229,15 @@ RET
 
 
 //; Unaffected by enemy ink on the ground
-//; Game::PlayerStepPaint::extractPaintTextureResult_Impl + 0xEB4
+//; Game::PlayerStepPaint::extractPaintTextureResult_Impl(float *,float *,int *,sead::Vector3<float> *,float *,sead::Vector3<float> const*,bool) + 0xEB4
 //; 0x1129350 -> BL 0x1AA9CF0
 
 //; If in Debug Muteki, store zero to some step paint related member variable
 //; to be unaffected by it
+
+//; Register reference:
+//; X20 = Game::Player*StepPaint
+
 
 LDR X8, [X20] //; Original instruction
 
@@ -216,7 +250,7 @@ end:
 RET
 
 //; Process for Die (?)
-//; Game::PlayerTrouble::commonProcess_ForDie_Tmp + 0x50
+//; Game::PlayerTrouble::commonProcess_ForDie_Tmp(int,sead::Vector3<float> const&,int,uint) + 0x50
 //; 0x1136CE4 -> BL 0x1AA9D04
 
 //; No idea what this is either. Something with death
@@ -227,6 +261,10 @@ RET
 //; ORR Debug Muteki bool with W8, after the hook it 
 //; checks if W8 is not 0
 
+//; Register reference:
+//; X0 = Game::Player*
+
+
 LDR W8, [X0, #0x350] //; Original instruction
 LDR W9, [X0, #0x10C4]
 ORR W8, W8, W9
@@ -234,7 +272,7 @@ RET
 
 
 //; Restore Umbrella Canopy
-//; Game::PlayerInkActionUmbrella::calc + 0x390
+//; Game::PlayerInkActionUmbrella::calc(void) + 0x390
 //; 0x10C89E0 -> BL 0x1AA9D14
 
 //; If in Debug Muteki, you can restore a canopy 
@@ -244,6 +282,10 @@ RET
 //; Replaces canopy restore timer (W8) with current timer (W21)
 //; for timer equality check so it restores it, only if 
 //; D-Pad Up is triggered
+
+//; Register reference:
+//; X19 = Game::PlayerInkActionUmbrella*
+
 
 LDR W8, [X8, #0x454] //; Original instruction
 
@@ -255,7 +297,7 @@ STP X29, X30, [SP, #-0x20]!
 STR X8, [SP, #0x10]
 
 MOV W0, WZR
-BL 0x19EC714 //; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 
 LDR X8, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
@@ -270,7 +312,7 @@ RET
 
 
 //; Disable Debug Muteki on Octa 8-Ball Fall for Explosion Death
-//; Game::PlayerMissionOctaSeqPinch::stateExplosion + 0x50
+//; Game::PlayerMissionOctaSeqPinch::stateExplosion(void) + 0x50
 //; 0x10EAD1C -> 0x1AA9D4C
 
 
@@ -298,7 +340,7 @@ RET
 //; function to make my text drawingcompatible with Starlight draws
 
 //; Enable debug TV draw info
-//; gsys::SystemTask::invokeDrawTV_ +0x284
+//; gsys::SystemTask::invokeDrawTV_(agl::DrawContext *) +0x284
 //; 0x185153C -> NOP
 
 
@@ -318,6 +360,14 @@ RET
 //; Arguments: SP Address, String Address, Text Coords Address, Blink Timer, Address for Coords Vector3 (for Debug Moving Pos draw, pass null for none)
 
 //; Print text outline first, then text after
+
+//; Register reference:
+//; X0 = SP address
+//; X1 = String address
+//; X2 = Text Coords Address
+//; W3 = Blink Timer
+//; X4 = Player Coords Address
+
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -360,12 +410,12 @@ FCVT D2, S2
 
 formatString:
 ADD X0, X19, #0x10
-BL 0x13D030 //; sead::FormatFixedSafeString<1024>::FormatFixedSafeString
+BL 0x13D030 //; sead::FormatFixedSafeString<1024>::FormatFixedSafeString(char const*,...)
 
 ADD X0, X19, #0x10
 LDR X8, [X19, #0x10]
 LDR X8, [X8,#0x18]
-BLR X8 //; sead::BufferedSafeStringBase<char>::assureTerminationImpl_
+BLR X8 //; sead::BufferedSafeStringBase<char>::assureTerminationImpl_(void)
 
 //; Print text outline
 ADD X0, X19, #0x428
@@ -373,7 +423,7 @@ LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C //; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_(char const*,int,bool,sead::BoundBox2<float> *)
 
 LDP X0, X1, [X22]
 STR X0, [X19, #0x460]
@@ -388,7 +438,7 @@ LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C //; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_(char const*,int,bool,sead::BoundBox2<float> *)
 
 LDP X19, X20, [SP, #0x10]
 LDP X21, X22, [SP, #0x20]
@@ -397,7 +447,7 @@ RET
 
 
 //; Debug Muteki Text
-//; gsys::SystemTask::invokeDrawTV_ + 0x658
+//; gsys::SystemTask::invokeDrawTV_(agl::DrawContext *) + 0x658
 //; 0x1851910 -> BL 0x1AA9DB0
 
 //; Call my own text draw function for text draw
@@ -417,7 +467,7 @@ ADRP X0, #0x2CFD000
 LDR X0, [X0, #0xCF8]
 LDR X0, [X0]
 CBZ X0, end //; Nullptr
-BL 0x10E6D2C //; Game::PlayerMgr::getControlledPerformer
+BL 0x10E6D2C //; Game::PlayerMgr::getControlledPerformer(void)
 CBZ X0, end //; Nullptr
 
 LDR W8, [X0, #0x10C4]

@@ -7,7 +7,7 @@
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
-//; Lp::Sys::Scene::sceneSysCalc + 0xD8 
+//; Lp::Sys::Scene::sceneSysCalc(void) + 0xD8 
 //; (Replacing call for Lp::Utl::SceneDbgResetter::calc)
 //; which was used in debug build, but stubbed in retail
 //; 0x197E1D0 -> BL 0x1AA95B4
@@ -18,6 +18,9 @@
 //; Store action hold to padding bytes (0x10A and 0x10B) to avoid spamming the 
 //; action or happening on trig, and to make it only happen after releasing
 //; the button
+
+//; Register reference:
+//; X19 = Game::CmnScene*
 
 STP X29, X30, [SP, #-0x20]!
 STP X27, X28, [SP, #0x10]
@@ -31,7 +34,7 @@ LDR X0, [X0]
 LDR X28, [X0, #0x338]
 
 MOV W0, WZR
-BL 0x19EC714 //; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 MOV X27, X0
 
 ADRP X8, #0x2CFD000
@@ -54,18 +57,18 @@ LDRB W0, [X28, #0x10A]
 CMP W0, #1
 BNE isResetLong
 MOV X0, X19
-BL 0xA01C78 //; Game::CmnScene::cbResetShort
+BL 0xA01C78 //; Game::CmnScene::cbResetShort(void)
 B clearPending
 
 isResetLong:
 MOV X0, X27
 MOV W1, W9
 MOV W2, #0x28 //; 40 frames (0.66 seconds of hold)
-BL 0x1962954 //; Lp::Sys::Ctrl::isHoldContinue
+BL 0x1962954 //; Lp::Sys::Ctrl::isHoldContinue(uint,int)
 CBZ W0, isExitShort
 
 MOV X0, X19
-BL 0xB3728 //; Game::CmnScene::cbResetLong
+BL 0xB3728 //; Game::CmnScene::cbResetLong(void)
 B clearPending
 
 isExitShort:
@@ -85,7 +88,7 @@ CMP W0, #2
 BNE end
 
 MOV X0, X19
-BL 0xB3898 //; Cmn::SceneBase::cbExitShort
+BL 0xB3898 //; Cmn::SceneBase::cbExitShort(void)
 
 clearPending:
 STRB WZR, [X28, #0x10A]

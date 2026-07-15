@@ -8,22 +8,28 @@
 
 
 //; Disable player inputs if Minus is held
-//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; Cmn::PlayerCtrl::isHold(ulong) + 0x10 and Cmn::PlayerCtrl::isTrig(ulong) + 0x10
 //; 0xD5D38 -> BL 0x1AA96AC
 //; 0xD5D68 -> BL 0x1AA96AC
 
-//; If Minus is held, replace requested input mask with zero
+//; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+//; Register reference:
+//; X19 = Lp::Sys::Ctrl*
+
+
+.set BUTTON_MINUS, 0x200
+
 LDR W8, [X19, #0x10]
-TST W8, #0x200 //; Minus button hold
+TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
 
 
 //; Disable right stick if Minus is held
-//; Game::PlayerGamePad::getRightStick + 0x20
+//; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x107BCE4 -> BL 0x1AA96C0
 
 //; If Minus is held, load Vector2 zero address and
@@ -41,7 +47,7 @@ MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
 MOV W0, WZR
-BL 0x19EC714 //; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 
 LDP X29, X30, [SP], #0x10
 
@@ -65,13 +71,17 @@ RET
 //; making them not move anymore if you try, so don't it.
 //; Adding this for safety
 
-//; Game::PlayerGamePad::isHold + 0xC
+//; Game::PlayerGamePad::isHold(ulong) + 0xC
 //; 0x107BBD0 -> BL 0x1AA9D70
 
 //; If X0 is nullptr, skip original instruction and return to
 //; function's return false and end
 
 //; Return to function end by modifying hook's return address: LR + 0xC = 0x107BBE0
+
+//; Register reference:
+//; X0 = Game::PlayerGamePad*
+
 
 CBNZ X0, original //; Valid pointer
 
@@ -97,7 +107,7 @@ RET
 
 
 //; Debug Marching & Leading
-//; Game::Player::calcControl + 0x33C0
+//; Game::Player::calcControl(void) + 0x33C0
 //; 0xFF6D54 -> BL 0x1967568
 
 //; Nintendo coded Debug Marching differently, 
@@ -142,17 +152,24 @@ RET
 //; Modes are stored in R-W area at 0x29E7014 and text flash timer at 0x29E7010
 //; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
+.set DEBUG_MARCHING, 1
+.set DEBUG_LEADING, 2
+
 STP X29, X30, [SP, #-0x40]!
 
 ADRP X25, #0x29E7000
 
 LDR X27, [X19, #0x490]
 MOV X0, X27
-BL 0x10E6CC8 //; Game::PlayerMgr::getControlledAllKindPlayer
+BL 0x10E6CC8 //; Game::PlayerMgr::getControlledAllKindPlayer(void)
 MOV X26, X0 //; X26 is your Game::Player
 
 MOV W0, WZR
-BL 0x19EC714 //; Lp::Utl::getCtrl
+BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 
 LDR W8, [X0, #0x10]
 TBZ W8, #9, isMarchOrLead //; Minus button not held
@@ -173,8 +190,8 @@ MOV W24, #0
 disableAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt
-BL 0x10138A8 //; Game::Player::finish_RemoteAI
+BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt(uint)
+BL 0x10138A8 //; Game::Player::finish_RemoteAI(void)
 
 ADD W24, W24, #1
 LDR W25, [X27, #0x624]
@@ -190,7 +207,7 @@ CBNZ W10, changeRemoteAILoop //; Not controlled player
 
 LDRB W8, [X25, #0x14]
 ADD W8, W8, #1
-CMP W8, #2
+CMP W8, #DEBUG_LEADING
 CSEL W8, W8, WZR, LE
 STRB W8, [X25, #0x14]
 
@@ -205,7 +222,7 @@ MOV W24, WZR
 changeRemoteAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt
+BL 0x10E6EE4 //; Game::PlayerMgr::getPerformerAt(uint)
 
 LDRB W8, [X25, #0x14]
 LDR W9, [X0, #0x358]
@@ -240,7 +257,7 @@ STR W8, [X25, #0x10]
 B end
 
 calcMarchAndLead:
-CMP W24, #1 //; Debug Marching
+CMP W24, #DEBUG_MARCHING
 BEQ marchingCopyStick
 
 //; Calculate controlled player point for AI follow
@@ -355,7 +372,7 @@ RET
 
 //; Disable Debug Marching/Leading on Player Reset
 //; Same code used in all three patches
-//; Game::Player::reset_Impl + 0x3AC
+//; Game::Player::reset_Impl(bool,Cmn::Def::ResetType) + 0x3AC
 //; 0xFE7EC0 -> BL 0x19677A4
 
 //; Disables Debug Marching/Leading on player reset
@@ -370,7 +387,7 @@ RET
 
 
 //; DbgTextWriter functions were removed after 3.1.0, but there is TextWriter debug text present in the game.
-//; In gsys::SystemTask::invokeDrawTV_, there is some debug text that prints the TV draw information, such as the 
+//; In gsys::SystemTask::invokeDrawTV_(agl::DrawContext *), there is some debug text that prints the TV draw information, such as the 
 //; resolution width, scale, color etc. Trying to call TextWriter print is way complicated because it requires creating 
 //; and //; calling so many things for it to work, and I wasn't even able to do it because of how it is handled. 
 //; So, I decided to make my own system by enabling the debug TV draw info, removing the info draw, and making my own
@@ -382,7 +399,7 @@ RET
 //; function to make my text drawingcompatible with Starlight draws
 
 //; Enable debug TV draw info
-//; gsys::SystemTask::invokeDrawTV_ +0x284
+//; gsys::SystemTask::invokeDrawTV_(agl::DrawContext *) +0x284
 //; 0x185153C -> NOP
 
 
@@ -402,6 +419,14 @@ RET
 //; Arguments: SP Address, String Address, Text Coords Address, Blink Timer, Address for Coords Vector3 (for Debug Moving Pos draw, pass null for none)
 
 //; Print text outline first, then text after
+
+//; Register reference:
+//; X0 = SP address
+//; X1 = String address
+//; X2 = Text Coords Address
+//; W3 = Blink Timer
+//; X4 = Player Coords Address
+
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -444,12 +469,12 @@ FCVT D2, S2
 
 formatString:
 ADD X0, X19, #0x10
-BL 0x13D030 //; sead::FormatFixedSafeString<1024>::FormatFixedSafeString
+BL 0x13D030 //; sead::FormatFixedSafeString<1024>::FormatFixedSafeString(char const*,...)
 
 ADD X0, X19, #0x10
 LDR X8, [X19, #0x10]
 LDR X8, [X8,#0x18]
-BLR X8 //; sead::BufferedSafeStringBase<char>::assureTerminationImpl_
+BLR X8 //; sead::BufferedSafeStringBase<char>::assureTerminationImpl_(void)
 
 //; Print text outline
 ADD X0, X19, #0x428
@@ -457,7 +482,7 @@ LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C //; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_(char const*,int,bool,sead::BoundBox2<float> *)
 
 LDP X0, X1, [X22]
 STR X0, [X19, #0x460]
@@ -472,7 +497,7 @@ LDR X1, [X19, #0x18]
 MOV W2, #0xFFFFFFFF
 MOV W3, #1
 MOV X4, XZR
-BL 0x174A91C //; sead::TextWriter::printImpl_
+BL 0x174A91C //; sead::TextWriter::printImpl_(char const*,int,bool,sead::BoundBox2<float> *)
 
 LDP X19, X20, [SP, #0x10]
 LDP X21, X22, [SP, #0x20]
@@ -481,7 +506,7 @@ RET
 
 
 //; Debug Marching/Leading Text
-//; gsys::SystemTask::invokeDrawTV_ + 0x65C
+//; gsys::SystemTask::invokeDrawTV_(agl::DrawContext *) + 0x65C
 //; 0x1851914 -> BL 0x19677B4
 
 //; Call my own text draw function for text draw
@@ -501,7 +526,7 @@ ADRP X0, #0x2CFD000
 LDR X0, [X0, #0xCF8]
 LDR X0, [X0]
 CBZ X0, end //; Nullptr
-BL 0x10E6D2C //; Game::PlayerMgr::getControlledPerformer
+BL 0x10E6D2C //; Game::PlayerMgr::getControlledPerformer(void)
 CBZ X0, end //; Nullptr
 
 ADRP X8, #0x29E7000

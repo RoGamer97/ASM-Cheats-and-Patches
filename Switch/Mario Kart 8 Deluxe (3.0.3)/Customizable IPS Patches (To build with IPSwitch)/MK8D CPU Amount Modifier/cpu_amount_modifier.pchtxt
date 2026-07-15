@@ -1,9 +1,0 @@
-@nsobid-6A85262F21B903649BD7C62628D26E43
-@flag offset_shift 0x100
-
-// You can change the amount of CPUs in a race
-
-@enabled
-00900CA8 XX // Change XX to amount of racers (including you), in hex. From 01 to 0C
-
-@stop

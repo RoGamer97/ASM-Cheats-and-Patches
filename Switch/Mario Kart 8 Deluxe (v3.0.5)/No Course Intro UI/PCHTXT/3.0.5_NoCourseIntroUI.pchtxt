@@ -1,0 +1,8 @@
+@nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
+@flag offset_shift 0x100
+
+// No Course Intro UI
+@enabled
+00535248 1F2003D5
+
+@stop
