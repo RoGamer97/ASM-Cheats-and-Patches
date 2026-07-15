@@ -18,6 +18,12 @@
 # When giving item, some race2D item window value is set to force the 
 # item to appear and update on the slot HUD
 
+# Register reference:
+# r3 = ItemObj* of hand item
+# r30 = Player ID
+# r31 = KartBody*
+
+
 .set addr_buttons, 0x803FA794
 .set addr_race2D_itemSlotWindow, 0x803CA270
 
@@ -61,7 +67,6 @@
 .set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
 
 .SET RACE2D_ITEMWINDOW_FORCE_APPEAR, 9
-
 
 stwu sp, -0x80 (sp)
 stmw r3, 8 (sp)
