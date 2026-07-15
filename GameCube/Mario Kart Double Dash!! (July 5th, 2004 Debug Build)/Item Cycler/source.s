@@ -18,11 +18,9 @@
 # When giving item, some race2D item window value is set to force the 
 # item to appear and update on the slot HUD
 
-# Globals
 .set addr_buttons, 0x803FA794
 .set addr_race2D_itemSlotWindow, 0x803CA270
 
-# Functions
 .set isPlayerKart__8KartInfoCFv, 0x801B0B44
 .set setChildStateForceDisappear__7ItemObjFv, 0x8024BF44
 .set doDeleteList__7ItemObjFv, 0x8024A958
@@ -33,7 +31,6 @@
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
-# Defines
 .set ITEM_GREEN_SHELL, 0
 .set ITEM_BOWSER_SHELL, 1
 .set ITEM_RED_SHELL, 2

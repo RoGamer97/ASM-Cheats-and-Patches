@@ -8,22 +8,28 @@
 
 
 //; Disable player inputs if Minus is held
-//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; Cmn::PlayerCtrl::isHold(ulong) + 0x10 and Cmn::PlayerCtrl::isTrig(ulong) + 0x10
 //; 0x64048 -> BL 0x1180260
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+//; Register reference:
+//; X19 = Lp::Sys::Ctrl*
+
+
+.set BUTTON_MINUS, 0x200
+
 LDR W8, [X19, #0x10]
-TST W8, #0x200 //; Minus button hold
+TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
 
 
 //; Disable right stick if Minus is held
-//; Game::PlayerGamePad::getRightStick + 0x20
+//; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x758970 -> BL 0x1180274
 
 //; If Minus is held, load Vector2 zero address and
@@ -37,11 +43,12 @@ RET
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
 
+
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
 MOV W0, WZR
-BL 0x10A4808 //; Lp::Utl::getCtrl
+BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 
 LDP X29, X30, [SP], #0x10
 
@@ -65,13 +72,17 @@ RET
 //; making them not move anymore if you try, so don't it.
 //; Adding this for safety
 
-//; Game::PlayerGamePad::isHold + 0xC
+//; Game::PlayerGamePad::isHold(ulong) + 0xC
 //; 0x75885C -> BL 0x118083C
 
 //; If X0 is nullptr, skip original instruction and return to
 //; function's return false and end
 
 //; Return to function end by modifying hook's return address: LR + 0xC = 0X75886C
+
+//; Register reference:
+//; X0 = Game::PlayerGamePad*
+
 
 CBNZ X0, original //; Valid pointer
 
@@ -123,17 +134,24 @@ RET
 //; Modes are stored in R-W area at 0x2968014 and text flash timer at 0x2968010
 //; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
+.set DEBUG_MARCHING, 1
+.set DEBUG_LEADING, 2
+
 STP X29, X30, [SP, #-0x40]!
 
 ADRP X25, #0x2968000
 
 LDR X27, [X19, #0x3C8]
 MOV X0, X27
-BL 0x7CBA68 //; Game::PlayerMgr::getControlledAllKindPlayer
+BL 0x7CBA68 //; Game::PlayerMgr::getControlledAllKindPlayer(void)
 MOV X26, X0 //; X26 is your Game::Player
 
 MOV W0, WZR
-BL 0x10A4808 //; Lp::Utl::getCtrl
+BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 
 LDR W8, [X0, #0x10]
 TBZ W8, #9, isMarchOrLead //; Minus button not held
@@ -154,8 +172,8 @@ MOV W24, #0
 disableAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x7CBC1C //; Game::PlayerMgr::getPerformerAt
-BL 0x73929C //; Game::Player::finish_RemoteAI
+BL 0x7CBC1C //; Game::PlayerMgr::getPerformerAt(uint)
+BL 0x73929C //; Game::Player::finish_RemoteAI(void)
 
 ADD W24, W24, #1
 LDR W25, [X27, #0x52C]
@@ -171,20 +189,20 @@ CBNZ W10, changeRemoteAILoop //; Not controlled player
 
 LDRB W8, [X25, #0x14]
 ADD W8, W8, #1
-CMP W8, #2
+CMP W8, #DEBUG_LEADING
 CSEL W8, W8, WZR, LE
 STRB W8, [X25, #0x14]
 
 STRB WZR, [X19, #0xD90] //; Disable Debug Moving
 
-BL 0x25244 //; Cmn::SetDbgMenuDirty
+BL 0x25244 //; Cmn::SetDbgMenuDirty(void)
 
 MOV W24, WZR
 
 changeRemoteAILoop:
 MOV X0, X27
 MOV W1, W24
-BL 0x7CBC1C //; Game::PlayerMgr::getPerformerAt
+BL 0x7CBC1C //; Game::PlayerMgr::getPerformerAt(uint)
 
 LDRB W8, [X25, #0x14]
 LDR W9, [X0, #0x358]
@@ -252,7 +270,7 @@ CMP W24, #1
 ADR X4, marchingString
 ADR X5, leadingString
 CSEL X4, X4, X5, EQ //; Choose string based on mode
-BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 LDR S0, posYCancel
 STR S0, [SP, #0x3C]
@@ -262,11 +280,11 @@ MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
 ADR X4, cancelString
-BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 B end
 
 calcMarchAndLead:
-CMP W24, #1 //; Debug Marching
+CMP W24, #DEBUG_MARCHING //; Debug Marching
 BEQ marchingCopyStick
 
 //; Calculate controlled player point for AI follow
@@ -390,7 +408,7 @@ cancelString: .asciz "  Push [-] -> Cancel"
 
 //; Disable Debug Marching/Leading on Player Reset
 //; Same code used in all three patches
-//; Game::Player::reset_Impl + 0x3AC
+//; Game::Player::reset_Impl(bool,Cmn::Def::ResetType) + 0x3AC
 //; 0x71B51C -> BL 0x1180470
 
 //; Disables Debug Marching/Leading on player reset

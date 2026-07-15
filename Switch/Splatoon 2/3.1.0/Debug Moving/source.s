@@ -8,22 +8,28 @@
 
 
 //; Disable player inputs if Minus is held
-//; Cmn::PlayerCtrl::isHold + 0x10 and Cmn::PlayerCtrl::isTrig + 0x10
+//; Cmn::PlayerCtrl::isHold(ulong) + 0x10 and Cmn::PlayerCtrl::isTrig(ulong) + 0x10
 //; 0x8ADB0 -> BL 0x1B61088
 //; 0x8ADE0 -> BL 0x1B61088
 
 //; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+//; Register reference:
+//; X19 = Lp::Sys::Ctrl*
+
+
+.set BUTTON_MINUS, 0x200
+
 LDR W8, [X19, #0x10]
-TST W8, #0x200 //; Minus button hold
+TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
 
 
 //; Disable right stick if Minus is held
-//; Game::PlayerGamePad::getRightStick + 0x20
+//; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0xEA1974 -> BL 0x1B6109C
 
 //; If Minus is held, load Vector2 zero address and
@@ -41,7 +47,7 @@ MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
 MOV W0, WZR
-BL 0x1A65E14 //; Lp::Utl::getCtrl
+BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 
 LDP X29, X30, [SP], #0x10
 
@@ -60,9 +66,9 @@ RET
 //; The Debug Moving bool member variable exists in retail at Game::Player + 0x1088
 //; It is never read, but it is written to by 3 different functions:
 
-//; Game::Player::reset_Impl + 0x3C0 -> Sets it to false
+//; Game::Player::reset_Impl(bool,Cmn::Def::ResetType) + 0x3C0 -> Sets it to false
 //; Game::Player::debugWarp + 0x48 -> Sets it to true (Debug Warp from the debug menu in debug builds//; not present in 3.1.0)
-//; Game::Player::calcPrepare + 0x4C -> Sets it to false
+//; Game::Player::calcPrepare(void) + 0x4C -> Sets it to false
 
 //; This reimplementation will use it.
 //; You will see checks for it in most hooks and writes to it in some places as well.
@@ -71,7 +77,7 @@ RET
 
 
 //; Debug Moving Toggle, Text Draw and Slow Fall
-//; Game::Player::calcControl + 0xE0C
+//; Game::Player::calcControl(void) + 0xE0C
 //; 0xE23484 -> BL 0x1B610FC
 
 //; Holding Minus outside of Debug Move makes you fall slowly.
@@ -101,6 +107,10 @@ RET
 //; To avoid this, skip Pos draw if in spectator mode to match 
 //; debug build behavior
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
 
@@ -109,7 +119,7 @@ STP X29, X30, [SP, #-0x40]!
 ADRP X26, #0x3DFE000
 
 MOV W0, WZR
-BL 0x1A65E14 //; Lp::Utl::getCtrl
+BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 
 MOV W9, #0x1088
 LDR W8, [X0, #0x10]
@@ -131,7 +141,7 @@ LDRB W8, [X19,X9]
 EOR W8, W8, #1
 STRB W8, [X19,X9]
 
-BL 0x2C364 //; Cmn::SetDbgMenuDirty
+BL 0x2C364 //; Cmn::SetDbgMenuDirty(void)
 
 isInDebugMove:
 LDRB W8, [X19,X9]
@@ -178,7 +188,7 @@ MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
 ADR X4, debugMovingString
-BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 LDR S0, posYCancel
 STR S0, [SP, #0x3C]
@@ -188,7 +198,7 @@ MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
 ADR X4, cancelString
-BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 LDR S0, posYFly
 STR S0, [SP, #0x3C]
@@ -198,10 +208,10 @@ MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
 ADR X4, youCanFlyString
-BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 BL 0x116F5F0 //; Game::Utl::isSpectatorStation
-CBNZ W0, restore
+CBNZ W0, restore //; Spectator mode
 
 MOV X0, X26
 MOV W1, #0x1E
@@ -216,7 +226,7 @@ LDR S2, [X19, #0x750]
 FCVT D0, S0
 FCVT D1, S1
 FCVT D2, S2
-BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF
+BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 restore:
 LDP X29, X30, [SP], #0x40
@@ -258,6 +268,10 @@ positionString: .asciz "Pos : %.2f, %.2f, %.2f"
 //; Game::Player::isInDebugMove
 //; 0xE32EF0 -> B 0x1B612D0 (NORMAL BRANCH)
 
+//; Register reference:
+//; X0 = Game::Player*
+
+
 MOV W8, #0x1088
 LDRB W0, [X0,X8]
 RET
@@ -265,11 +279,15 @@ RET
 
 //; No Damage in Debug Moving and Debug Muteki
 //; Same code used in both patches
-//; Game::Player::isInState_NoDamage + 0x324
+//; Game::Player::isInState_NoDamage(void) + 0x324
 //; 0xE3D46C -> BL 0x1B612DC
 
 //; ORR Debug Moving bool and Debug Muteki "bool" together and ORR them
 //; with returning W0 bool (invincible if either is true)
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 LDRB W0, [X19, X8] //; Original instruction
 
@@ -282,11 +300,15 @@ RET
 
 
 //; Disable Debug Moving on Super Jump (DokanWarp) Prepare
-//; Game::Player::prepareDokanWarp_Start + 0x114
+//; Game::Player::prepareDokanWarp_Start(sead::Vector3<float> const&,int,sead::Vector3<float> const*,int,int,uint) + 0x114
 //; 0xE57118 -> BL 0x1B612F8
 
 //; When preparing for a Super Jump, Debug Moving is disabled.
 //; Set Debug Moving bool to false
+
+//; Register reference:
+//; X21 = Game::Player*
+
 
 MOV W8, #0x1088
 STRB WZR, [X21,X8]
@@ -295,13 +317,17 @@ RET
 
 
 //; Move velocity
-//; Game::Player::calcMove + 0x3DF8
+//; Game::Player::calcMove(bool) + 0x3DF8
 //; 0xE2A7B8 -> BL 0x1B61308
 
 //; If Debug Moving, change move velocity to 
 //; 3.6 if not in squid, and 12.0 if in squid
 //; Makes you instantly accelerate to max speed
 //; and also instantly stop
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -320,7 +346,7 @@ walkVel: .float 3.6
 
 
 //; Move speed
-//; Game::Player::calcMove + 0x8278
+//; Game::Player::calcMove(bool) + 0x8278
 //; 0xE2EC38 -> BL 0x1B61330
 
 //; If Debug Moving, change move speed to 
@@ -332,6 +358,10 @@ walkVel: .float 3.6
 
 //; Skip by modifying hook's return address: LR + 0xD4 = 0xE2ED10
 //; Returns to the point where the calculated max speed value (S11) is used
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -360,12 +390,16 @@ walkSpeed: .float 3.6
 
 
 //; Disable max velocity clamp 
-//; Game::Player::calcMove + 0x4AD0
+//; Game::Player::calcMove(bool) + 0x4AD0
 //; 0xE2B490 -> BL 0x1B6136C
 
 //; If Debug Moving, skip velocity clamp call to avoid limiting it
 //; Skip by modifying hook's return address: LR + 4 = 0xE2B498
 //; Returns to the instruction after the clampLen call (Skipped)
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV X0, X20 //; Original instruction
 
@@ -380,7 +414,7 @@ RET
 
 
 //; Disable air velocity decrease
-//; Game::Player::calcMove + 0x4220
+//; Game::Player::calcMove(bool) + 0x4220
 //; 0xE2ABE0 -> BL 0x1B61384
 
 //; If Debug Moving, skip air velocity decrease calculations
@@ -389,6 +423,10 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x2D4 = 0xE2AEB4
 //; Returns past the air velocity decrease calculations
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -402,7 +440,7 @@ RET
 
 
 //; Levitate and move up/down with R-Stick (you can Fly)
-//; Game::Player::calcMove + 0x486C
+//; Game::Player::calcMove(bool) + 0x486C
 //; 0xE2B22C -> BL 0x1B6139C
 
 //; If Debug Moving, set some velocities to zero,
@@ -410,6 +448,10 @@ RET
 //; Get the controller's right stick Y value, multiply it by 
 //; the up/down velocity (1.8 if not in squid, 3.6 if in squid)
 //; and set it as one of the fall velocity to fly up/down
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -431,7 +473,7 @@ CMP W26, #0 //; isInSquid bool used through the function
 FCSEL S8, S1, S0, NE
 
 LDR X0, [X19, #0xED8]
-BL 0xEA1954 //; Game::PlayerGamePad::getRightStick
+BL 0xEA1954 //; Game::PlayerGamePad::getRightStick(void)
 FMUL S0, S8, S1
 STR S0, [X19, #0x910]
 
@@ -445,7 +487,7 @@ upDownVelSquid: .float 3.6
 
 
 //; Pass through collision
-//; Game::Player::thirdCalc + 0x10AC
+//; Game::Player::thirdCalc(void) + 0x10AC
 //; 0xE30D04 -> BL 0x1B613FC
 
 //; If Debug Moving, pass through collision
@@ -454,6 +496,10 @@ upDownVelSquid: .float 3.6
 //; skips collision call if it is, so, if Debug Moving,
 //; W8 is 1: Skip, otherwise, load original instruction
 //; for normal behavior
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -466,7 +512,7 @@ RET
 
 
 //; Disable airfall death
-//; Game::Player::thirdCalc + 0x2098
+//; Game::Player::thirdCalc(void) + 0x2098
 //; 0xE31CF0 -> BL 0x1B61410
 
 //; If Debug Moving, you will not die if staying
@@ -476,6 +522,10 @@ RET
 //; it checks if W8 is greater than 0 and skips airfall if so,
 //; so it will branch if Debug Moving
 
+//; Register reference:
+//; X19 = Game::Player*
+
+
 LDR W8, [X0, #0x4C] //; Original instruction
 MOV W9, #0x1088
 LDRB W9, [X19,X9]
@@ -484,12 +534,15 @@ RET
 
 
 //; Pass through enemy team spawn/respawn barrier collision
-//; Game::RespawnPoint::calcPlayerCollision_ + 0x60
+//; Game::RespawnPoint::calcPlayerCollision_(Game::Player *) + 0x60
 //; 0xA12E2C -> BL 0x1B61424
 
 //; If Debug Moving, skip spawn barrier collision
 //; Skip by modifying hook's return address: LR + 0x82C = 0xA1365C
 //; Returns to the function's end
+
+//; Register reference:
+//; X1 = Game::Player*
 
 
 MOV X20, X1 //; Original instruction
@@ -505,11 +558,15 @@ RET
 
 
 //; Pass through mission Super Jump gateway barrier collision
-//; Game::AreaGateway::calcPlayerCollision_ + 0x38
+//; Game::AreaGateway::calcPlayerCollision_(Game::Player *) + 0x38
 //; 0xD27360 -> BL 0x1B6143C
 
 //; If Debug Moving, set W8 to zero. After the hook,
 //; it checks if W8 is not 1 and branches to function end if so
+
+//; Register reference:
+//; X20 = Game::Player*
+
 
 MOV W9, #0x1088
 LDRB W9, [X20,X9]
@@ -523,12 +580,16 @@ RET
 //; Octa DLC didn't exist in the debug build, this is my own addition
 //; which would definitely be added if the DLC existed at the time
 
-//; Game::StationPlatformOcta::onHitBarrier + 0x4C 
+//; Game::StationPlatformOcta::onHitBarrier_(Game::Player *,Lp::Utl::CollisionResult const&,sead::Vector3<float> const&) + 0x4C 
 //; 0xBC4454 -> BL 0x1B61454
 
 //; If Debug Moving, skip collision calculation call
 //; Skip by modifying hook's return address: LR + 0x88 = 0xBC44E0
 //; Returns to the function's end
+
+//; Register reference:
+//; X1 = Game::Player*
+
 
 MOV X19, X1 //; Original instruction
 
@@ -546,7 +607,7 @@ RET
 //; Octa DLC didn't exist in the debug build, this is my own addition
 //; which would definitely be added if the DLC existed at the time
 
-//; Game::SeqMgrMissionOcta::calcCheckBreakJail + 0x30
+//; Game::SeqMgrMissionOcta::calcCheckBreakJail(void) + 0x30
 //; 0xD7A650 -> BL 0x1B6146C
 
 //; If Debug Moving, skip death collision call
@@ -556,9 +617,10 @@ RET
 //; Skip by modifying hook's return address: LR + 0x8 = 0xD7A65C
 //; Returns to part of the function that returns false and branches to end
 
+
 STP X29, X30, [SP, #-0x10]!
 
-BL 0xF07B1C //; Game::PlayerMgr::getControlledPerformer (Original instruction)
+BL 0xF07B1C //; Game::PlayerMgr::getControlledPerformer(void) (Original instruction)
 
 LDP X29, X30, [SP], #0x10
 
@@ -573,7 +635,7 @@ RET
 
 
 //; Plaza Door ignores player
-//; Game::PlazaDoor::checkHitPlayer_ + 0x58
+//; Game::PlazaDoor::checkHitPlayer_(Lp::Utl::ShapeCapsule const&) + 0x58
 //; 0xC387D8 -> BL 0x1B6148C 
 
 //; If Debug Moving, Plaza doors won't open, and will close
@@ -586,6 +648,10 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x54 = 0xC38830
 //; Returns to part of the function that returns false and ends
+
+//; Register reference:
+//; X0 = Game::Player*
+
 
 CBZ X0, return //; Replicating original instruction
 
@@ -601,7 +667,7 @@ RET
 
 
 //; Finish grind rail move
-//; Game::PlayerGrindRail::firstCalcBindImpl_ + 0xBC
+//; Game::PlayerGrindRail::firstCalcBindImpl_(void) + 0xBC
 //; 0xEA8A9C -> BL 0x1B614A4
 
 //; If Debug Moving, you are forced out of grind rail move 
@@ -615,6 +681,9 @@ RET
 //; Returns to part of the function that stores values and then
 //; calls grind rail finish, returns AFTER W8 is set to 1, so it 
 //; uses the one from the hook instead
+
+//; Register reference:
+//; X19 = Game::Player*GrindRail
 
 
 LDR X8, [X19, #0x18]
@@ -634,7 +703,7 @@ RET
 
 
 //; Finish ink rail move
-//; Game::PlayerInkRailVersus::calcPlayerPos_stateBind_ + 0x150
+//; Game::PlayerInkRailVersus::calcPlayerPos_stateBind_(void) + 0x150
 //; 0xEEEE38 -> BL 0x1B614CC
 
 //; If Debug Moving, you are forced out of ink rail move, but you
@@ -649,6 +718,9 @@ RET
 //; Returns to part of the function that stores values and then
 //; calls ink rail finish, returns AFTER W8 is set to 1, so it 
 //; uses the one from the hook instead
+
+//; Register reference:
+//; X19 = Game::PlayerInkRailVersus*
 
 LDR X0, [X19, #0x120]
 MOV X8, #0x1088
@@ -667,13 +739,17 @@ RET
 
 
 //; Prevent starting Rainmaker DunkShoot VictoryGoal (VGoal)
-//; Game::Player::checkVGoal_ToDunkShoot + 0x28
+//; Game::Player::checkVGoal_ToDunkShoot(void) + 0x28
 //; 0xE3DB70 -> BL 0x1B614F4
 
 //; If Debug Moving, you can't start the rainmaker dunk shoot goal
 
 //; Override W0 with 7, after this hook, it checks if W0 is 7
 //; and branches to end if so
+
+//; Register reference:
+//; X19 = Game::Player*
+
 
 MOV W8, #0x1088
 LDRB W8, [X19,X8]
@@ -688,7 +764,7 @@ RET
 
 
 //; Cancel Rainmaker DunkShot VictoryGoal (VGoal)
-//; Game::Player::calcPrepare + 0xA40
+//; Game::Player::calcPrepare(void) + 0xA40
 //; 0xE21CC4 -> BL 0x1B6150C
 
 //; If enabling Debug Move while dunking the rainmaker, it will
@@ -699,6 +775,11 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x38 = 0xE21D00
 //; Returns past some calculations and checks related to VictoryGoal
+
+//; Register reference:
+//; X8 = Game::VictoryGoal*
+//; X19 = Game::Player*
+
 
 MOV W10, #0x1088
 LDRB W10, [X19,X10]
@@ -714,7 +795,7 @@ RET
 
 
 //; Allow starting Super Jump (DokanWarp) in air
-//; Game::PlayerDokanWarp::calc + 0x3C0
+//; Game::PlayerDokanWarp::calc(void) + 0x3C0
 //; 0xE94D64 -> BL 0x1B61528
 
 //; If Debug Moving, you can start a Super Jump while in the air
@@ -722,6 +803,9 @@ RET
 //; After this hook, it checks if W8 is 2 and branches to call
 //; DokanWarp start even if in air, so override W8 with 2 if
 //; Debug Moving
+
+//; Register reference:
+//; X19 = Game::PlayerDokanWarp*
 
 
 LDR W8, [X19, #0x98] //; Original instruction
@@ -738,7 +822,7 @@ RET
 
 
 //; Allow starting Super Jump (DokanWarp) land animation in air
-//; Game::PlayerDokanWarp::calc + 0x480 and +0x484
+//; Game::PlayerDokanWarp::calc(void) + 0x480 and +0x484
 //; 0xE94E24 -> BL 0x1B61544 and 0xE94E28 -> CBZ W8, 0xE94E64
 
 //; If Debug Moving, the landing animation from Super Jump can
@@ -754,13 +838,17 @@ RET
 
 //; Hooking because I can't load offset directly in LDRB
 
+//; Register reference:
+//; X9 = Game::PlayerDokanWarp*
+
+
 MOV W8, #0x1088
 LDR W8, [X9,X8]
 RET
 
 
 //; Clear air camera on Super Jump (DokanWarp) land
-//; Game::PlayerBehindCamera::calcPosAt + 0xDE8
+//; Game::PlayerBehindCamera::calcPosAt(void) + 0xDE8
 //; 0xE6F5CC -> BL 0x1B61550
 
 //; If Debug Moving, the air camera will be cleared after
@@ -769,6 +857,10 @@ RET
 
 //; Clear by modifying hook's return address: LR + 0x40 = 0xE6F610
 //; Returns to the part of the code that clears the air camera
+
+//; Register reference:
+//; X19 = Game::PlayerBehindCamera*
+
 
 LDR X8, [X19]
 MOV X9, #0x1088
@@ -783,11 +875,15 @@ RET
 
 
 //; Disable moving camera up/down with R-Stick if Motion Controls are off
-//; Game::PlayerBehindCamera::calcControl + 0x73C
+//; Game::PlayerBehindCamera::calcControl(void) + 0x73C
 //; 0xE6BF64 -> BL 0x1B6156C
 
 //; If Debug Moving, replace S14 with S11 (sero) so camera can't be moved up/down
 //; when Motion Controls are off
+
+//; Register reference:
+//; X19 = Game::PlayerBehindCamera*
+
 
 LDR X9, [X19]
 MOV W10, #0x1088
