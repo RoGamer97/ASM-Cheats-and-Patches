@@ -1,0 +1,8 @@
+@nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
+@flag offset_shift 0x100
+
+// Disable Frontrunning Beats
+@enabled
+000A98F8 08008052
+
+@stop

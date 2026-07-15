@@ -1,0 +1,12 @@
+@nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
+@flag offset_shift 0x100
+
+// Online Menu Sun Model Modifier
+@enabled
+00EE3E0F "UI3D/Sun/Sun.bfres"
+00EDE124 "Sun"
+
+// Replace the path with the path of the object you want to use, example "MapObj/DuckToy/DuckToy.bfres" for the first one and "DuckToy" for the second one, for Squeaky-Clean Sprint Duck Toy
+// Note that the not every skybox is possible because of string lengthal
+
+@stop
