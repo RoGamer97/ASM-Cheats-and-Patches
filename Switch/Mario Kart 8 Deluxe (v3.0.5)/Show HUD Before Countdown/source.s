@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; Invoke window layout on load
 //; ui::Page_Race::onIn_(void) + 0x6C8
-//; 0x530630 -> BL 0xB51414
+//; 0x530630 -> BL 0x7A26BC
 
 //; Replicates the game's invoke window layout call but somewhere else that runs
 //; on race load, to immediately show the HUD

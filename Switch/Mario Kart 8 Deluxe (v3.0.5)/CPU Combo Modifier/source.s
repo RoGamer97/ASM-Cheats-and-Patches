@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -17,7 +17,7 @@
 
 //; CPU Combo Modifier
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2134
-//; 0x4FC2D8 -> BL 0xB51A68
+//; 0x4FC2D8 -> BL 0x89AC0
 
 //; Makes a list for set kart, tire, glider and character for every individual CPU
 

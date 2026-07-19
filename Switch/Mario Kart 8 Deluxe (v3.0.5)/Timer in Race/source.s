@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; Create timer in race
 //; ui::Page_Race::onCreate_(void) + 0x3D0
-//; 0x52E560 -> BL 0xB51448
+//; 0x52E560 -> BL 0x7A2798
 
 //; Create timer in race, except if it's Multiplayer
 
@@ -37,7 +37,7 @@ RET
 
 //; Change timer player ID to yours
 //; ui::Control::RaceTimer::onIn_(void)
-//; 0x511C74 -> BL 0xB51474
+//; 0x511C74 -> BL 0x7A27C4
 
 //; Timer player ID is always 0 by default, so
 //; when playing online, lap timer and animation

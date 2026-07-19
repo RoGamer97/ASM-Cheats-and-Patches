@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; gear::UIEngine::onCalc_(void) + 0xE0 (Unsure if this is actually the function!)
-//; 0x3FDD50 -> BL 0xB519FC
+//; 0x3FDD50 -> BL 0x7A27E4
 
 //; Toggles the HUD visible bool by holding Y and pressing D-Pad Up
 

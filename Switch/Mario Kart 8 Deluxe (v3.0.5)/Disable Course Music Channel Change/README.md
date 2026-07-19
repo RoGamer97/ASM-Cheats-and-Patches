@@ -1,7 +1,5 @@
-## 1st Place Crown
+## Disable Course Music Channel Change
 
-Makes the player in 1st place have a crown on their head, on the minimap, and on their nametag.
+Course music will always be the same instead of changing channels on specific parts of the course.
 
-If you experience issues building from .pchtxt on console, use .ips instead.
-
-The ASM source code can be found [here](source.s).
+This is useful for custom music packs, as it removes the need to create multichannel BFSTMs.

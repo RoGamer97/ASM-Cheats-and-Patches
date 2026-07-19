@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -27,7 +27,7 @@
 
 //; Crown in 1st place
 //; object::KartDirector::calcCrownVisible_(void) + 0x160
-//; 0x13DF24 -> BL 0xB51120
+//; 0x13DF24 -> BL 0x89A0C
 
 //; Makes kart in first place have a crown
 

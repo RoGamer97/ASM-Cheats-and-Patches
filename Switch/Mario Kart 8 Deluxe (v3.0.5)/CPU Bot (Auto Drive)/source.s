@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; object::KartVehicle::calcXluAlpha_(void) + 0x14
-//; 0x177104 -> BL 0xB513E8
+//; 0x177104 -> BL 0x89A94
 
 //; Changes local players' kart to CPU
 

@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; ui::Control_RaceResultPanel::setDriverID(mush::EDriverID, int, unsigned char, bool) + 0x38
-//; 0x51CEC0 -> BL 0xB51590
+//; 0x51CEC0 -> BL 0x62F85C
 
 //; Skip the code if offline mode
 

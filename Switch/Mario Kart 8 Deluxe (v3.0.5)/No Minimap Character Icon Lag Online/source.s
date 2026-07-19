@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x30
-//; 0x50718C -> BL 0xB51200
+//; 0x50718C -> BL 0x62F95C
 
 //; Other players' icons freeze on the minimap for ~3 seconds when
 //; Lakitu grabs them or they warp by lag (position correction).

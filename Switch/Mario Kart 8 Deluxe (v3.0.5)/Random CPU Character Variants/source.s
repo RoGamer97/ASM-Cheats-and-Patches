@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x1FAC, 0x20AC and 0x2148
-//; 0x4FC150, 0x4FC250 and 0x4FC2EC -> BL 0xB515C4
+//; 0x4FC150, 0x4FC250 and 0x4FC2EC -> BL 0x62F978
 
 //; Make a list of characters who have variants, and how many variants they have.
 //; If the character the CPU is using is in the list, load the variant count

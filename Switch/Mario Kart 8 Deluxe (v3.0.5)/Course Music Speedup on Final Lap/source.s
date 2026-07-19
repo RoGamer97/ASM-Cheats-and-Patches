@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 //; Continue playing normal lap music in final lap and store bool for speedup 
@@ -29,7 +29,7 @@
 
 //; Music speedup on final lap
 //; audio::AudBgmRace::calcChangeByLapNum_(void) + 0x14
-//; 0x832B4 -> BL 0xB51A34
+//; 0x832B4 -> BL 0x89A60
 
 //; If the bool stored at audio::AudBgmRace* + 0x227 is true, we're on
 //; the final lap. Increment the music speed by 0.0002 until it

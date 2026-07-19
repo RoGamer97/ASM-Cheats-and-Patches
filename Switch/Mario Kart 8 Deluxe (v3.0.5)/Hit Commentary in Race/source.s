@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; Show hit commentary in damage logic
 //; object::KartVehicleReact::reactAccidentCommonRace_(object::KartVehicleReact::ECallType,gear::EItemType,int,object::KartVehicleReact::EAcdType,gear::MtxT const*,sead::Vector3<float> const*,sead::Vector3<float> const*) + 0x150
-//; 0x192F88 -> BL 0xB5121C
+//; 0x192F88 -> BL 0x62F718
 
 //; This part of the function where the code is hooked will only execute in race
 
@@ -43,7 +43,7 @@
 //; if I attacked someone or if I got attacked, for the message replacement hook. I'll call it the attack type.
 
 //; Register reference:
-//; X22 = object::KartVehicle* of attacked kart
+//; X22 = object::KartVehicleReact* of attacked kart
 //; W23 = Player ID of attacker kart
 //; X24 = gear::EItemType*
 
@@ -67,9 +67,9 @@ BL 0x7F41FC //; gear::FrameworkUtil::getCurrentGameScene(void)
 LDR X8, [X0, #0x1B0]
 LDR X8, [X8, #0x238]
 LDR X8, [X8,#0xC8]
-LDR X8, [X8,X23]
-LDR X8, [X8, #8]
-LDR X9, [X22, #0x10]
+LDR X8, [X8,X23,LSL#3]
+LDR X8, [X8, #8] //; KartVehicle* of attacker kart
+LDR X9, [X22, #0x10] //; KartVehicle* of attacked kart
 
 LDR W3, [X9, #0xA8]
 CMP W3, W23
@@ -109,7 +109,7 @@ RET
 
 //; Replace Renegade Roundup commentary message from catch to hit in race
 //; ui::Control_RaceCommon::showBtInfo(ui::CommentaryArg const&) + 0x1FC
-//; 0x50C798 -> BL 0xB512AC
+//; 0x50C798 -> BL 0x62F7A4
 
 //; By default, the message shown in race is "(RED NAME) caught (BLUE NAME)". 
 //; Change it to "Hit (NAME OF WHO GOT ATTACKED)" or "(NAME OF WHO ATTACKED) hit you"
@@ -187,7 +187,7 @@ RET
 
 //; Prevent Renegade Roundup bust text and sound effect in race
 //; ui::Control_RaceCommon::showBtInfo(ui::CommentaryArg const&) + 0x588
-//; 0x50CB24 -> BL 0xB51314
+//; 0x50CB24 -> BL 0x62F810
 
 //; In team race, when the commentary shows, it plays the catch sound 
 //; effect and shows the "5 left" text on the top right of the screen.

@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; Disable replay ghost transparency
 //; object::KartVehicle::KartVehicle(int, object::KartUnit *, gear::ResourceKartBase const&, float) + 0x798
-//; 0x16ECBC -> BL 0xB51188
+//; 0x16ECBC -> BL 0x62F6CC
 
 //; Override the loaded "isGhost" bool to false for replay ghost only
 //; (Ghost player ID is 0 when being watched, and 1 when being raced against)
@@ -29,7 +29,7 @@ RET
 
 //; Fix start transparency fade
 //; object::KartVehicle::calcXluAlpha_(void) + 0x1C
-//; 0x17710C -> BL 0xB5119C
+//; 0x17710C -> BL 0x62F6E0
 
 //; Fixes an issue where the ghost is still transparent and fades
 //; to opaque at the start of the replay by forcing opaque alpha.
@@ -55,7 +55,7 @@ RET
 
 //; Replay ghost has player minimap round
 //; ui::Control_RaceDRCCharaIcon::setupVisible + 0x30
-//; 0x506F78 -> BL 0xB511B8
+//; 0x506F78 -> BL 0x62F6FC
 
 //; Replay ghost will have player minimap icon round.
 

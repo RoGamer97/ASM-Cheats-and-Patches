@@ -5,12 +5,12 @@
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; gear::ItemOwner::calcKeyInput_(void) + 0x324
-//; 0x3F46C -> BL 0xB516C4
+//; 0x3F46C -> BL 0x62F528
 
 //; Skip the code if not local player or online kart, or if in Time Trials or
 //; Bob-omb Blast
@@ -131,7 +131,7 @@ BL 0x40494 //; gear::ItemOwner::isSlotRotate(int)
 CBZ W0, isCycleItem
 
 MOV W23, WZR
-CBNZ W24, getItemFromTableByIdx //; Item use button (Or use item button)
+CBNZ W24, getItemFromTableByIdx //; Item use button pressed
 
 isCycleItem:
 LDR W0, [X20, #0x40]
@@ -226,7 +226,7 @@ MOV W3, #1
 MOV W4, #1
 BL 0x42780 //; gear::ItemOwner::startSlot(int,gear::EItemSlot,bool)
 
-CBZ W23, end //; Set by use button
+CBZ W23, end //; Item given by item use button
 
 MOV W0, W21
 LDR W1, [SP, #0x10]

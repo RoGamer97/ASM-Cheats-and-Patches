@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -17,7 +17,7 @@
 
 //; Replace arrow with searchlight
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x44
-//; 0x506F8C -> BL 0xB51538
+//; 0x506F8C -> BL 0x62F8F0
 
 //; Replaces arrow with searchlight for local players only by
 //; overriding the loaded Battle mode with Renegade Round up for check
@@ -41,7 +41,7 @@ RET
 
 //; Enable searchlight without being a Cop
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x60
-//; 0x506FA8 -> BL 0xB51548
+//; 0x506FA8 -> BL 0x62F900
 
 //; Enables searchlight when not being a cop, for local players only
 //; by overriding return value from object::KartInfoProxy::isPolice(void)
@@ -68,7 +68,7 @@ RET
 
 //; Fix wrong direction in Mount Wario and BCP courses
 //; ui::Control_RaceMiniMap::loadMap(void) + 0x600
-//; 0x504A98 -> BL 0xB51630
+//; 0x504A98 -> BL 0x62F894
 
 //; In Mount Wario and every Booster Course Pass DLC course, the
 //; arrow direction is wrong at all times.
@@ -88,11 +88,11 @@ RET
 //; In Mirror Mode, they're inverted, so fix it by inverting the values
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
- 
+
 //; Register reference:
 //; X19 = ui::Control_RaceMiniMap*
-
-
+ 
+ 
 STP X29, X30, [SP, #-0x10]!
 
 LDR S0, [X19, #0x388]

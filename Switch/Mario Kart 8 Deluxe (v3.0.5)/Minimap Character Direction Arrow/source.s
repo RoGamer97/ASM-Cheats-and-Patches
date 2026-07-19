@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -17,7 +17,7 @@
 
 //; Fix wrong direction in Mount Wario and BCP courses
 //; ui::Control_RaceMiniMap::loadMap(void) + 0x600
-//; 0x504A98 -> BL 0xB51630
+//; 0x504A98 -> BL 0x62F894
 
 //; In Mount Wario and every Booster Course Pass DLC course, the
 //; arrow direction is wrong at all times.

@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 // Force Wiggler's facial animation to damage (Angry)
 //; object::DriverKart::calcMaterialAnim_(void) + 0x1C
-//; 0xDBB24 -> BL 0xB5116C
+//; 0xDBB24 -> BL 0x89A34
 
 //; If character is Wiggler, set facial animation to 
 //; damage to make Wiggler angry, and change W8 to zero
@@ -41,7 +41,7 @@ RET
 
 // Fix Menu Crash
 //; object::DriverKart::calcELink(void) + 0xD6C
-//; 0xDDB30 -> BL 0xB5115C
+//; 0xDDB30 -> BL 0x89A50
 
 //; Angry Wiggler crashes on the menu when trying to
 //; play the angry smoke SFX because kart audio

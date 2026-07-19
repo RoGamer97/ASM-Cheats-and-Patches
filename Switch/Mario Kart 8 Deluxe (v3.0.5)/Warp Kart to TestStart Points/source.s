@@ -3,12 +3,12 @@
 //; Code: Warp Kart to TestStart Points
 
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; object::KartUnit::calcMove(float) + 0x18
-//; 0x16B7B0 -> BL 0xB51868
+//; 0x16B7B0 -> BL 0x7A2820
 
 //; Skip the code if not local player or net send kart
 

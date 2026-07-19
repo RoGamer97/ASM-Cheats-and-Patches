@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -16,7 +16,7 @@
 
 //; Store arrow rotation to character icon
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x1F4
-//; 0x507350 -> BL 0xB5168C
+//; 0x507350 -> BL 0x62F91C
 
 //; Loads the calculated arrow rotation and stores it to
 //; character icon rotation (Replicate add logic)
@@ -43,7 +43,7 @@ RET
 
 //; Fix wrong direction in Mount Wario and BCP courses
 //; ui::Control_RaceMiniMap::loadMap(void) + 0x600
-//; 0x504A98 -> BL 0xB51630
+//; 0x504A98 -> BL 0x62F894
 
 //; In Mount Wario and every Booster Course Pass DLC course, the
 //; arrow direction is wrong at all times.
@@ -66,7 +66,7 @@ RET
 
 //; Register reference:
 //; X19 = ui::Control_RaceMiniMap*
-
+ 
  
 STP X29, X30, [SP, #-0x10]!
 
@@ -84,7 +84,7 @@ FCSEL S2, S3, S2, EQ
 FCMP S1, S3
 FCSEL S1, S3, S1, LT
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDRB W8, [X0, #0x26]
 CBZ W8, store //; Not mirror mode
 

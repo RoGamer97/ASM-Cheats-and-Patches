@@ -4,12 +4,12 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x14
-//; 0x507170 -> BL 0xB51494
+//; 0x507170 -> BL 0x7A26F0
 
 //; Load the kart's X and Y scales and cap ther minimum
 //; and maximum scale, and store it to the minimap character

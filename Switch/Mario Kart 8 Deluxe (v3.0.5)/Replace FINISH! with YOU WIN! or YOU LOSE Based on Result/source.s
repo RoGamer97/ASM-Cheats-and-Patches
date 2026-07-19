@@ -4,13 +4,13 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
 //; Add "YOU WIN!" and "YOU LOSE" textures to race (Automatically replaces FINISH! with YOU LOSE)
 //; ui::Page_RaceViewFront::bindWindowLayout_(gear::UIControlT<eui::ControlBase> *,ui::RaceWindow *) + 0x114
-//; 0x5457E0 -> BL 0xB51334
+//; 0x5457E0 -> BL 0x7A25EC
 
 //; Overrides W25 with 2 to add textures, only if mode ID is less than Time Trials (Grand Prix and Versus)
 
@@ -33,7 +33,7 @@ RET
 
 //; Change "FINISH" particle (yellow) to "YOU WIN!" particle (pink)
 //; ui::RaceWindow::RaceWindow(int,gear::FrameworkWindow const*,ui::Page_Race *) + 0x21C
-//; 0x54C4B8 -> BL 0xB513B8
+//; 0x54C4B8 -> BL 0x7A2610
 
 //; Override loaded W0 value with 0 if mode ID is less than Time Trials (Grand Prix and Versus)
 //; W0 is the ghost's index in the race. -1 if no ghost (Normal FINISH! particle), 0 if there's
@@ -61,7 +61,7 @@ RET
 
 //; Use "YOU WIN!" or "YOU LOSE" Based on Result
 //; ui::RaceWindow::onFakeGoal(void) + 0xD8
-//; 0x54C9A0 -> BL 0xB51358
+//; 0x54C9A0 -> BL 0x7A2640
 
 //; Set W20 bool (true for YOU WIN!, false for YOU LOSE) based on
 //; goal result type (returning it from gear::RaceKartChecker::getGoalReactionByRank(int),

@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
@@ -17,7 +17,7 @@
 
 //; Prevent Battle finishing at start when alone
 //; object::RaceBattleChecker::isRaceFinished_(void) + 0x328
-//; 0x39A794 -> BL 0xB519D8
+//; 0x39A794 -> BL 0x62F938
 
 //; When being alone in a Battle, it finishes instantly after starting.
 

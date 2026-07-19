@@ -4,7 +4,7 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
+//; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 //; Create and setup Battle coin models anywhere
@@ -15,7 +15,7 @@
 
 //; Create object::KartBattleCoinEffect anywhere (Part 1)
 //; object::KartChassisEffect::KartChassisEffect(object::KartVehicle *,gsys::Model *,gsys::Model *,gsys::ModelUnit *,gear::RaceKartInfo const&,int,repl::Recorder *) + 0xFC
-//; 0x124740 -> BL 0xB516A8
+//; 0x124740 -> BL 0x7A26A0
 
 //; Creates object::KartBattleCoinEffect in race for coin collect particle
 
