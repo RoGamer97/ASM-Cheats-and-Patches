@@ -1,7 +1,13 @@
-## 1st Place Crown
+## Debug Item Cycler
 
-Makes the player in 1st place have a crown on their head, on the minimap, and on their nametag.
+Reimplements the Debug Item Cycler feature from the debug build in retail.
 
-If you experience issues building from .pchtxt on console, use .ips instead.
+Allows cycling through every item.
+
+Hold `R` and press `D-Pad Left/Right` to cycle to the previous/next item. Cycling to "No Item" clears your current item.
+
+Press the item use button to give yourself the last item cycled to. No item will be given if you've never cycled or if the last item cycled to is "No Item".
+
+Does not work in Time Trials or online.
 
 The ASM source code can be found [here](source.s).
