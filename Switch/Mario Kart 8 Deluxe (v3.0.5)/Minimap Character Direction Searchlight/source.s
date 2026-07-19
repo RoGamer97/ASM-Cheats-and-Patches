@@ -22,6 +22,11 @@
 //; Replaces arrow with searchlight for local players only by
 //; overriding the loaded Battle mode with Renegade Round up for check
 
+//; Registerr reference:
+//; X0 = gear::RaceInfo*
+//; W22 = Player type
+
+
 .set BATTLETYPE_RENEGADE_ROUNDUP, 2
 
 LDR W8, [X0, #0xC] //; Original instruction
@@ -39,12 +44,16 @@ RET
 //; 0x506FA8 -> BL 0xB51548
 
 //; Enables searchlight when not being a cop, for local players only
-//; by overriding return value from object::KartInfoProxy::isPolice 
+//; by overriding return value from object::KartInfoProxy::isPolice(void)
 //; call to true
+
+//; Registerr reference:
+//; W22 = Player type
+
 
 STP X29, X30, [SP, #-0x10]!
 
-BLR X8 //; Original instruction
+BLR X8 //; object::KartInfoProxy::isPolice(void) - Original instruction
 
 CBNZ W0, end //; Cop
 
@@ -80,6 +89,10 @@ RET
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
  
+//; Register reference:
+//; X19 = ui::Control_RaceMiniMap*
+
+
 STP X29, X30, [SP, #-0x10]!
 
 LDR S0, [X19, #0x388]
@@ -96,7 +109,7 @@ FCSEL S2, S3, S2, EQ
 FCMP S1, S3
 FCSEL S1, S3, S1, LT
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDRB W8, [X0, #0x26]
 CBZ W8, store //; Not mirror mode
 

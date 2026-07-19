@@ -7,25 +7,41 @@
 //; Hooks are placed in free space in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
-//; Construct and setup Battle coin models and stuff anywhere
+//; Create and setup Battle coin models anywhere
 //; object::KartChassis::KartChassis(object::KartVehicle *, gear::RaceKartInfo const&, bool, bool, bool, bool) + 0xAEC
 //; 0x11B8C0 -> MOV W8, #0
 //; Override the loaded Battle type with Coin, to enable Coin models
 
 
-//; Fix race crash
-//; object::KartBattleCoinEffect::emitBattleCoinGet(sead::Vector3<float> const&) + 0x1C
-//; 0x131974 -> BL 0xB51148
+//; Create object::KartBattleCoinEffect anywhere (Part 1)
+//; object::KartChassisEffect::KartChassisEffect(object::KartVehicle *,gsys::Model *,gsys::Model *,gsys::ModelUnit *,gear::RaceKartInfo const&,int,repl::Recorder *) + 0xFC
+//; 0x124740 -> BL 0xB516A8
 
-//; Coin stack crashes in race, likely because it lacks the coin emit particle
+//; Creates object::KartBattleCoinEffect in race for coin collect particle
 
-//; If X21 is null pointer, 
+//; Avoid creating it in the menu because it crashes
 
-CBNZ X21, end
+//; Done by overriding the kart's isBattle bool with false if in menu, and
+//; true otherwise
 
-ADD X30, X30, #0x50
+//; Register reference:
+//; W8 = Kart's isBattle bool (Input and output)
+
+
+.set RACERULE_MENU, 5
+
+STP X29, X30, [SP, #-0x10]!
+
+BL 0x87C244 //; gear::GetRaceInfo(void)
+LDR W8, [X0, #8]
+CMP W8, #RACERULE_MENU
+CSET W8, NE
+
+LDP X29, X30, [SP], #0x10
 RET
 
-end:
-LDR X8, [X21, #0x80]!
-RET
+
+//; Create object::KartBattleCoinEffect anywhere (Part 2)
+//; object::KartChassisEffect::KartChassisEffect(object::KartVehicle *,gsys::Model *,gsys::Model *,gsys::ModelUnit *,gear::RaceKartInfo const&,int,repl::Recorder *) + 0x120
+//; 0x124764 -> MOV W8, #0
+//; Override the loaded kart's battle type with Coin Runners (0) to create object::KartBattleCoinEffect anywhere

@@ -42,8 +42,11 @@ RET
 //; Timer player ID is always 0 by default, so
 //; when playing online, lap timer and animation
 //; is based on the host of the room.
+//; Change it to your ID instead.
 
-//; Change it to your ID instead
+//; getMyKartIndex returns -1 offline. Change it to
+//; 0 if this is the case since your ID is always
+//; 0 offline.
 
 STP X29, X30, [SP, #-0x20]!
 STR X8, [SP, #0x10]

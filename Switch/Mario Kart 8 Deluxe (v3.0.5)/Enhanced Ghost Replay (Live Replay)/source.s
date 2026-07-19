@@ -12,9 +12,12 @@
 //; object::KartVehicle::KartVehicle(int, object::KartUnit *, gear::ResourceKartBase const&, float) + 0x798
 //; 0x16ECBC -> BL 0xB51188
 
-//; Sets "isGhost" bool to false for replay ghost only
+//; Override the loaded "isGhost" bool to false for replay ghost only
+//; (Ghost player ID is 0 when being watched, and 1 when being raced against)
 
-//; Ghost player ID is 0 when being watched, and 1 when being raced against
+//; Register reference:
+//; X19 = object::KartVehicle*
+
 
 LDRB W8, [X19, #0xD4] //; Original instruction
 
@@ -29,8 +32,11 @@ RET
 //; 0x17710C -> BL 0xB5119C
 
 //; Fixes an issue where the ghost is still transparent and fades
-//; to opaque at the start of the replay by forcing opaque alpha
-//; Same logic as the code above
+//; to opaque at the start of the replay by forcing opaque alpha.
+//; Same logic as the code above to only affect replay ghost
+
+//; Register reference:
+//; X19 = object::KartVehicle*
 
 
 LDR S0, [X19, #0x278] //; Original instruction
@@ -55,6 +61,11 @@ RET
 
 //; Overrides the loaded player type to player for
 //; ghost if racer amount is 1 (Only ghost present = Replay)
+
+//; Register reference:
+//; X8 = gear::RaceKartInfo*
+//; X0 = gear::RaceInfo*
+
 
 .set PLAYERTYPE_GHOST, 3
 

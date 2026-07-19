@@ -74,6 +74,14 @@ RET
 //; local player, and increment it by the window ID to get the proper player ID for the other
 //; local players in Multiplayer (Local player IDs are always sequencial)
 
+//; getMyKartIndex returns -1 offline. Change it to
+//; 0 if this is the case since your ID is always
+//; 0 offline.
+
+//; Register reference:
+//; X19 = ui::RaceWindow*
+
+
 .set RACERULE_TIME_TRIALS, 2
 
 .set GOALREACTION_LOSE, 2
@@ -93,11 +101,11 @@ CSEL W0, WZR, W0, EQ
 LDR W8, [X19]
 ADD W1, W0, W8
 
-BL 0x7F41FC
+BL 0x7F41FC //; gear::FrameworkUtil::getCurrentGameScene(void)
 LDR X8, [X0, #0x1B0]
 LDR X8, [X8, #0x218]
 LDR X8, [X8, #0x68]
-LDR X8, [X8,X1,LSL#3]
+LDR X8, [X8,X1,LSL#3] //; gear::RaceKartChecker*
 LDR W0, [X8, #0x40]
 ADD X8, SP, #0x10
 BL 0x87CDB8 //; gear::RaceKartChecker::getGoalReactionByRank(int)

@@ -24,6 +24,10 @@
 //; If arrow icon is nullptr, skip storing rotation to it
 //; to avoid crash by skipping part of the code
 
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
+
 LDR X9, [X19, #0xD8]
 FADD S1, S0, S2
 STR S1, [X9, #0x44]
@@ -59,6 +63,10 @@ RET
 //; In Mirror Mode, they're inverted, so fix it by inverting the values
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
+
+//; Register reference:
+//; X19 = ui::Control_RaceMiniMap*
+
  
 STP X29, X30, [SP, #-0x10]!
 

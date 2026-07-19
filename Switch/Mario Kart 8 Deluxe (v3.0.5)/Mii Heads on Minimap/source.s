@@ -11,11 +11,15 @@
 //; ui::Control_RaceDRCCharaIcon::setDriverID(mush::EDriverID,int,uchar,bool) + 0x150
 //; 0x507778 -> BL 0xB51564
 
-//; Skip code if offline mode
+//; Skip the code if offline mode
 
 //; Override the loaded character ID Mii's ID so
 //; minimap icon is mii face, but only if player is 
 //; not a CPU (For Friend Rooms and Tournament)
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 .set DRIVER_MII, 0x1D
 

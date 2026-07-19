@@ -22,7 +22,11 @@
 //; do it if kart is a ghost from Time Trials to avoid transparent
 //; ghost icon
 
-//; Change character icon to black if inked
+//; Change character icon material color icon to black if inked
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 //; Little endian, bytes are inverted
 .set WHITE_RGBA, 0xFFFFFFFF

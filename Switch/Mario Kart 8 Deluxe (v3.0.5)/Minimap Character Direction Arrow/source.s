@@ -37,6 +37,10 @@
 //; In Mirror Mode, they're inverted, so fix it by inverting the values
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
+
+//; Register reference:
+//; X19 = ui::Control_RaceMiniMap*
+ 
  
 STP X29, X30, [SP, #-0x10]!
 
@@ -54,7 +58,7 @@ FCSEL S2, S3, S2, EQ
 FCMP S1, S3
 FCSEL S1, S3, S1, LT
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDRB W8, [X0, #0x26]
 CBZ W8, store //; Not mirror mode
 

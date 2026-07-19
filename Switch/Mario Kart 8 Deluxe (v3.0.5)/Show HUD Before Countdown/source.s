@@ -15,6 +15,11 @@
 //; Replicates the game's invoke window layout call but somewhere else that runs
 //; on race load, to immediately show the HUD
 
+//; Register reference:
+//; X19 = ui::Page_Race*
+//; X21 = Window ID
+
+
 STP X29, X30, [SP, #-0x10]!
 
 LDR W20, [X19, #0x350]

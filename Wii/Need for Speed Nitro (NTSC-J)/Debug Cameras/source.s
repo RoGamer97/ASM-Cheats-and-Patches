@@ -14,15 +14,12 @@
 # Game handles camera control and camera mode change
 
 
-# Functions
 .set CameraAI__SetAction, 0x80065C30
 
-# Globals
 .set addr_Wiimote2ButtonHold, 0x806F3D82
 .set addr_Wiimote2ButtonTrig, 0x806F3D86
 .set addr_CDActionDebug_string, 0x80557838
 
-# Defines
 .set BUTTON_MINUS, 0x1000
 .set BUTTON_Z_NUNCHUK, 0x2000
 .set BUTTON_C_NUNCHUK, 0x4000

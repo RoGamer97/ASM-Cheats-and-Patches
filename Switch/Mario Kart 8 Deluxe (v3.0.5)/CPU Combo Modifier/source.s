@@ -8,18 +8,25 @@
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
-//; Force team mode to use non team mode characters selection
+//; Force team mode to use non-team mode characters selection
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2064 (Not a hook)
 //; 0x4FC208 -> MOV W8, #0
-//; Set W8 to zero for a check to always branch, so that team mode uses the regular character random (Avoid multiple hooks)
+//; Overrides the loaded W8 value with zero for a check, to always branch, so that team mode 
+//; uses the regular character random code (To avoid multiple hooks for CPU Combo hook)
 
 
 //; CPU Combo Modifier
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2134
 //; 0x4FC2D8 -> BL 0xB51564
 
-//; Makes a list for every CPU kart, tire, glider and character for every individual CPU
-//; You can set the "RANDOM" ID to have that part be randomly chosen
+//; Makes a list for set kart, tire, glider and character for every individual CPU
+
+//; You can set a part to the "RANDOM" ID to have that part be randomly chosen
+
+//; Register reference:
+//; W20 = CPU ID
+//; X23 = CPU combo address (0 = Kart, 4 = Tire, 8 = Glider, 0xC = Character)
+
 
 .set DRIVER_MARIO, 0
 .set DRIVER_LUIGI, 1
@@ -164,17 +171,17 @@ ADR X1, combos
 ADD X1, X1, X20, LSL#2
 MOV W2, WZR
 
-loop:
+loopParts:
 LDRB W8, [X1,X2]
 CMP W8, #RANDOM
-BEQ next
+BEQ nextPart
 
 STR W8, [X23,X2,LSL#2]
 
-next:
+nextPart:
 ADD W2, W2, #1
 CMP W2, #4
-BLT loop
+BLT loopParts
 
 end:
 RET

@@ -13,16 +13,20 @@
 //; 0xDBB24 -> BL 0xB5116C
 
 //; If character is Wiggler, set facial animation to 
-//; damage to make Wiggler angry and change W8 to zero
+//; damage to make Wiggler angry, and change W8 to zero
 //; to avoid some branches from skipping the set facial anim
 //; frame call
+
+
+//; Register reference:
+//; X19 = object::DriverKart*
 
 .set DRIVER_WIGGLER, 0x2F
 
 .set FACIAL_ANIM_DAMAGE, 4
 
 
-LDR W1, [X19,#0x324] //; Original instruction
+LDR W1, [X19, #0x324] //; Original instruction
 
 LDR W9, [X19, #0xC0]
 CMP W9, #DRIVER_WIGGLER //; Wiggler
@@ -39,11 +43,18 @@ RET
 //; object::DriverKart::calcELink(void) + 0xD6C
 //; 0xDDB30 -> BL 0xB5115C
 
-//; Angry Wiggler crashes on the menu because of the sound.
+//; Angry Wiggler crashes on the menu when trying to
+//; play the angry smoke SFX because kart audio
+//; is not created in menus.
 
-//; If X0 is nullptr, skip call that causes the crash.
-//; The function that it calls simply sets a bit to something,
-//; but X0 is nullptr.
+//; Fix the crash by skipping audio::AudSoundObjKart::requestHoldKartSE(audio::AudSoundObjKart::EHoldKartSE,int,int)
+//; call if audio::AudSoundObjKart* is nullptr
+
+//; Skip by modifying hook's return address: LR + 4 = 0xDDB38
+//; Returns after the requestHoldKartSE call
+
+//; Register reference:
+//; X0 = audio::AudSoundObjKart*
 
 CBNZ X0, end
 

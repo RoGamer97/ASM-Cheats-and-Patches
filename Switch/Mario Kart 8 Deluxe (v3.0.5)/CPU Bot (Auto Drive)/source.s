@@ -13,6 +13,9 @@
 
 //; Changes local players' kart to CPU
 
+//; Register reference:
+//; X19 = object::KartVehicle*
+
 MOV X19, X0 //; Original instruction
 
 STP X29, X30, [SP, #-0x10]!

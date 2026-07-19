@@ -15,8 +15,12 @@
 //; If the character the CPU is using is in the list, load the variant count
 //; for that character and use it for the modulo of the random U32 value to
 //; limit the variant ID from 0 to count - 1
+//; The result will be moved to W2, overwriting the character variant ID
 
-//; It is overriding W2 (Which is the loaded character variant ID) 
+//; Register reference:
+//; W2 = Character variant ID (Input and output)
+//; W8 = Character ID
+
 
 .set DRIVER_YOSHI, 4
 .set DRIVER_SHY_GUY, 0x10

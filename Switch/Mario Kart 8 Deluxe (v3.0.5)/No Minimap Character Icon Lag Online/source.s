@@ -25,6 +25,10 @@
 //; Only check for Lakitu respawn for net receive kart, to avoid freezing icon for local
 //; players and CPUs (Bool will be false because of isNetRecv call result)
 
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
+
 STP X29, X30, [SP, #-0x10]!
 
 BL 0x140A4C //; object::KartInfoProxy::isNetRecv(void)
