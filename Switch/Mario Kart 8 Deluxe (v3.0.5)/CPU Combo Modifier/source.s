@@ -17,7 +17,7 @@
 
 //; CPU Combo Modifier
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2134
-//; 0x4FC2D8 -> BL 0xB51564
+//; 0x4FC2D8 -> BL 0xB51A68
 
 //; Makes a list for set kart, tire, glider and character for every individual CPU
 
