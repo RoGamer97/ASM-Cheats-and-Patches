@@ -73,6 +73,7 @@ STR W0, [SP, #0x14]
 
 LDR W0, [X19, #0x40]
 BL 0x8B9544 //; gear::GetControllerIndexFromKartIndex(int)
+TBNZ W0, end
 BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 
