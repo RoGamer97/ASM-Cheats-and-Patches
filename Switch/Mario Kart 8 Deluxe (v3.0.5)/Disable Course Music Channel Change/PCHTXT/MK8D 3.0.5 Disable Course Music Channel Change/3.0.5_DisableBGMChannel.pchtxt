@@ -4,5 +4,6 @@
 // Disable Course Music Channel Change
 @enabled
 000830C8 C0035FD6
+00083808 C0035FD6
 
 @stop
