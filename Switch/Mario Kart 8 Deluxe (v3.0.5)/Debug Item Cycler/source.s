@@ -72,8 +72,6 @@
 .set BUTTON_DPAD_LEFT, 0x40000
 .set BUTTON_DPAD_RIGHT, 0x80000
 
-.set MAX_ITEM, 0x17
-
 .set ITEMOBJSTATE_KEEP, 1
 
 .set ITEMSLOT_NONE, -1
@@ -100,6 +98,7 @@
 .set ITEMSLOT_CRAZY_EIGHT, 0x14
 .set ITEMSLOT_FEATHER, 0x15
 .set ITEMSLOT_BOO, 0x16
+.set ITEMSLOT_MAX, 0x17
 
 STP X29, X30, [SP, #-0x20]!
 
@@ -152,7 +151,7 @@ MOV W10, #1
 TST W8, #BUTTON_DPAD_LEFT
 CNEG W10, W10, NE
 
-MOV W9, #MAX_ITEM
+MOV W9, #ITEMSLOT_MAX
 LDRB W8, [X20, #0x39]
 ADD W8, W8, W10
 CMP W8, #0
@@ -212,7 +211,7 @@ BL 0xE290 //; gear::ItemNumManager::update(void)
 MOV X0, X27
 ADD X1, SP, #0x10
 MOV W2, WZR
-BL 0xE8B4 //; gear::ItemNumManager::checkCreateNum(gear::EItemSlot)
+BL 0xE8B4 //; gear::ItemNumManager::checkCreateNum(gear::EItemSlot,int)
 CBNZ W0, slotRotate //; Limit not reached
 
 MOV W8, #ITEMSLOT_COIN
@@ -224,7 +223,7 @@ MOV W1, W21
 ADD X2, SP, #0x10
 MOV W3, #1
 MOV W4, #1
-BL 0x42780 //; gear::ItemOwner::startSlot(int,gear::EItemSlot,bool)
+BL 0x42780 //; gear::ItemOwner::startSlot(int,gear::EItemSlot,bool,bool)
 
 CBZ W23, end //; Item given by item use button
 

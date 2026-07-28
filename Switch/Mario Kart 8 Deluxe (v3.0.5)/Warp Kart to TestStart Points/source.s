@@ -52,15 +52,16 @@
 .set OBJECT_TESTSTART, 0x1772
 
 LDR W8, [X8, #8]
-STP X29, X30, [SP, #-0x20]!
+STP X29, X30, [SP, #-0x30]!
 STR W8, [SP, #0x10]
+STR X20, [SP, #0x20]
 
-LDR X9, [X19, #8]
+LDR X20, [X19, #8]
 
-LDRB W10, [X9, #0xD0]
+LDRB W10, [X20, #0xD0]
 CBZ W10, end //; Not local player kart
 
-LDRB W10, [X9, #0xE6]
+LDRB W10, [X20, #0xE6]
 CBNZ W10, end //; Net send kart
 
 BL 0x80C804 //; gear::GetMapObjAccessor(void)
@@ -73,7 +74,9 @@ STR W0, [SP, #0x14]
 
 LDR W0, [X19, #0x40]
 BL 0x8B9544 //; gear::GetControllerIndexFromKartIndex(int)
-TBNZ W0, end
+CMP W0, #-1
+BEQ end
+
 BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 
@@ -96,46 +99,43 @@ FCMP S0, S1
 BGT clearFlag
 
 isFlagSet:
-LDR X8, [X19, #8]
-LDRB W9, [X8, #0x349]
+LDRB W9, [X20, #0x349]
 CBNZ W9, avoidCalc //; Already set, skip warp
 
 MOV W9, #1
-STRB W9, [X8, #0x349]
+STRB W9, [X20, #0x349]
 
 LDR W11, [SP, #0x14]
-LDR X9, [X19, #8]
-LDRB W8, [X9, #0x34A]
+LDRB W8, [X20, #0x34A]
 ADD W8, W8, W10
 CMP W8, #0
 CSEL W8, W11, W8, LT
 CMP W8, W11
 CSEL W8, WZR, W8, GT
-STRB W8, [X9, #0x34A]
+STRB W8, [X20, #0x34A]
 
 BL 0x80C804 //; gear::GetMapObjAccessor(void)
 MOV W1, #OBJECT_TESTSTART
-LDR X8, [X19, #8]
-LDRB W2, [X8, #0x34A]
+LDRB W2, [X20, #0x34A]
 BL 0x810A24 //; gear::MapUnitMapObjAccessor::search(ushort,ushort)
 ADD X0, X0, #0x10
 STR X0, [SP, #0x18]
 
-LDR X8, [X19, #8]
-LDR W9, [X8, #0x1CC]
+LDR W9, [X20, #0x1CC]
 TBZ W9, #22, reset //; Not respawning
 
-LDR X0, [X8, #0x90]
+LDR X0, [X20, #0x90]
 LDR X1, [SP, #0x18]
 BL 0x144534 //; object::KartJugemRecover::finishRecover(gear::MtxT const&)
 
 reset:
-LDR X0, [X19, #8]
+MOV X0, X20
 MOV W1, #1
 BL 0x171004 //; object::KartVehicle::reset(bool)
 
 MOV X0, X19
 LDR X1, [SP, #0x18]
+FMOV S0, #5.0
 BL 0x16C2F8 //; object::KartUnit::resetMatrix(gear::MtxT const&,float)
 
 LDR X8, [X19, #8]
@@ -171,12 +171,12 @@ STR W8, [SP, #0x10]
 B end
 
 clearFlag:
-LDR X8, [X19, #8]
-STRB WZR, [X8, #0x349]
+STRB WZR, [X20, #0x349]
 
 end:
 LDR W8, [SP, #0x10]
-LDP X29, X30, [SP], #0x20
+LDR X20, [SP, #0x20]
+LDP X29, X30, [SP], #0x30
 RET
 stickMin: .float 0.8
 
