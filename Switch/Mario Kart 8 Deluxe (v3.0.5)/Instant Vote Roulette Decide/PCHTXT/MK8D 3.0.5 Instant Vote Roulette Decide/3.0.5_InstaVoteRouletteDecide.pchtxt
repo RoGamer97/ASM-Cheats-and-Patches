@@ -1,9 +1,0 @@
-@nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
-@flag offset_shift 0x100
-
-// Instant Vote Roulette Decide
-@enabled
-004E6000 04000014
-004E6100 480B8052
-
-@stop
