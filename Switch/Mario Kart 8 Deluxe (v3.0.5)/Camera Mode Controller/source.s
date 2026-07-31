@@ -9,11 +9,24 @@
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
-//; Toggle camera mode anywhere
+//; Toggle replay camera anywhere
 //; ui::Page_Race::onCalc_(void) + 0x2DC
 //; 0x531818 -> BL 0xAAF59C
 
-//; !!!!!!!!!!TODO!!!!!!!!!!!!!!!
+//; Overrides the loaded "Can toggle replay cam" bool with true
+//; if ZR is held
+
+//; This bool is only true when watching a Ghost or in Live View. 
+//; When true, it calls ui::Page_Race::calcExtraCamera_(void)
+//; which allows toggling replay camera with X button
+
+//; Make it so it's only true if Left Stick In is held so toggling replay cam
+//; only happens if it's pressed, and also allows it being toggled in race
+
+
+//; Register reference:
+//; W8 = Can toggle replay cam bool (Input and output)
+
 
 .set BUTTONBIT_LEFT_STICK_IN, 7
 .set BUTTON_LEFT_STICK_IN, (1 << BUTTONBIT_LEFT_STICK_IN)
@@ -36,14 +49,29 @@ RET
 //; DemoCameraController::calcReplay(void) + 0x24
 //; 0xCC6B0 -> BL 0xAAF5C0
 
-//; !!!!!!!!!!!!!!TODO!!!!!!!!!!!!
+//; Cycles through camera modes by holding Right Stick In
+//; and pressing D-Pad Left/Right
+
+//; Stores current camera mode in DemoCameraController* + 0x16E,
+//; which is a padding byte. The value will be the forced camera
+//; mode, but - 1, because camera modes start at 0, but 0 should
+//; be normal camera mode/not forced, so don't force mode if 0,
+//; and if any value other than 0, subtract it by 1 to force the
+//; the correct mode.
+
+//; Reset camera rotation on change
+
+//; Forced by overriding the loaded camera mode with stored one - 1
+
 
 //; Register reference:
+//; W9 = Camera mode (Input and output)
 //; X19 = DemoCameraController*
 
 
 .set LAST_CAM, 5
 
+.set BUTTONBIT_RIGHT_STICK_IN, 6
 .set BUTTONBIT_DPAD_LEFT, 18
 .set BUTTONBIT_DPAD_RIGHT, 19
 
@@ -58,7 +86,7 @@ MOV W0, WZR
 BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
-TBZ W8, #6, isModifiedCam //; Right Stick In not pressed
+TBZ W8, #BUTTONBIT_RIGHT_STICK_IN, isModifiedCam //; Right Stick In not pressed
 
 LDR W8, [X0, #8]
 TST W8, #(BUTTON_DPAD_LEFT | BUTTON_DPAD_RIGHT)
@@ -94,20 +122,35 @@ LDP X29, X30, [SP], #0x20
 RET
 
 
-//; Camera zoom, rotation and culling
-//; 
+//; Camera zoom, rotation and disable culling
+//; gear::DemoCameraController::calcCollision_(sead::Matrix34<float> *,sead::Vector3<float> const&,bool,bool) + 0x370
 //; 0x7DFF00 -> BL 0xAAF648
 
-!!!!!!TODO!!!!!!!!!!
+//; Allows zooming and rotating the camera, and disables culling if camera is zoomed out enough
+
+//; Hold Right Stick In and press D-Pad Up to toggle zoom mode
+//; In zoom mode, allow zooming in with X and zooming out with Y. Left Stick Up/Down while zooming increases/decreases zoom speed
+//; Store zoom to camera zoom
+
+//; If not in zoom mode, zoom the camera out smoothly until it reaches the original zoom (S12)
+
+//; Can rotate camera with Right Stick
+//; Invert rotation in Mirror Mode
+
+//; If camera zoom is greather than original zoom by 100.0, disable culling
+
+
+//; Register reference:
+//; X20 = gear::DemoCameraController*
 
 .set BUTTONBIT_X, 3
 .set BUTTONBIT_Y, 4
+.set BUTTONBIT_RIGHT_STICK_IN, 6
 .set BUTTONBIT_DPAD_UP, 16
 .set BUTTONBIT_DPAD_DOWN, 17
 
 .set BUTTON_X, (1 << BUTTONBIT_X)
 .set BUTTON_Y, (1 << BUTTONBIT_Y)
-
 .set BUTTON_DPAD_UP, (1 << BUTTONBIT_DPAD_UP)
 .set BUTTON_DPAD_DOWN, (1 << BUTTONBIT_DPAD_DOWN)
 
@@ -117,10 +160,10 @@ MOV W0, WZR
 BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
-TBZ W8, #6, isZoomMode //; Right Stick In not held
+TBZ W8, #BUTTONBIT_RIGHT_STICK_IN, isZoomMode //; Right Stick In not held
 
 LDR W9, [X0, #8]
-TBZ W9, #16, isZoomMode //; D-Pad Up not triggered
+TBZ W9, #BUTTONBIT_DPAD_UP, isZoomMode //; D-Pad Up not triggered
 
 LDRB W10, [X20, #0x16F]
 EOR W10, W10, #1
@@ -159,7 +202,7 @@ FCSEL S0, S2, S0, GE
 
 STR S0, [X20, #0x1C8]
 
-TBZ W8, #3, add
+TBZ W8, #BUTTONBIT_X, add
 
 FNEG S0, S0
 
@@ -252,9 +295,13 @@ diffForNoCul: .float 100
 
 //; Clear Y button from kart acceleration inputs
 //; gear::ControllerRace::init(void) + 0x4C
-7D5434 -> BL 0xAAF844
+//; 0x7D5434 -> BL 0xAAF844
 
-.set BUTTON_Y, 0x10
+//; Clear Y button from kart acceleration inputs on load
+
+.set BUTTONBIT_Y, 4
+
+.set BUTTON_Y, (1 << BUTTONBIT_Y)
 
 STRB WZR, [X19, #0x39C]
 LDR W8, [X19, #0x240]
@@ -263,9 +310,23 @@ STR W8, [X19, #0x240]
 RET 
 
 
+//; Prevent kart inputs with Right Stick
+//; ??? + 0x28 (Not a hook)
+//; 0x7DCED8 -> RET
+//; Remove a branch to gear::ControllerWrapper::updateStickToCross(sead::Vector2<float> const&,float,uint const*)
+//; in some function that converts the Right Stick to kart input
+
+
 //; MKTV replay stick only works if ZR is held
 //; object::RecorderDirector::updatePlayRate_(void) + 0x80
-0x3A8C84 -> BL 0xAAF7E0
+//; 0x3A8C84 -> BL 0xAAF7E0
+
+//; Overrides the loaded stick values and some replay rate with default
+//; neutral and default values if ZR is not held, to make replay unaffected 
+//; by stick unless if holding ZR
+
+
+.set BUTTONBIT_ZR, 5
 
 STP X29, X30, [SP, #-0x10]!
 
@@ -273,7 +334,7 @@ MOV W0, WZR
 BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
-TBNZ W8, #5, end //; ZR button not held
+TBNZ W8, #BUTTONBIT_ZR, end //; ZR button not held
 
 FMOV S0, #0.0
 FMOV S8, #1.0
@@ -287,9 +348,18 @@ RET
 
 //; MKTV fullscreen button only works if ZR is held
 //; ui::Page_TheaterRace::onHandler_(gear::UIEvent const&) + 0x8C
-549B04 -> BL 0xAAF81C
+//; 0x549B04 -> BL 0xAAF81C
 
-.set BUTTON_ZR, 0x20
+//; Overrides some loaded bit with zero if ZR is not held,
+//; it skips going to the function's end if that bit is set,
+//; allowing fullscreen
+
+//; So, fullscreen button will only work if ZR is held
+
+
+.set BUTTONBIT_ZR, 5
+
+.set BUTTON_ZR, (1 << BUTTONBIT_ZR)
 
 STP X29, X30, [SP, #-0x10]!
 
