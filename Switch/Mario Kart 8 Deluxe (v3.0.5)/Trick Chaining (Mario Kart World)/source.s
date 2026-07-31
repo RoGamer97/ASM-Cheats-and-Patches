@@ -82,7 +82,7 @@ MOV W9, WZR
 MOV W21, WZR
 
 end:
-ORR W9, W9, W22
+ORR W9, W9, W22 //; Original instruction
 LDP X29, X30, [SP], #0x20
 RET
 
@@ -178,7 +178,7 @@ stick: .float 0.3
 .set KARTSTATUS_SCREW, (1 << KARTSTATUSBIT_SCREW)
 
 MOV X9, X8
-LDR W8, [X8, #0x1CC]
+LDR W8, [X8, #0x1CC] //; Original instruction
 TBZ W8, #KARTSTATUSBIT_DURINGJUMPACTION, end //; Not in trick animation
 
 LDR W9, [X9, #0x204]
