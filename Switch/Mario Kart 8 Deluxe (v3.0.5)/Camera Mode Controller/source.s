@@ -14,7 +14,7 @@
 //; 0x531818 -> BL 0xAAF59C
 
 //; Overrides the loaded "Can toggle replay cam" bool with true
-//; if ZR is held
+//; if Left Stick In is held
 
 //; This bool is only true when watching a Ghost or in Live View. 
 //; When true, it calls ui::Page_Race::calcExtraCamera_(void)

@@ -10,12 +10,20 @@
 //; object::DriverKart::calcSkeletalAnim_(void) + 0x1C
 //; 0xDB1EC -> BL 0xAAF934
 
-//; !!!!!!!TODO!!!!!!!!!!!!!!
+//; Toggles play repeat animation mode by holding Right Stick In and pressing Left Stick In
+//; In that mode, holding Right Stick In and pushing Left Stick Left/Right cycles through animations
+//; Also in that mode, pressing Right Stick In changes the mode to control animation mode
+
+//; In control animation mode, holding Left Stick In and pushing it Left/Right moves through the
+//; animation keyframes. Holding X and pressing D-Pad Left/Right cycles through facial animations.
 
 //; object::DriverKart* + 0x336 and 0x337 are padding bytes.
 //; Use them for the code:
 //; 0x336 = Animation modes (0 for None, 1 for Play Repeat Anim and 2 for Control Anim)
 //; 0x337 = Selected animation ID
+
+//; W9 is checked, if it's < 1, it branches to the function end, skipping animation
+//; calculation. Override it with 0 in Control Animation Mode to freeze character Animation
 
 
 //; Register reference:
@@ -98,6 +106,7 @@ LDR W8, [X0, #0x114]
 TBZ W8, #BUTTONBIT_LEFT_STICK_IN, changeFaceAnim //; Left Stick In not held
 
 //; Replicate the game's way of loading this
+//; X20 + 0 is current keyframe and X20 + 8 is total keyframes
 LDR X8, [X19, #0x38]
 LDR W9, [X8, #0x38]
 LDR X8, [X8, #0x40]
