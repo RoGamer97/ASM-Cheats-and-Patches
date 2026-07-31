@@ -51,6 +51,8 @@
 
 .set OBJECT_TESTSTART, 0x1772
 
+.set BUTTONBIT_MINUS, 12
+
 LDR W8, [X8, #8]
 STP X29, X30, [SP, #-0x30]!
 STR W8, [SP, #0x10]
@@ -81,7 +83,7 @@ BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 
 LDR W9, [X0, #0x114]
-TBZ W9, #12, clearFlag //; Minus button not held
+TBZ W9, #BUTTONBIT_MINUS, clearFlag //; Minus button not held
 
 LDR S0, [X0, #0x128]
 

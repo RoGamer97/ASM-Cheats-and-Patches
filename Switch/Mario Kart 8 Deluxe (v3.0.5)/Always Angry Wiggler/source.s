@@ -29,7 +29,7 @@
 LDR W1, [X19, #0x324] //; Original instruction
 
 LDR W9, [X19, #0xC0]
-CMP W9, #DRIVER_WIGGLER //; Wiggler
+CMP W9, #DRIVER_WIGGLER
 BNE end
 
 MOV W1, #FACIAL_ANIM_DAMAGE

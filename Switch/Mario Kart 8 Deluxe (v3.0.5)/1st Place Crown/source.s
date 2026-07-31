@@ -49,6 +49,7 @@
 //; X20 = gear::RaceCheckerBase*
 //; X22 = object::KartVehicle*
 
+.set RANK_1ST_PLACE, 0
 
 LDRB W8, [X22, #0xE3]
 CBNZ W8, end //; Battle Mode
@@ -57,7 +58,7 @@ LDR X8, [X20, #0x28]
 LDR X8, [X8, #0x68]
 LDR X8, [X8,X21,LSL#3] //; gear::RaceKartChecker*
 LDR W8, [X8, #0x40]
-CMP W8, #0 //; 1st place
+CMP W8, #RANK_1ST_PLACE
 CSET W0, EQ
 
 end:

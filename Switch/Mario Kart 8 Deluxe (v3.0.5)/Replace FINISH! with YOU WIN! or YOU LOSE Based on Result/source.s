@@ -46,7 +46,7 @@ STP X8, X9, [SP, #0x10]
 
 MOV W1, W0
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDR W8, [X0, #8]
 CMP W8, #RACERULE_TIME_TRIALS
 CSEL W1, W1, WZR, GE

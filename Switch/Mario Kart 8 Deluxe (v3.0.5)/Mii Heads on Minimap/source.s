@@ -33,7 +33,7 @@ CBZ W8, original //; Offline mode
 LDR W0, [X19, #0xB4]
 BL 0x85F9A0 //; gear::NetworkUtil::isCPU(int)
 
-MOV W8, DRIVER_MII
+MOV W8, #DRIVER_MII
 CBZ W0, end //; Not a CPU
 
 original:

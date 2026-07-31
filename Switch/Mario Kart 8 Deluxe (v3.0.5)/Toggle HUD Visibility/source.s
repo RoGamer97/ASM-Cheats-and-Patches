@@ -13,6 +13,9 @@
 
 //; Toggles the HUD visible bool by holding Y and pressing D-Pad Up
 
+.set BUTTONBIT_Y, 4
+.set BUTTONBIT_DPAD_UP, 16
+
 STP X29, X30, [SP, #-0x10]!
 
 MOV W0, WZR
@@ -20,10 +23,10 @@ BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X0, [X0, #0x158]
 
 LDR W8, [X0, #0x114]
-TBZ W8, #4, end //; Y button not held
+TBZ W8, #BUTTONBIT_Y, end //; Y button not held
 
 LDR W8, [X0, #8]
-TBZ W8, #16, end //; D-Pad Up not triggered
+TBZ W8, #BUTTONBIT_DPAD_UP, end //; D-Pad Up not triggered
 
 LDRB W8, [X19, #0xAA]
 EOR W8, W8, #1

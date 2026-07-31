@@ -69,8 +69,12 @@
 .set RACERULE_BATTLE, 3
 .set BATTLETYPE_BOMB, 3
 
-.set BUTTON_DPAD_LEFT, 0x40000
-.set BUTTON_DPAD_RIGHT, 0x80000
+.set BUTTONBIT_R, 14
+.set BUTTONBIT_DPAD_LEFT, 18
+.set BUTTONBIT_DPAD_RIGHT, 19
+
+.set BUTTON_DPAD_LEFT, (1 << BUTTONBIT_DPAD_LEFT)
+.set BUTTON_DPAD_RIGHT, (1 << BUTTONBIT_DPAD_RIGHT)
 
 .set ITEMOBJSTATE_KEEP, 1
 
@@ -105,7 +109,7 @@ STP X29, X30, [SP, #-0x20]!
 LDR X8, [X20, #0x48]
 LDR X8, [X8, #0x48]
 LDRB W9, [X8, #0xD0]
-CBZ W9, end //; Not local player
+CBZ W9, end //; Not local player kart
 
 LDRB W9, [X8, #0xE6]
 CBNZ W9, end //; Net send kart
@@ -130,7 +134,7 @@ BL 0x40494 //; gear::ItemOwner::isSlotRotate(int)
 CBZ W0, isCycleItem
 
 MOV W23, WZR
-CBNZ W24, getItemFromTableByIdx //; Item use button pressed
+CBNZ W24, getItemByIdx //; Item use button pressed
 
 isCycleItem:
 LDR W0, [X20, #0x40]
@@ -138,7 +142,7 @@ BL 0x8B9544 //; gear::GetControllerIndexFromKartIndex(int)
 BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
-TBZ W8, #14, end //; R button not held
+TBZ W8, #BUTTONBIT_R, end //; R button not held
 
 LDR W8, [X0, #8]
 MOV W9, #(BUTTON_DPAD_LEFT | BUTTON_DPAD_RIGHT)
@@ -191,7 +195,7 @@ ADD W27, W27, #1
 CMP W27, #8
 BLE vanishLoop
 
-getItemFromTableByIdx:
+getItemByIdx:
 ADR X8, itemList
 LDRB W9, [X20, #0x39]
 LDRB W9, [X8,X9]
@@ -225,7 +229,7 @@ MOV W3, #1
 MOV W4, #1
 BL 0x42780 //; gear::ItemOwner::startSlot(int,gear::EItemSlot,bool,bool)
 
-CBZ W23, end //; Item given by item use button
+CBZ W23, end //; Item given by use button
 
 MOV W0, W21
 LDR W1, [SP, #0x10]

@@ -4,8 +4,10 @@
 
 //; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
+
 //; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+
 
 //; Continue playing normal lap music in final lap and store bool for speedup 
 //; audio::AudSceneRace::changeRaceStateBgm_(void) + 0x9C and 0xA0 (Not a hook)
@@ -32,8 +34,8 @@
 //; 0x832B4 -> BL 0x89A60
 
 //; If the bool stored at audio::AudBgmRace* + 0x227 is true, we're on
-//; the final lap. Increment the music speed by 0.0002 until it
-//; reaches ~1.1.
+//; the final lap. So, increment the music speed by 0.0002 until it
+//; reaches ~1.1
 
 //; Will not apply to GCN Baby Park. For that course, the music
 //; will speedup in the final lap like any normal lap does instead
@@ -66,5 +68,5 @@ incrementSpeed: .float 0.0002
 //; Allow final lap music speedup on GCN Baby Park
 //; audio::AudBgmRace::calcChangeByLapNum_(void) + 0x11C (Not a hook)
 //; 0x833BC -> NOP
-//; NOP the branch that prevents GCN Baby Park's music speedup
+//; NOP the branch that skips GCN Baby Park's music speedup
 //; on final lap

@@ -11,7 +11,7 @@
 //; object::KartVehicle::calcXluAlpha_(void) + 0x14
 //; 0x177104 -> BL 0x89A94
 
-//; Changes local players' kart to CPU
+//; Changes local player kart to CPU
 
 //; Register reference:
 //; X19 = object::KartVehicle*

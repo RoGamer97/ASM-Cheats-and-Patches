@@ -56,7 +56,7 @@ BGE end
 LDR X8, [X19, #0x18]
 LDR X9, [X8, #8]
 LDRB W0, [X9, #0xD0]
-CBZ W0, end //; Not local player
+CBZ W0, end //; Not local player kart
 
 LDR W0, [X9, #0xA8]
 BL 0x8B9544 //; gear::GetControllerIndexFromKartIndex(int)
