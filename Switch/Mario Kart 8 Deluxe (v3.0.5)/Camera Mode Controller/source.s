@@ -317,7 +317,7 @@ RET
 //; in some function that converts the Right Stick to kart input
 
 
-//; MKTV replay stick only works if ZR is held
+//; Stick only affects MKTV replay if ZR is held
 //; object::RecorderDirector::updatePlayRate_(void) + 0x80
 //; 0x3A8C84 -> BL 0xAAF7E0
 

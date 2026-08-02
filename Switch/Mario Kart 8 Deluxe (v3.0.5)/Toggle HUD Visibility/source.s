@@ -8,7 +8,7 @@
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
 
 
-//; gear::UIEngine::onCalc_(void) + 0xE0 (Unsure if this is actually the function!)
+//; ui::UIEngineEx::onCalc_(void) + 0xE0
 //; 0x3FDD50 -> BL 0x7A27E4
 
 //; Toggles the HUD visible bool by holding Y and pressing D-Pad Up

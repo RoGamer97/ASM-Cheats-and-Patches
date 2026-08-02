@@ -8,6 +8,6 @@ Hold `Minus` and push `Right Stick Left/Right` to warp to the previous/next Test
 
 Holding these buttons causes the kart to float at the TestStart point.
 
-Does not work online.
+Does not work online by design.
 
 The ASM source code can be found [here](source.s).

@@ -2,6 +2,7 @@
 //; Game version: 3.0.5
 //; Code: Warp Kart to TestStart Points
 
+//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
 
 //; Hooks are written in unused functions because there is no space left in .text
 //; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
