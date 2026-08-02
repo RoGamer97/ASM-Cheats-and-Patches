@@ -28,6 +28,8 @@ When enabled, you can freely move the camera anywhere. The HUD is hidden and gam
 
 `R`: Twist Camera Right
 
+`L and R`: Reset Camera Twist
+
 The features below can only be performed when in Free Camera.
 
 #### Freeze Camera
