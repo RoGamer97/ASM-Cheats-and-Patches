@@ -10,7 +10,7 @@ Free Camera is the game's built-in debug camera provided by Nintendo's AGL libra
 
 Hold `ZR` and press `D-Pad Up` to toggle Free Camera.
 
-When enabled, you can freely move the camera anywhere. The HUD is hidden, game inputs are disabled, and course culling is disabled.
+When enabled, you can freely move the camera anywhere. The HUD is hidden and game inputs are disabled.
 
 #### Controls
 `Left Stick`: Rotate Camera
