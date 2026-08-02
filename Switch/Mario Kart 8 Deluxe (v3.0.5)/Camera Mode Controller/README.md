@@ -10,4 +10,6 @@ Disabling zoom mode makes the camera smoothly zoom back to its original zoom.
 
 You can rotate the camera with `Right Stick`.
 
+When watching a MKTV replay, inputs that interact with the replay like `X` for zoom or `Stick/D-Pad` will only work if `ZR` is held, so that camera can be controlled without interacting with the replay. You can still slow down the replay by holding `B` without hodling `ZR`.
+
 The ASM source code can be found [here](source.s).
