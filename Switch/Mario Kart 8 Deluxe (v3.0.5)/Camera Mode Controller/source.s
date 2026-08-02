@@ -341,7 +341,7 @@ FMOV S8, #1.0
 
 end:
 LDP X29, X30, [SP], #0x10
-LDRB W8, [X19, #0x300]
+LDRB W8, [X19, #0x300] //; Original instruction
 RET
 
 

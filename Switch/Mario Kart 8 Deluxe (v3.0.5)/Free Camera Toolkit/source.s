@@ -609,5 +609,5 @@ FMOV S0, #0.0
 FMOV S8, #1.0
 
 end:
-FMUL S1, S0, S1
+FMUL S1, S0, S1 //; Original instruction
 RET
