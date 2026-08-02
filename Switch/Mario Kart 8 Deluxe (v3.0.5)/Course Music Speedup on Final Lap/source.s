@@ -15,7 +15,7 @@
 //; 0x9E80C -> STRB W8, [X19, #0x227]
 //; Prevents final lap music from playing by replacing argument and BL call to
 //; audio::AudBgmRace::setBgmVolume(float, int) with a bool store to audio::AudBgmRace* + 0x227.
-//; AudBgmRace* + 0x227 is a padding byte that will be used to determine if music speedup
+//; AudBgmRace* + 0x227 is a padding byte, so store a bool there to determine if music speedup
 //; should happen
  
  
@@ -31,11 +31,11 @@
 
 //; Music speedup on final lap
 //; audio::AudBgmRace::calcChangeByLapNum_(void) + 0x14
-//; 0x832B4 -> BL 0x89A60
+//; 0x832B4 -> BL 0xAAFE84
 
-//; If the bool stored at audio::AudBgmRace* + 0x227 is true, we're on
-//; the final lap. So, increment the music speed by 0.0002 until it
-//; reaches ~1.1
+//; If the bool stored at audio::AudBgmRace* + 0x227 is true, speedup
+//; music by incrementing its speed by 0.0002 until it
+//; reaches ~1.1. Once reached, set bool to false to stop speedup
 
 //; Will not apply to GCN Baby Park. For that course, the music
 //; will speedup in the final lap like any normal lap does instead
@@ -55,8 +55,11 @@ LDR S1, incrementSpeed
 LDR S2, [X19, #0x220]
 FADD S2, S2, S1
 FCMP S2, S0
-BGT end
+BLT store
 
+STRB WZR, [X19, #0x227]
+
+store:
 STR S2, [X19, #0x220]
 
 end:
