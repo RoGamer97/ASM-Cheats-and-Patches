@@ -12,6 +12,7 @@
 //; A toggle for it doesn't exist in the retail game, but controls do, except that some things
 //; need to be patched for it to work.
 //; Thanks to Shadów (shadowninja108) for teaching me how to enable it!
+//; You can find his Splatoon 2 Free Camera repo for more information: https://github.com/shadowninja108/s2-freecam/tree/main
 
 //; Other than that, other additional features are added to make it into a more complete toolkit
 
