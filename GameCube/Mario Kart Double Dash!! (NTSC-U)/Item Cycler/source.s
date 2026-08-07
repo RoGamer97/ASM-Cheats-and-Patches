@@ -34,7 +34,7 @@
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x8020BA04
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x8020B800
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8020B5E8
-.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x80209A18
+.set getKartEquipItem__10ItemObjMgrFiUc, 0x80209A18
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x80209120
 
 .set ITEMSLOT_GREEN_SHELL, 0
@@ -225,8 +225,8 @@ isKartEquipItem:
 mr r3, r31
 mr r4, r27
 mr r5, r26
-lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
+lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0
@@ -322,7 +322,7 @@ mr. r29, r3 # Original instruction
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x8020BA04
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x8020B800
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8020B5E8
-.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x80209A18
+.set getKartEquipItem__10ItemObjMgrFiUc, 0x80209A18
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x80209120
 
 # Defines
@@ -520,8 +520,8 @@ isKartEquipItem:
 mr r3, r31
 mr r4, r27
 mr r5, r26
-lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
+lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0

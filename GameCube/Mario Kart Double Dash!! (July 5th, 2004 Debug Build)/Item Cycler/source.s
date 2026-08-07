@@ -33,7 +33,7 @@
 .set separate__13ItemWanWanObjFv, 0x8025B094
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x80241928
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x80241534
-.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x8023ED84
+.set getKartEquipItem__10ItemObjMgrFiUc, 0x8023ED84
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
@@ -226,8 +226,8 @@ isKartEquipItem:
 mr r3, r11
 mr r4, r30
 mr r5, r27
-lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
+lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0
@@ -322,7 +322,7 @@ mr. r28, r3 # Original instruction
 .set separate__13ItemWanWanObjFv, 0x8025B094
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x80241928
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x80241534
-.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x8023ED84
+.set getKartEquipItem__10ItemObjMgrFiUc, 0x8023ED84
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
@@ -522,8 +522,8 @@ isKartEquipItem:
 mr r3, r11
 mr r4, r30
 mr r5, r27
-lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
+lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0
