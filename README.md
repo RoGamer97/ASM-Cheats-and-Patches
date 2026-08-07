@@ -1,5 +1,4 @@
 [![Status](https://img.shields.io/badge/Status-Work%20in%20Progress-orange)](#-update-in-progress)
-[![Code](https://img.shields.io/badge/Code-Assembly-blue)](#source-code--wip)
 
 ## About
 
