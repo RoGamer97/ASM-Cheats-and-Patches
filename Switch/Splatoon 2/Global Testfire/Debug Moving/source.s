@@ -19,7 +19,9 @@
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -43,6 +45,9 @@ RET
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
 
+
+.set BUTTONBIT_MINUS, 9
+
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
@@ -52,7 +57,7 @@ BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
 
 ADRP X0, #0x2B6D000
 LDR X0, [X0, #0x298] //; _ZN4sead7Vector2IfE4zeroE
@@ -104,9 +109,11 @@ RET
 //; To avoid this, skip Pos draw if in spectator mode to match 
 //; debug build behavior
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+.set BUTTONBIT_MINUS, 9
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -119,7 +126,7 @@ MOV W0, WZR
 BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isToggleTrig //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; Minus button not held
 
 LDR S0, [X19, #0x730]
 LDR S1, velMultiplier
@@ -128,7 +135,7 @@ STR S0, [X19, #0x730]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #9, isInDebugMove //; Minus button not triggered
+TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; Minus button not triggered
 
 LDRB W8, [X26, #0x14]
 CBNZ W8, isInDebugMove //; Debug Marching/Leading enabled

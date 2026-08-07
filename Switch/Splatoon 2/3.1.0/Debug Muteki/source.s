@@ -19,7 +19,9 @@
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -56,9 +58,13 @@ RET
 
 //; Disables Debug Moving when toggled
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_L, 13
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -68,10 +74,10 @@ STP X29, X30, [SP, #-0x40]!
 MOV W0, WZR
 BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isInDebugMuteki //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Minus button not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #13, isInDebugMuteki //; L button not triggered
+TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; L button not triggered
 
 LDR W8, [X19, #0x108C]
 EOR W8, W8, #1

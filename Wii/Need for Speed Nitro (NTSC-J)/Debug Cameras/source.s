@@ -14,18 +14,19 @@
 # Game handles camera control and camera mode change
 
 
-# Functions
 .set CameraAI__SetAction, 0x80065C30
 
-# Globals
 .set addr_Wiimote2ButtonHold, 0x806F3D82
 .set addr_Wiimote2ButtonTrig, 0x806F3D86
 .set addr_CDActionDebug_string, 0x80557838
 
-# Defines
-.set BUTTON_MINUS, 0x1000
-.set BUTTON_Z_NUNCHUK, 0x2000
-.set BUTTON_C_NUNCHUK, 0x4000
+.set BUTTONBIT_MINUS, 12
+.set BUTTONBIT_Z_NUNCHUK, 13
+.set BUTTONBIT_C_NUNCHUK, 14
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
+.set BUTTON_Z_NUNCHUK, (1 << BUTTONBIT_Z_NUNCHUK)
+.set BUTTON_C_NUNCHUK, (1 << BUTTONBIT_C_NUNCHUK)
 
 li r3, 0
 li r4, 0

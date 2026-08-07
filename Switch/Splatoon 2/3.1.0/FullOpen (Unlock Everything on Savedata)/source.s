@@ -12,6 +12,11 @@
 
 //; Calls savedata function that unlocks everything, sets everything to max etc
 
+
+//; Register reference:
+//; X21 = Cmn::SaveData*
+
+
 STP X29, X30, [SP, #-0x10]!
 
 MOV X0, X21

@@ -33,36 +33,42 @@
 .set separate__13ItemWanWanObjFv, 0x8025B094
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x80241928
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x80241534
-.set getKartEquipItem__10ItemObjMgrFiUc, 0x8023ED84
+.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x8023ED84
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
-.set ITEM_GREEN_SHELL, 0
-.set ITEM_BOWSER_SHELL, 1
-.set ITEM_RED_SHELL, 2
-.set ITEM_BANANA, 3
-.set ITEM_GIANT_BANANA, 4
-.set ITEM_MUSHROOM, 5
-.set ITEM_STAR, 6
-.set ITEM_CHAIN_CHOMP, 7
-.set ITEM_BOBOMB, 8
-.set ITEM_FIREBALL, 9
-.set ITEM_LIGHTNING, 0xA
-.set ITEM_YOSHI_EGG, 0xB
-.set ITEM_GOLDEN_MUSHROOM, 0xC
-.set ITEM_BLUE_SHELL, 0xD
-.set ITEM_HEART, 0xE
-.set ITEM_FAKE_ITEM_BOX, 0xF
-.set ITEM_EMPTY, 0x10
+.set ITEMSLOT_GREEN_SHELL, 0
+.set ITEMSLOT_BOWSER_SHELL, 1
+.set ITEMSLOT_RED_SHELL, 2
+.set ITEMSLOT_BANANA, 3
+.set ITEMSLOT_GIANT_BANANA, 4
+.set ITEMSLOT_MUSHROOM, 5
+.set ITEMSLOT_STAR, 6
+.set ITEMSLOT_CHAIN_CHOMP, 7
+.set ITEMSLOT_BOBOMB, 8
+.set ITEMSLOT_FIREBALL, 9
+.set ITEMSLOT_LIGHTNING, 0xA
+.set ITEMSLOT_YOSHI_EGG, 0xB
+.set ITEMSLOT_GOLDEN_MUSHROOM, 0xC
+.set ITEMSLOT_BLUE_SHELL, 0xD
+.set ITEMSLOT_HEART, 0xE
+.set ITEMSLOT_FAKE_ITEMSLOT_BOX, 0xF
+.set ITEMSLOT_EMPTY, 0x10
 
 .set ITEMOBJ_STATE_RELEASE, 2
 .set ITEMOBJ_STATE_DISAPPEAR, 0xA
 
-.set BUTTON_X, 0x400
-.set BUTTON_Y, 0x800
-.set BUTTON_R, 0x20
-.set BUTTON_DPAD_LEFT, 1
-.set BUTTON_DPAD_RIGHT, 2
+.set BUTTONBIT_X, 10
+.set BUTTONBIT_Y, 11
+.set BUTTONBIT_R, 5
+.set BUTTONBIT_DPAD_LEFT, 0
+.set BUTTONBIT_DPAD_RIGHT, 1
+
+.set BUTTON_X, (1 << BUTTONBIT_X)
+.set BUTTON_Y, (1 << BUTTONBIT_Y)
+.set BUTTON_R, (1 << BUTTONBIT_R)
+.set BUTTON_DPAD_LEFT, (1 << BUTTONBIT_DPAD_LEFT)
+.set BUTTON_DPAD_RIGHT, (1 << BUTTONBIT_DPAD_RIGHT)
 
 .set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
 
@@ -172,10 +178,10 @@ isBelowFirstIndex:
 cmpwi r24, 0
 bge isAboveLastIndex
 
-li r24, ITEM_LIST_LAST_INDEX
+li r24, ITEMSLOT_LIST_LAST_INDEX
 
 isAboveLastIndex:
-cmpwi r24, ITEM_LIST_LAST_INDEX
+cmpwi r24, ITEMSLOT_LIST_LAST_INDEX
 ble store
 
 li r24, 0
@@ -187,7 +193,7 @@ cmpwi r28, 0
 beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
 
 lwz r4, 0x7C (r28)
-cmpwi r4, ITEM_CHAIN_CHOMP
+cmpwi r4, ITEMSLOT_CHAIN_CHOMP
 bne setStateForceDisappear
 
 lwz r4, 0x118 (r28)
@@ -199,7 +205,7 @@ lis r12, separate__13ItemWanWanObjFv@h
 ori r12, r12, separate__13ItemWanWanObjFv@l
 mtctr r12
 bctrl
-li r24, ITEM_CHAIN_CHOMP_INDEX
+li r24, ITEMSLOT_CHAIN_CHOMP_INDEX
 stbx r24, r16, r30
 b end
 
@@ -220,8 +226,8 @@ isKartEquipItem:
 mr r3, r11
 mr r4, r30
 mr r5, r27
-lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
+lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0
@@ -230,36 +236,36 @@ bne end
 bl getTableItemByIndex
 
 itemList:
-.byte ITEM_EMPTY
-.byte ITEM_GREEN_SHELL
-.byte ITEM_BOWSER_SHELL
-.byte ITEM_RED_SHELL
-.byte ITEM_BANANA
-.byte ITEM_GIANT_BANANA
-.byte ITEM_MUSHROOM
-.byte ITEM_STAR
-itemChainChomp: .byte ITEM_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
-.byte ITEM_BOBOMB
-.byte ITEM_FIREBALL
-.byte ITEM_LIGHTNING
-.byte ITEM_YOSHI_EGG
-.byte ITEM_GOLDEN_MUSHROOM
-.byte ITEM_BLUE_SHELL
-.byte ITEM_HEART
-.byte ITEM_FAKE_ITEM_BOX
+.byte ITEMSLOT_EMPTY
+.byte ITEMSLOT_GREEN_SHELL
+.byte ITEMSLOT_BOWSER_SHELL
+.byte ITEMSLOT_RED_SHELL
+.byte ITEMSLOT_BANANA
+.byte ITEMSLOT_GIANT_BANANA
+.byte ITEMSLOT_MUSHROOM
+.byte ITEMSLOT_STAR
+itemChainChomp: .byte ITEMSLOT_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
+.byte ITEMSLOT_BOBOMB
+.byte ITEMSLOT_FIREBALL
+.byte ITEMSLOT_LIGHTNING
+.byte ITEMSLOT_YOSHI_EGG
+.byte ITEMSLOT_GOLDEN_MUSHROOM
+.byte ITEMSLOT_BLUE_SHELL
+.byte ITEMSLOT_HEART
+.byte ITEMSLOT_FAKE_ITEMSLOT_BOX
 itemListEnd:
 
 .balign 4
 
 # Labels used for index bounds
-.set ITEM_LIST_COUNT, itemListEnd - itemList
-.set ITEM_LIST_LAST_INDEX, ITEM_LIST_COUNT - 1
-.set ITEM_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
+.set ITEMSLOT_LIST_COUNT, itemListEnd - itemList
+.set ITEMSLOT_LIST_LAST_INDEX, ITEMSLOT_LIST_COUNT - 1
+.set ITEMSLOT_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
 
 getTableItemByIndex:
 mflr r4
 lbzx r4, r4, r24
-cmpwi r4, ITEM_EMPTY
+cmpwi r4, ITEMSLOT_EMPTY
 beq end
 
 mr r3, r11
@@ -316,37 +322,43 @@ mr. r28, r3 # Original instruction
 .set separate__13ItemWanWanObjFv, 0x8025B094
 .set getRobberyItemNum__10ItemObjMgrFiUc, 0x80241928
 .set startItemShuffleSingle__10ItemObjMgrFib, 0x80241534
-.set getKartEquipItem__10ItemObjMgrFiUc, 0x8023ED84
+.set getKartEquipITEMSLOT__10ItemObjMgrFiUc, 0x8023ED84
 .set IsRollingSlot__10ItemObjMgrFiUc, 0x8024131C
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x8023E3D0
 
 # Defines
-.set ITEM_GREEN_SHELL, 0
-.set ITEM_BOWSER_SHELL, 1
-.set ITEM_RED_SHELL, 2
-.set ITEM_BANANA, 3
-.set ITEM_GIANT_BANANA, 4
-.set ITEM_MUSHROOM, 5
-.set ITEM_STAR, 6
-.set ITEM_CHAIN_CHOMP, 7
-.set ITEM_BOBOMB, 8
-.set ITEM_FIREBALL, 9
-.set ITEM_LIGHTNING, 0xA
-.set ITEM_YOSHI_EGG, 0xB
-.set ITEM_GOLDEN_MUSHROOM, 0xC
-.set ITEM_BLUE_SHELL, 0xD
-.set ITEM_HEART, 0xE
-.set ITEM_FAKE_ITEM_BOX, 0xF
-.set ITEM_EMPTY, 0x10
+.set ITEMSLOT_GREEN_SHELL, 0
+.set ITEMSLOT_BOWSER_SHELL, 1
+.set ITEMSLOT_RED_SHELL, 2
+.set ITEMSLOT_BANANA, 3
+.set ITEMSLOT_GIANT_BANANA, 4
+.set ITEMSLOT_MUSHROOM, 5
+.set ITEMSLOT_STAR, 6
+.set ITEMSLOT_CHAIN_CHOMP, 7
+.set ITEMSLOT_BOBOMB, 8
+.set ITEMSLOT_FIREBALL, 9
+.set ITEMSLOT_LIGHTNING, 0xA
+.set ITEMSLOT_YOSHI_EGG, 0xB
+.set ITEMSLOT_GOLDEN_MUSHROOM, 0xC
+.set ITEMSLOT_BLUE_SHELL, 0xD
+.set ITEMSLOT_HEART, 0xE
+.set ITEMSLOT_FAKE_ITEMSLOT_BOX, 0xF
+.set ITEMSLOT_EMPTY, 0x10
 
 .set ITEMOBJ_STATE_RELEASE, 2
 .set ITEMOBJ_STATE_DISAPPEAR, 0xA
 
-.set BUTTON_X, 0x400
-.set BUTTON_Y, 0x800
-.set BUTTON_R, 0x20
-.set BUTTON_DPAD_LEFT, 1
-.set BUTTON_DPAD_RIGHT, 2
+.set BUTTONBIT_X, 10
+.set BUTTONBIT_Y, 11
+.set BUTTONBIT_R, 5
+.set BUTTONBIT_DPAD_LEFT, 0
+.set BUTTONBIT_DPAD_RIGHT, 1
+
+.set BUTTON_X, (1 << BUTTONBIT_X)
+.set BUTTON_Y, (1 << BUTTONBIT_Y)
+.set BUTTON_R, (1 << BUTTONBIT_R)
+.set BUTTON_DPAD_LEFT, (1 << BUTTONBIT_DPAD_LEFT)
+.set BUTTON_DPAD_RIGHT, (1 << BUTTONBIT_DPAD_RIGHT)
 
 .set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
 
@@ -462,10 +474,10 @@ isBelowFirstIndex:
 cmpwi r24, 0
 bge isAboveLastIndex
 
-li r24, ITEM_LIST_LAST_INDEX
+li r24, ITEMSLOT_LIST_LAST_INDEX
 
 isAboveLastIndex:
-cmpwi r24, ITEM_LIST_LAST_INDEX
+cmpwi r24, ITEMSLOT_LIST_LAST_INDEX
 ble store
 
 li r24, 0
@@ -477,7 +489,7 @@ cmpwi r28, 0
 beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
 
 lwz r4, 0x7C (r28)
-cmpwi r4, ITEM_CHAIN_CHOMP
+cmpwi r4, ITEMSLOT_CHAIN_CHOMP
 bne setStateForceDisappear
 
 lwz r4, 0x118 (r28)
@@ -489,7 +501,7 @@ lis r12, separate__13ItemWanWanObjFv@h
 ori r12, r12, separate__13ItemWanWanObjFv@l
 mtctr r12
 bctrl
-li r24, ITEM_CHAIN_CHOMP_INDEX
+li r24, ITEMSLOT_CHAIN_CHOMP_INDEX
 stbx r24, r16, r30
 b end
 
@@ -510,8 +522,8 @@ isKartEquipItem:
 mr r3, r11
 mr r4, r30
 mr r5, r27
-lis r12, getKartEquipItem__10ItemObjMgrFiUc@h
-ori r12, r12, getKartEquipItem__10ItemObjMgrFiUc@l
+lis r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@h
+ori r12, r12, getKartEquipITEMSLOT__10ItemObjMgrFiUc@l
 mtctr r12
 bctrl
 cmpwi r3, 0
@@ -520,36 +532,36 @@ bne end
 bl getTableItemByIndex
 
 itemList:
-.byte ITEM_EMPTY
-.byte ITEM_GREEN_SHELL
-.byte ITEM_BOWSER_SHELL
-.byte ITEM_RED_SHELL
-.byte ITEM_BANANA
-.byte ITEM_GIANT_BANANA
-.byte ITEM_MUSHROOM
-.byte ITEM_STAR
-itemChainChomp: .byte ITEM_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
-.byte ITEM_BOBOMB
-.byte ITEM_FIREBALL
-.byte ITEM_LIGHTNING
-.byte ITEM_YOSHI_EGG
-.byte ITEM_GOLDEN_MUSHROOM
-.byte ITEM_BLUE_SHELL
-.byte ITEM_HEART
-.byte ITEM_FAKE_ITEM_BOX
+.byte ITEMSLOT_EMPTY
+.byte ITEMSLOT_GREEN_SHELL
+.byte ITEMSLOT_BOWSER_SHELL
+.byte ITEMSLOT_RED_SHELL
+.byte ITEMSLOT_BANANA
+.byte ITEMSLOT_GIANT_BANANA
+.byte ITEMSLOT_MUSHROOM
+.byte ITEMSLOT_STAR
+itemChainChomp: .byte ITEMSLOT_CHAIN_CHOMP # Label used for Chain Chomp separate part of code
+.byte ITEMSLOT_BOBOMB
+.byte ITEMSLOT_FIREBALL
+.byte ITEMSLOT_LIGHTNING
+.byte ITEMSLOT_YOSHI_EGG
+.byte ITEMSLOT_GOLDEN_MUSHROOM
+.byte ITEMSLOT_BLUE_SHELL
+.byte ITEMSLOT_HEART
+.byte ITEMSLOT_FAKE_ITEMSLOT_BOX
 itemListEnd:
 
 .balign 4
 
 # Labels used for index bounds
-.set ITEM_LIST_COUNT, itemListEnd - itemList
-.set ITEM_LIST_LAST_INDEX, ITEM_LIST_COUNT - 1
-.set ITEM_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
+.set ITEMSLOT_LIST_COUNT, itemListEnd - itemList
+.set ITEMSLOT_LIST_LAST_INDEX, ITEMSLOT_LIST_COUNT - 1
+.set ITEMSLOT_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
 
 getTableItemByIndex:
 mflr r4
 lbzx r4, r4, r24
-cmpwi r4, ITEM_EMPTY
+cmpwi r4, ITEMSLOT_EMPTY
 beq end
 
 mr r3, r11

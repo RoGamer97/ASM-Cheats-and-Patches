@@ -19,7 +19,9 @@
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -43,6 +45,9 @@ RET
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
 
+
+.set BUTTONBIT_MINUS, 9
+
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
@@ -52,7 +57,7 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
 
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0x850] //; _ZN4sead7Vector2IfE4zeroE
@@ -152,9 +157,13 @@ RET
 //; Modes are stored in R-W area at 0x29E7014 and text flash timer at 0x29E7010
 //; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_RIGHT_STICK_UP, 24
 
 .set DEBUG_MARCHING, 1
 .set DEBUG_LEADING, 2
@@ -172,14 +181,14 @@ MOV W0, WZR
 BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isMarchOrLead //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isMarchOrLead //; Minus button not held
 
 LDR W10, [X19, #0x358]
 LDRB W8, [X25, #0x14]
 CBZ W8, isStickUp //; Debug Marching/Leading disabled
 
 LDR W8, [X0, #0x94]
-TBZ W8, #9, isStickUp //; Minus button not triggered
+TBZ W8, #BUTTONBIT_MINUS, isStickUp //; Minus button not triggered
 
 CBNZ W10, isStickUp //; Not controlled player
 
@@ -201,7 +210,7 @@ B end
 
 isStickUp:
 LDR W8, [X0, #0x94]
-TBZ W8, #24, isMarchOrLead //; Right Stick Up not triggered
+TBZ W8, #BUTTONBIT_RIGHT_STICK_UP, isMarchOrLead //; Right Stick Up not triggered
 
 CBNZ W10, changeRemoteAILoop //; Not controlled player
 

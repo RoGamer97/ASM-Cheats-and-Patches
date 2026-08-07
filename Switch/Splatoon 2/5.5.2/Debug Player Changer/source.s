@@ -15,17 +15,21 @@
 //; If Minus is held, replace requested input mask with zero.
 //; Done in the debug build for some reason, so replicating it
 
+
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
 CSEL X1, XZR, X1, NE
 AND X1, X1, #0x3F //; Original instruction
 RET
+
 
 //; Disable right stick if Minus is held
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
@@ -42,6 +46,9 @@ RET
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
 
+
+.set BUTTONBIT_MINUS, 9
+
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
 
@@ -51,7 +58,7 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
 
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0x850] //; _ZN4sead7Vector2IfE4zeroE
@@ -71,14 +78,19 @@ RET
 //; Disables AI if Debug Marching is enabled on change (To allow controlling the 
 //; player you just changed to - fix because of how my Marching implementation works)
 
-.set BUTTON_RIGHT_STICK_LEFT, 0x4000000
-.set BUTTON_RIGHT_STICK_RIGHT, 0x8000000
-
-.set DEBUG_MARCHING, 1
 
 //; Register reference:
 //; X19 = Game::PlayerMgr*
 
+
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_RIGHT_STICK_LEFT, 26
+.set BUTTONBIT_RIGHT_STICK_RIGHT, 27
+
+.set BUTTON_RIGHT_STICK_LEFT, (1 << BUTTONBIT_RIGHT_STICK_LEFT)
+.set BUTTON_RIGHT_STICK_RIGHT, (1 << BUTTONBIT_RIGHT_STICK_RIGHT)
+
+.set DEBUG_MARCHING, 1
 
 STP X29, X30, [SP, #-0x10]!
 
@@ -88,7 +100,7 @@ TBZ W0, #0, end
 MOV W0, WZR
 BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #9, end //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, end //; Minus button not held
 
 LDR W12, [X0, #0x94]
 MOV W8, #(BUTTON_RIGHT_STICK_LEFT | BUTTON_RIGHT_STICK_RIGHT)
