@@ -2,4 +2,4 @@
 
 CPUs that use Yoshi, Shy Guy, or Birdo will have random colors, while CPUs using Inklings will have random variants, instead of their default ones.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

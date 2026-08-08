@@ -2,18 +2,26 @@
 //; Game version: 3.0.5
 //; Code: Show HUD Before Countdown
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Invoke window layout on load
 //; ui::Page_Race::onIn_(void) + 0x6C8
-//; 0x530630 -> BL 0xB51414
+//; 0x530630 -> BL 0x7A26BC
 
 //; Replicates the game's invoke window layout call but somewhere else that runs
 //; on race load, to immediately show the HUD
+
+//; Register reference:
+//; X19 = ui::Page_Race*
+//; X21 = Window ID
+
 
 STP X29, X30, [SP, #-0x10]!
 

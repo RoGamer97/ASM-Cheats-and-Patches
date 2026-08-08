@@ -2,21 +2,28 @@
 //; Game version: 3.0.5
 //; Code: Random CPU Character Variants
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x1FAC, 0x20AC and 0x2148
-//; 0x4FC150, 0x4FC250 and 0x4FC2EC -> BL 0xB515C4
+//; 0x4FC150, 0x4FC250 and 0x4FC2EC -> BL 0x62F978
 
 //; Make a list of characters who have variants, and how many variants they have.
 //; If the character the CPU is using is in the list, load the variant count
 //; for that character and use it for the modulo of the random U32 value to
 //; limit the variant ID from 0 to count - 1
+//; The result will be moved to W2, overwriting the character variant ID
 
-//; It is overriding W2 (Which is the loaded character variant ID) 
+//; Register reference:
+//; W2 = Character variant ID (Input and output)
+//; W8 = Character ID
+
 
 .set DRIVER_YOSHI, 4
 .set DRIVER_SHY_GUY, 0x10

@@ -3,4 +3,4 @@
 Your kart will be driven by a CPU.
 
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

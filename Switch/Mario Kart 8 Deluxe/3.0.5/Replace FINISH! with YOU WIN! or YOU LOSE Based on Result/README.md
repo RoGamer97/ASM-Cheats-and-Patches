@@ -2,4 +2,4 @@
 
 Replaces "FINISH!" with "YOU WIN!" if you get a winning position, and "YOU LOSE" if you get a losing position. Only applies to races.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

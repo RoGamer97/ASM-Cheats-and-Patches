@@ -2,4 +2,4 @@
 
 Makes the player in 1st place have a crown on their head, on the minimap, and on their nametag.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

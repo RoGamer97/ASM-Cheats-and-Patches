@@ -2,14 +2,17 @@
 //; Game version: 3.0.5
 //; Code: No Minimap Character Icon Lag Online
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x30
-//; 0x50718C -> BL 0xB51200
+//; 0x50718C -> BL 0x62F95C
 
 //; Other players' icons freeze on the minimap for ~3 seconds when
 //; Lakitu grabs them or they warp by lag (position correction).
@@ -24,6 +27,10 @@
 
 //; Only check for Lakitu respawn for net receive kart, to avoid freezing icon for local
 //; players and CPUs (Bool will be false because of isNetRecv call result)
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 STP X29, X30, [SP, #-0x10]!
 

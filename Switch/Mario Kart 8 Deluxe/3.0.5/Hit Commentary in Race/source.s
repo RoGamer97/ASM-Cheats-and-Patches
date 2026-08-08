@@ -2,44 +2,53 @@
 //; Game version: 3.0.5
 //; Code: Hit Commentary in Race
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Show hit commentary in damage logic
 //; object::KartVehicleReact::reactAccidentCommonRace_(object::KartVehicleReact::ECallType,gear::EItemType,int,object::KartVehicleReact::EAcdType,gear::MtxT const*,sead::Vector3<float> const*,sead::Vector3<float> const*) + 0x150
-//; 0x192F88 -> BL 0xB5121C
+//; 0x192F88 -> BL 0x62F718
 
 //; This part of the function where the code is hooked will only execute in race
 
 //; It executes for every damage type, W23 is the player ID who attacked.
-//; If it's -1, damage was dealt by object, skip the code
+//; If it's -1, damage was not dealt by kart or item, skip the code
 
-//; Skip code if in Multiplayer
+//; Skip the code if in Multiplayer
 
 //; Don't show hit commentary if player hit their own item or if player who attacked
 //; or got attacked isn't local player
 
-//; If attacked by local players' Lightning, don't show hit commentary (Because it will
-//; only show the name of the last player who got hit).
-//; But show it if attacked by someone's Lightning
+//; If attacked by local player Lightning, don't show hit commentary (Because it only
+//; shows the commentary for the last player that was shocked), but show it if attacked 
+//; by someone's Lightning
 
-//; Set commentary type to "Renegade Roundup catch" because Battle hit commentary is not created
-//; in race, would need position adjustments and other things, so use the Renegade Roundup one.
-//; Plus, it looks better. 
+//; Set commentary type to "Renegade Roundup catch" because "Battle hit commentary" is not created
+//; in race, would need position adjustments and other changes, plus, Renegade one looks better
 
-//; By default, the message it shows is "(RED NAME) caught (BLUE NAME)". 
-//; It'll be changed to "Hit (NAME OF WHO GOT ATTACKED)" or "(NAME OF WHO ATTACKED) hit you".
+//; By default, the message shown is "(RED NAME) caught (BLUE NAME)".
+//; It's changed to "Hit (NAME OF WHO GOT ATTACKED)" or "(NAME OF WHO ATTACKED) hit you" in another
+//; hook
 
 //; ui::CommentaryArg (0 = Commentary type, 4 = Player ID that busted, 8 = Player ID that got caught)
 
-//; The player ID in this scenario is used for the character name for the message print.
-//; So if I attacked, pass the player ID of kart who got attacked, and if I get attacked, pass the player
-//; ID of who attacked.
-//; Since 8 is not needed because my code only has 1 name in the message, I will use it as a way to identify
-//; if I attacked someone or if I got attacked, for the message replacement hook. I'll call it "attack type".
+//; The player IDs are used for the character name for the message ("NAME caught NAME")
+//; But since message will be changed to "NAME hit you" or "You hit NAME", only the first player ID is needed.
+//; So if I'm the attacker, pass the player ID of the attacked kart, and if I get attacked, pass the player
+//; ID of the attacker kart.
+//; Since 8 is not needed because there is only 1 name in the message, I will use it as a way to identify
+//; if I attacked someone or if I got attacked, for the message replacement hook. I'll call it the attack type.
+
+//; Register reference:
+//; X22 = object::KartVehicleReact* of attacked kart
+//; W23 = Player ID of attacker kart
+//; X24 = gear::EItemType*
 
 
 .set ITEMTYPE_THUNDER, 6
@@ -50,7 +59,7 @@
 STP X29, X30, [SP, #-0x20]!
 
 CMP W23, #-1
-BEQ end //; Damage not dealt by item or kart
+BEQ end //; Damage not dealt by kart or item
 
 BL 0x87C244 //; gear::GetRaceInfo(void)
 BL 0x87BC04 //; gear::RaceInfo::getMasterNumForWindow(void)
@@ -61,9 +70,9 @@ BL 0x7F41FC //; gear::FrameworkUtil::getCurrentGameScene(void)
 LDR X8, [X0, #0x1B0]
 LDR X8, [X8, #0x238]
 LDR X8, [X8,#0xC8]
-LDR X8, [X8,X23]
-LDR X8, [X8, #8]
-LDR X9, [X22, #0x10]
+LDR X8, [X8,X23,LSL#3]
+LDR X8, [X8, #8] //; KartVehicle* of attacker kart
+LDR X9, [X22, #0x10] //; KartVehicle* of attacked kart
 
 LDR W3, [X9, #0xA8]
 CMP W3, W23
@@ -101,24 +110,30 @@ LDR W8, [X24] //; Original instruction
 RET
 
 
-//; Change Renegade Roundup catch commentary message in race
+//; Replace Renegade Roundup commentary message from catch to hit in race
 //; ui::Control_RaceCommon::showBtInfo(ui::CommentaryArg const&) + 0x1FC
-//; 0x50C798 -> BL 0xB512AC
+//; 0x50C798 -> BL 0x62F7A4
 
-//; By default, the message it shows is "(RED NAME) caught (BLUE NAME)". 
-//; It'll be changed to "Hit (NAME OF WHO GOT ATTACKED)" or "(NAME OF WHO ATTACKED) hit you"
-//; based on the " attack type" I passed at ui::CommentaryArg + 8
+//; By default, the message shown in race is "(RED NAME) caught (BLUE NAME)". 
+//; Change it to "Hit (NAME OF WHO GOT ATTACKED)" or "(NAME OF WHO ATTACKED) hit you"
+//; based on the "attack type" in ui::CommentaryArg + 8
 
-//; Skip the code in Battle Mode (This function is for the Renegade Roundup catch commentary)
+//; Skip the code in Battle Mode for normal message in Renegade Roundup
 
-//; If in team mode, get the team of the kart that got attacked and increment it by 1, that'll get the
-//; correct value for message MSBT ID increment for that team's color for "Hit (NAME OF WHO GOT ATTACKED)", 
-//; but for "(NAME OF WHO ATTACKED) hit you" it needs to be incremented by 2. Since it was already
-//; incremented by 1 previously, increment by 1 again if attack type is "Hit you" to correct it.
+//; If in team mode, get the team of the attacked kart and increment it by 1, that'll get the
+//; correct increment value for the message MSBT ID calculation for that team's color 
+///; (for "Hit (NAME OF WHO GOT ATTACKED)", but for "(NAME OF WHO ATTACKED) hit you" it needs 
+//; to be incremented by 2. Since it was already incremented by 1 previously, increment by 1 again 
+//; if attack type is "Hit you" to correct it.
 //; The increment value will be 0 if not in team mode.
 
-//; Both "Hit You" and "You Hit" IDs were loaded previously, choose what ID to use based on attack type and
-//; then increment it by the value that was incremented (or not) in team mode.
+//; Both "Hit You" and "You Hit" message MSBT IDs were loaded before the team stuff. After the team increment
+//; value is calculated, choose what ID to use based on attack type and then increment it by the value that was 
+//; incremented (or not) in team mode.
+
+//; Register reference:
+//; W0 = Message MSBT ID
+//; X20 = ui::CommentaryArg*
 
 
 .set RACERULE_BATTLE, 3
@@ -154,7 +169,7 @@ CBZ W8, calcMessageId //; Not team mode
 
 LDR W0, [X20, #4]
 ADD X8, SP, #0x10
-BL 0x41F078 //; ui::GetTeamByKartIdx
+BL 0x41F078 //; ui::GetTeamByKartIdx(int)
 
 LDR W8, [SP, #0x10]
 ADD W8, W8, #1
@@ -175,13 +190,14 @@ RET
 
 //; Prevent Renegade Roundup bust text and sound effect in race
 //; ui::Control_RaceCommon::showBtInfo(ui::CommentaryArg const&) + 0x588
-//; 0x50CB24 -> BL 0xB51314
+//; 0x50CB24 -> BL 0x62F810
 
 //; In team race, when the commentary shows, it plays the catch sound 
 //; effect and shows the "5 left" text on the top right of the screen.
 
 //; Prevent it from happening by modifying the switch case value to
 //; the case where it doesn't play it if not Battle mode
+
 
 .set RACERULE_BATTLE, 3
 

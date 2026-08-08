@@ -2,4 +2,4 @@
 
 Other players' minimap character icons won't freeze for 3~ seconds at random in online races/battles.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

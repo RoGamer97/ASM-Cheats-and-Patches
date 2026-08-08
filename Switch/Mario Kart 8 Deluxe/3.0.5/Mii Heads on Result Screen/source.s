@@ -2,20 +2,24 @@
 //; Game version: 3.0.5
 //; Code: Mii Heads on Result Screen
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; ui::Control_RaceResultPanel::setDriverID(mush::EDriverID, int, unsigned char, bool) + 0x38
-//; 0x51CEC0 -> BL 0xB51590
+//; 0x51CEC0 -> BL 0x62F85C
 
-//; Skip code if offline mode
+//; Skip the code if offline mode
 
 //; Override the loaded character ID Mii's ID so
 //; minimap icon is mii face, but only if player is 
 //; not a CPU (For Friend Rooms and Tournament)
+
 
 .set DRIVER_MII, 0x1D
 
@@ -30,7 +34,7 @@ CBZ W8, original //; Offline mode
 MOV W0, W21
 BL 0x85F9A0 //; gear::NetworkUtil::isCPU(int)
 
-MOV W8, DRIVER_MII
+MOV W8, #DRIVER_MII
 CBZ W0, end //; Not a CPU
 
 original:

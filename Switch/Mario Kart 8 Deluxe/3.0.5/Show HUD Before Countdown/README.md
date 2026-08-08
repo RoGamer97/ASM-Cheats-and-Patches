@@ -2,4 +2,4 @@
 
 HUD is shown before countdown starts.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

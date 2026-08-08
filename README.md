@@ -44,6 +44,7 @@ Games that had their codes updated and source code included after **May 27, 2026
 
 * **[GameCube]** Mario Kart: Double Dash!! (Retail & Debug)
 * **[Wii]** Need for Speed Nitro (Retail & Prototype)
+* **[Switch]** Mario Kart 8 Deluxe (Retail)
 * **[Switch]** Splatoon 2
 
 ---

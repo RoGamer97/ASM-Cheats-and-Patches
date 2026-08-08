@@ -4,4 +4,4 @@ Shows a coin stack on top of other players' karts, displaying how many coins the
 
 When collecting coins, they will use the same animation from Coin Runners, where the coins jump onto the kart.
 
-[ASM source](source.s)
+The ASM source code can be found [here](source.s).

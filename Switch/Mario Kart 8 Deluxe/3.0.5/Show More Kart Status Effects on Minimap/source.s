@@ -2,14 +2,17 @@
 //; Game version: 3.0.5
 //; Code: Show More Kart Status Effects on Minimap
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x14
-//; 0x507170 -> BL 0xB51494
+//; 0x507170 -> BL 0x7A26F0
 
 //; Load the kart's X and Y scales and cap ther minimum
 //; and maximum scale, and store it to the minimap character
@@ -22,7 +25,11 @@
 //; do it if kart is a ghost from Time Trials to avoid transparent
 //; ghost icon
 
-//; Change character icon to black if inked
+//; Change character icon material color icon to black if inked
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 //; Little endian, bytes are inverted
 .set WHITE_RGBA, 0xFFFFFFFF
