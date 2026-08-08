@@ -3,8 +3,10 @@
 //; Code: Replace Versus with FreeTest
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Game::MainMgr::createActors(void) + 0x178
