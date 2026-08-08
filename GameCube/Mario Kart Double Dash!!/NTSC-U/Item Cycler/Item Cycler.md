@@ -1,20 +1,16 @@
 ## Item Cycler
 
-This code allows you to cycle through items in item ID order. When cycling, the currently selected item in the cycle is set to the item slot, replacing the slot item if one is present.
+Allows cycling through items, with the exception of Triple items due to issues.
 
-There are two versions of the code, please read below for details:
+Hold `R` and press `D-Pad Left/Right` to cycle through items. Cycling to "No Item" clears your current item.
 
-* Debug - Recreation of the Debug Item Cycler feature from the Mario Kart 8/Deluxe debug build: Once an item is used, it disappears from the slot like a normal item. If the slot is empty and not spinning, pressing the item use button sets the currently selected item in the cycle to the slot again. In Bob-omb Blast, pressing the cycle button will set a Bob-omb instead.
+There are two versions of the code:
 
-* Infinite - Same as Debug, except items don't disappear from the slot when used; they’re infinite. In Bob-omb Blast, pressing the cycle button will toggle infinite Bob-ombs instead.
+### Debug 
+Recreation of the Debug Item Cycler feature from the Mario Kart 8/Deluxe debug build. Press the item use button to give yourself the last item cycled to. No item will be given if you've never cycled or if the last item cycled to is "No Item". In Bob-omb Blast, cycling items will give you Bob-ombs instead.
 
-You can only cycle or set items when the kart is in a state that can use items (for example, not in damage or a cannon), when the item slot is not spinning and when the item limit for the selected item has not been reached (for example, the game prevents you from obtaining a Chain Chomp if one is already in play, since the limit is 1).
-
-For both versions, you can cycle to the "Empty" item in the cycle to clear the slot and set the current item in the cycle to Empty. While this item is selected, pressing the item use button will not set any item. This is also the initial item in the cycle when starting a race.
-
-This code is useful for testing and debugging, and it can be enabled at all times even if you do not want to set items during a race. Items are only set if you ever cycle, otherwise gameplay remains completely legitimate.
-
-The code works independently for each local player in Multiplayer. To cycle items, hold R and press D-Pad Left/Right. Triple Items are not included because they're problematic.
+### Infinite 
+Same as Debug, except cycled items are infinite. In Bob-omb Blast, pressing the cycle button will toggle infinite Bob-ombs instead.
 
 <details>
 <summary>Debug</summary>
