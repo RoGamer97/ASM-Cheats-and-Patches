@@ -1,3 +1,4 @@
-## Gecko Codes
+## GameCube
+### Gecko Codes
 
-Gecko Codes for GameCube games
+Gecko Codes for GameCube games.

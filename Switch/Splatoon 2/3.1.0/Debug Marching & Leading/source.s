@@ -3,8 +3,10 @@
 //; Code: Debug Marching & Leading
 
 
-//; Hooks are written in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL **ADDRESS OF HOOK**
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,15 @@
 //; 0x8ADE0 -> BL 0x1B61088
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -32,16 +36,18 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0xEA1974 -> BL 0x1B6109C
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0xEA1988
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
+
+
+.set BUTTONBIT_MINUS, 9
 
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -52,7 +58,7 @@ BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
 
 ADRP X0, #0x4156000
 LDR X0, [X0, #0x818] //; _ZN4sead7Vector2IfE4zeroE
@@ -65,17 +71,16 @@ RET
 
 //; Fix Rival crash
 
-//; Controlling rivals doesn't really work and will crash the game, 
-//; even in the debug build, so fix the crash to avoid it just in case.
-//; You will still be unable to control them, and may bug them out,
-//; making them not move anymore if you try, so don't it.
-//; Adding this for safety
+//; Controlling rivals doesn't really work and crashes the game, 
+//; even in the debug build. Fix it just in case, for safety.
+//; You will still be unable to control them, and they will bug
+//; out if you try to.
 
 //; Game::PlayerGamePad::isHold(ulong) + 0xC
 //; 0xEA1860 -> BL 0x1B61724
 
 //; If X0 is nullptr, skip original instruction and return to
-//; function's return false and end
+//; function's return false
 
 //; Return to function end by modifying hook's return address: LR + 0xC = 0xEA1870
 
@@ -98,8 +103,8 @@ RET
 //; 0xE253DC -> BL 0x1BA3CB0
 
 //; Nintendo coded Debug Marching differently, 
-//; it doesn't transform the player into an AI and
-//; it checks for Marching mode in 189 different
+//; it doesn't transform the player into AI and
+//; it checks for Marching mode in almost 200 different
 //; functions, likely patching each thing for 
 //; every marching player
 
@@ -112,7 +117,7 @@ RET
 //; the exact same as the debug build, copying Nintendo's code
 //; (but changing offsets etc because of version difference ofc),
 //; with minor changes but Marching is different, it does transform 
-//; the player into an AI and copies the controlled player's inputs and
+//; the player into AI and copies the controlled player's inputs and
 //; stick to the AI. Works perfectly, I don't know why Nintendo didn't do this
 
 //; For changing players to AI and changing mode, it
@@ -135,12 +140,21 @@ RET
 //; Modes are stored in R-W area at 0x3DFE014 and text flash timer at 0x3DFE010
 //; 0 -> Disabled, 1 -> Marching, 2 -> Leading
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
 
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_RIGHT_STICK_UP, 24
+
+.set DISABLED, 0
 .set DEBUG_MARCHING, 1
 .set DEBUG_LEADING, 2
+
+.set PLAYERTYPE_CONTROLLED, 0
+
+.set TEXT_FLASH_TIMER_MASK, 96
 
 STP X29, X30, [SP, #-0x40]!
 
@@ -149,22 +163,22 @@ ADRP X25, #0x3DFE000
 LDR X27, [X19, #0x490]
 MOV X0, X27
 BL 0xF07AB8 //; Game::PlayerMgr::getControlledAllKindPlayer(void)
-MOV X26, X0 //; X26 is your Game::Player
+MOV X26, X0 //; Game::PlayerMgr* of controlled player/you
 
 MOV W0, WZR
 BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isMarchOrLead //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isMarchOrLead //; Not held
 
 LDR W10, [X19, #0x358]
 LDRB W8, [X25, #0x14]
-CBZ W8, isStickUp //; Debug Marching/Leading disabled
+CBZ W8, isStickUp //; Disabled
 
 LDR W8, [X0, #0x94]
-TBZ W8, #9, isStickUp //; Minus button not triggered
+TBZ W8, #BUTTONBIT_MINUS, isStickUp //; Not triggered
 
-CBNZ W10, isStickUp //; Not controlled player
+CBNZ W10, isStickUp
 
 STRB WZR, [X25, #0x14] //; Disable Debug Marching/Leading
 
@@ -184,7 +198,7 @@ B end
 
 isStickUp:
 LDR W8, [X0, #0x94]
-TBZ W8, #24, isMarchOrLead //; Right Stick Up not triggered
+TBZ W8, #BUTTONBIT_RIGHT_STICK_UP, isMarchOrLead //; Not triggered
 
 CBNZ W10, changeRemoteAILoop //; Not controlled player
 
@@ -208,11 +222,11 @@ BL 0xF07CB4 //; Game::PlayerMgr::getPerformerAt(uint)
 
 LDRB W8, [X25, #0x14]
 LDR W9, [X0, #0x358]
-CMP W8, #0
-CCMP W9, #0, #0, NE
-BEQ nextPlayer //; Controlled player
+CMP W8, #DISABLED
+CCMP W9, #PLAYERTYPE_CONTROLLED, #0, NE
+BEQ nextPlayer
 
-CMP W8, #0
+CMP W8, #DISABLED
 CSET W8, GT
 MOV W9, #0x10A8
 STRB W8, [X0,X9] //; RemoteAI bool
@@ -225,13 +239,12 @@ BLT changeRemoteAILoop
 
 isMarchOrLead:
 LDRB W24, [X25, #0x14]
-CBZ W24, end //; Debug Marching/Leading disabled
+CBZ W24, end
 
 LDR W8, [X19, #0x358]
 CBNZ W8, calcMarchAndLead //; Not controlled player
 
 //; Setup stack for text draw call
-
 MOV X8, #0x100000000
 STR X8, [SP, #0x10]
 
@@ -244,14 +257,14 @@ STR WZR, [SP, #0x20]
 LDR W9, [X25, #0x10]
 ADD W9, W9, #1
 STR W9, [X25, #0x10]
-AND W9, W9, #0x60
-CMP W9, #0x60
+AND W9, W9, #TEXT_FLASH_TIMER_MASK
+CMP W9, #TEXT_FLASH_TIMER_MASK
 
 ADRP X8, #0x4156000
 LDR X9, [X8, #0xE90] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0xE98] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -269,10 +282,10 @@ MOV X26, X0
 MOV W1, #0x1E
 ADD X2, SP, #0x38
 ADD X3, SP, #0x10
-CMP W24, #1
+CMP W24, #DEBUG_MARCHING
 ADR X4, marchingString
 ADR X5, leadingString
-CSEL X4, X4, X5, EQ //; Choose string based on mode
+CSEL X4, X4, X5, EQ
 BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 LDR S0, posYCancel
@@ -287,7 +300,7 @@ BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float>
 B end
 
 calcMarchAndLead:
-CMP W24, #DEBUG_MARCHING //; Debug Marching
+CMP W24, #DEBUG_MARCHING
 BEQ marchingCopyStick
 
 //; Calculate controlled player point for AI follow

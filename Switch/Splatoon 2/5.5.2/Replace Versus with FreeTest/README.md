@@ -4,4 +4,4 @@ When holding `Minus` on Versus loading screen, you'll load in [FreeTest](https:/
 
 If you experience issues building from .pchtxt on console, use .ips instead.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)

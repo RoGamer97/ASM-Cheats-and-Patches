@@ -6,4 +6,4 @@ Allows you to change the player you're playing as in the match by holding `Minus
 
 If you experience issues building from .pchtxt on console, use .ips instead.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)

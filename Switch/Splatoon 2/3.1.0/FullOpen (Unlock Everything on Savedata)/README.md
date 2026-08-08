@@ -6,4 +6,4 @@ Recommended to only use once because it resets certain things like certain NPC m
 
 If you experience issues building from .pchtxt on console, use .ips instead.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)

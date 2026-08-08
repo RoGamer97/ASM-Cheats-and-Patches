@@ -3,8 +3,10 @@
 //; Code: Debug Player Changer
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,16 @@
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -32,16 +37,18 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x758970 -> BL 0x1180274
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x758984
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
+
+
+.set BUTTONBIT_MINUS, 9
 
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -52,7 +59,7 @@ BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x2B6D000
 LDR X0, [X0, #0x298] //; _ZN4sead7Vector2IfE4zeroE
@@ -66,39 +73,46 @@ RET
 //; Game::PlayerMgr::firstCalc(void) + 0x2C
 //; 0x7CC34C -> BL 0x11801BC
 
-//; Changes the controlled player if holding Minus and Right Stick Left/Right,
-//; but only if playing offline and at least 2 players are in a match
+//; Holding Minus and pushing Right Stick Left/Right changes controlled player,
+//; except when not in an offline scene or player count is <= 1
 
-//; Disables AI if Debug Marching is enabled on change (To allow controlling the 
-//; player you just changed to - fix because of how my Marching implementation works)
+//; Increments/decrements the controlled player index based on Right Stick Left/Right
+//; Wrap index between 0 and player count - 1
+//; Calls Game::PlayerMgr::onChangeControlledPlayer(void) to update player
 
-.set BUTTON_RIGHT_STICK_LEFT, 0x4000000
-.set BUTTON_RIGHT_STICK_RIGHT, 0x8000000
+//; Disables AI if Debug Marching is enabled to allow controlling the player
+//; you just changed to - required due to how my Marching implementation works
 
-.set DEBUG_MARCHING, 1
 
 //; Register reference:
 //; X19 = Game::PlayerMgr*
 
 
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_RIGHT_STICK_LEFT, 26
+.set BUTTONBIT_RIGHT_STICK_RIGHT, 27
+
+.set BUTTON_RIGHT_STICK_LEFT, (1 << BUTTONBIT_RIGHT_STICK_LEFT)
+.set BUTTON_RIGHT_STICK_RIGHT, (1 << BUTTONBIT_RIGHT_STICK_RIGHT)
+
 STP X29, X30, [SP, #-0x10]!
 
-BL 0x9122D8 //; Game::Utl::isOfflineScene
+BL 0x9122D8 //; Game::Utl::isOfflineScene(void)
 TBZ W0, #0, end
 
 MOV W0, WZR
 BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #9, end //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, end //; Not held
 
 LDR W12, [X0, #0x94]
 MOV W8, #(BUTTON_RIGHT_STICK_LEFT | BUTTON_RIGHT_STICK_RIGHT)
 TST W12, W8
-BEQ end//; Right Stick Left/Right not triggered
+BEQ end //; Not triggered
 
 LDR W9, [X19, #0x52C]
 CMP W9, #1
-BLE end //; 1 player or less in a match
+BLE end
 
 SUB W9, W9, #1
 MOV W10, #1

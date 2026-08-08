@@ -3,8 +3,10 @@
 //; Code: Replace Versus with FreeTest
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Game::MainMgr::createActors(void) + 0x178
@@ -12,6 +14,9 @@
 
 //; If holding Minus button, Versus switch case ID is replaced with FreeTest's ID
 //; Holding Minus on loading screen will make you load in FreeTest instead of Versus
+
+
+.set BUTTONBIT_MINUS, 9
 
 .set SCENE_FREETEST, 0x16
 
@@ -22,10 +27,10 @@ STP X29, X30, [SP, #-0x10]!
 MOV W0, WZR
 BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #9, restore //; Minus button hold
+TBZ W8, #BUTTONBIT_MINUS, restore //; Not held
 
-MOV W8, #SCENE_FREETEST //; FreeTest case ID
-STR W8, [SP, #0x1C] //; 0x1C because SP is shifted by -0x10
+MOV W8, #SCENE_FREETEST
+STR W8, [SP, #0x1C]
 
 restore:
 LDP X29, X30, [SP], #0x10

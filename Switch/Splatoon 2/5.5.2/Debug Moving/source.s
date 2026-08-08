@@ -3,8 +3,10 @@
 //; Code: Debug Moving
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,16 @@
 //; 0xD5D68 -> BL 0x1AA96AC
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -32,16 +37,18 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x107BCE4 -> BL 0x1AA96C0
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
+
+
+.set BUTTONBIT_MINUS, 9
 
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -52,7 +59,7 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0x850] //; _ZN4sead7Vector2IfE4zeroE
@@ -80,7 +87,7 @@ RET
 //; Game::Player::calcControl(void) + 0xFE4
 //; 0xFF4978 -> BL 0x1AA9780
 
-//; Holding Minus outside of Debug Move makes you fall slowly.
+//; Holding Minus when not Debug Moving makes you fall slowly.
 //; I'd like to suppose that Nintendo did this because:
 //; It makes falling when cancelling Debug Move in air slighty
 //; smoother because you hold Minus for a few frames, so the 
@@ -103,9 +110,12 @@ RET
 //; text draw code would make the timer increase differently the function
 //; it is hooked at may not run only once every frame
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+
+.set BUTTONBIT_MINUS, 9
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -120,7 +130,7 @@ ADRP X23, #0x29E7000
 MOV W9, #0x10C0
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isToggleTrig //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; Not held
 
 LDR S0, [X19, #0x910]
 LDR S1, velMultiplier
@@ -129,7 +139,7 @@ STR S0, [X19, #0x910]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #9, isInDebugMove //; Minus button not triggered
+TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; Not triggered
 
 LDRB W8, [X23, #0x14]
 CBNZ W8, isInDebugMove //; Debug Marching/Leading enabled
@@ -208,6 +218,7 @@ RET
 //; When preparing for a Super Jump, Debug Moving is disabled.
 //; Set Debug Moving bool to false
 
+
 //; Register reference:
 //; X21 = Game::Player*
 
@@ -229,6 +240,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S10 = Move velocity (Input and output)
 
 
 MOV W8, #0x10C0
@@ -263,6 +275,7 @@ walkVel: .float 3.6
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S11 = Move speed (Input and output)
 
 
 MOV W8, #0x10C0
@@ -648,7 +661,7 @@ RET
 //; uses the one from the hook instead
 
 //; Register reference:
-//; X19 = Game::Player*GrindRail
+//; X19 = Game::PlayerGrindRail*
 
 
 LDR X8, [X19, #0x18]
@@ -715,6 +728,7 @@ RET
 //; and branches to function end if it is
 
 //; Register reference:
+//; W0 = currMode (Input and output)
 //; X19 = Game::Player*
 
 
@@ -895,6 +909,7 @@ RET
 
 //; Print text outline first, then text after
 
+
 //; Register reference:
 //; X0 = SP address
 //; X1 = String address
@@ -902,6 +917,8 @@ RET
 //; W3 = Blink Timer
 //; X4 = Player Coords Address
 
+
+.set TEXT_FLASH_TIMER_MASK, 96
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -915,10 +932,10 @@ ADRP X8, #0x2CFE000
 LDR X9, [X8, #0x440] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
-AND W3, W3, #0x60
-CMP W3, #0x60
-CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
-CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
+AND W3, W3, #TEXT_FLASH_TIMER_MASK
+CMP W3, #TEXT_FLASH_TIMER_MASK
+CSEL X22, X9, X8, EQ (Text)
+CSEL X8, X9, X8, NE (Text Outline, inverted)
 
 LDP X8, X9, [X8]
 STR X8, [X19, #0x460]
@@ -1041,7 +1058,7 @@ MOV W3, W24
 MOV X4, XZR
 BL 0x185165C //; My own text draw function
 
-BL 0x1354BD0 //; Game::Utl::isSpectatorStation
+BL 0x1354BD0 //; Game::Utl::isSpectatorStation(void)
 CBNZ X0, end
 
 MOV X0, X26

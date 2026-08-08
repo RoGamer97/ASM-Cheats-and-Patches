@@ -3,8 +3,10 @@
 //; Code: Debug Moving
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,17 @@
 //; 0x8ADE0 -> BL 0x1B61088
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
+
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -32,16 +38,18 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0xEA1974 -> BL 0x1B6109C
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0xEA1988
 //; Returns past the getRightStick call, where the stick values are loaded
 //; from the returned pointer
+
+
+.set BUTTONBIT_MINUS, 9
 
 MOV X29, SP //; Original instruction
 STP X29, X30, [SP,#-0x10]!
@@ -52,7 +60,7 @@ BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #9, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x4156000
 LDR X0, [X0, #0x818] //; _ZN4sead7Vector2IfE4zeroE
@@ -80,7 +88,7 @@ RET
 //; Game::Player::calcControl(void) + 0xE0C
 //; 0xE23484 -> BL 0x1B610FC
 
-//; Holding Minus outside of Debug Move makes you fall slowly.
+//; Holding Minus when not Debug Moving makes you fall slowly.
 //; I'd like to suppose that Nintendo did this because:
 //; It makes falling when cancelling Debug Move in air slighty
 //; smoother because you hold Minus for a few frames, so the 
@@ -107,9 +115,14 @@ RET
 //; To avoid this, skip Pos draw if in spectator mode to match 
 //; debug build behavior
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+
+.set BUTTONBIT_MINUS, 9
+
+.set TEXT_FLASH_TIMER_MASK, 96
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -123,7 +136,7 @@ BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 
 MOV W9, #0x1088
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isToggleTrig //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; not held
 
 LDR S0, [X19, #0x910]
 LDR S1, velMultiplier
@@ -132,7 +145,7 @@ STR S0, [X19, #0x910]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #9, isInDebugMove //; Minus button not triggered
+TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; not triggered
 
 LDRB W8, [X26, #0x14]
 CBNZ W8, isInDebugMove //; Debug Leading/Marching enabled
@@ -148,7 +161,6 @@ LDRB W8, [X19,X9]
 CBZ W8, restore
 
 //; Setup stack for text draw call
-
 MOV X8, #0x100000000
 STR X8, [SP, #0x10]
 
@@ -161,14 +173,14 @@ STR WZR, [SP, #0x20]
 LDR W9, [X26, #8]
 ADD W9, W9, #1
 STR W9, [X26, #8]
-AND W9, W9, #0x60
-CMP W9, #0x60
+AND W9, W9, #TEXT_FLASH_TIMER_MASK
+CMP W9, #TEXT_FLASH_TIMER_MASK
 
 ADRP X8, #0x4156000
 LDR X9, [X8, #0xE90] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0xE98] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -210,8 +222,8 @@ ADD X3, SP, #0x10
 ADR X4, youCanFlyString
 BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
-BL 0x116F5F0 //; Game::Utl::isSpectatorStation
-CBNZ W0, restore //; Spectator mode
+BL 0x116F5F0 //; Game::Utl::isSpectatorStation(void)
+CBNZ W0, restore
 
 MOV X0, X26
 MOV W1, #0x1E
@@ -268,6 +280,7 @@ positionString: .asciz "Pos : %.2f, %.2f, %.2f"
 //; Game::Player::isInDebugMove
 //; 0xE32EF0 -> B 0x1B612D0 (NORMAL BRANCH)
 
+
 //; Register reference:
 //; X0 = Game::Player*
 
@@ -306,6 +319,7 @@ RET
 //; When preparing for a Super Jump, Debug Moving is disabled.
 //; Set Debug Moving bool to false
 
+
 //; Register reference:
 //; X21 = Game::Player*
 
@@ -327,6 +341,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S10 = Move velocity (Input and output)
 
 
 MOV W8, #0x1088
@@ -361,6 +376,7 @@ walkVel: .float 3.6
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S11 = Move speed (Input and output)
 
 
 MOV W8, #0x1088
@@ -683,7 +699,7 @@ RET
 //; uses the one from the hook instead
 
 //; Register reference:
-//; X19 = Game::Player*GrindRail
+//; X19 = Game::PlayerGrindRail*
 
 
 LDR X8, [X19, #0x18]
@@ -722,6 +738,7 @@ RET
 //; Register reference:
 //; X19 = Game::PlayerInkRailVersus*
 
+
 LDR X0, [X19, #0x120]
 MOV X8, #0x1088
 LDRB W8, [X0,X8]
@@ -748,6 +765,7 @@ RET
 //; and branches to end if so
 
 //; Register reference:
+//; W0 = currMode (Input and output)
 //; X19 = Game::Player*
 
 
@@ -883,6 +901,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::PlayerBehindCamera*
+//; S14 = 
 
 
 LDR X9, [X19]

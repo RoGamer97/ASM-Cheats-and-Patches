@@ -3,8 +3,10 @@
 //; Code: Debug Scene Reload & Exit
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Lp::Sys::Scene::sceneSysCalc(void) + 0xD8 
@@ -16,11 +18,26 @@
 //; Added match checks to avoid resets and reloads in menus (Avoids crash)
 
 //; Store action hold to padding bytes (0x10A and 0x10B) to avoid spamming the 
-//; action or happening on trig, and to make it only happen after releasing
-//; the button
+//; action or happening on button trigger, and to make it only happen after releasing
+//; the buttons
+
 
 //; Register reference:
 //; X19 = Game::CmnScene*
+
+
+.set BUTTONBIT_L, 13
+.set BUTTONBIT_DPAD_UP, 16
+.set BUTTONBIT_DPAD_DOWN, 17
+
+.set BUTTON_L, (1 << BUTTONBIT_L)
+.set BUTTON_DPAD_UP, (1 << BUTTONBIT_DPAD_UP)
+.set BUTTON_DPAD_DOWN, (1 << BUTTONBIT_DPAD_DOWN)
+
+.set PENDING_RESET_SHORT, 1
+.set PENDING_EXIT_SHORT, 2
+
+.set HOLD_DURATION, 40
 
 STP X29, X30, [SP, #-0x20]!
 STP X27, X28, [SP, #0x10]
@@ -48,13 +65,13 @@ AND W0, W8, W9
 CMP W0, W9
 BNE isPendingResetShort //; L and D-Pad Down not held together
 
-MOV W0, #1
+MOV W0, #PENDING_RESET_SHORT
 STRB W0, [X28, #0x10A]
 B isResetLong
 
 isPendingResetShort:
 LDRB W0, [X28, #0x10A]
-CMP W0, #1
+CMP W0, #PENDING_RESET_SHORT
 BNE isResetLong
 MOV X0, X19
 BL 0xA01C78 //; Game::CmnScene::cbResetShort(void)
@@ -63,7 +80,7 @@ B clearPending
 isResetLong:
 MOV X0, X27
 MOV W1, W9
-MOV W2, #0x28 //; 40 frames (0.66 seconds of hold)
+MOV W2, #HOLD_DURATION
 BL 0x1962954 //; Lp::Sys::Ctrl::isHoldContinue(uint,int)
 CBZ W0, isExitShort
 
@@ -78,13 +95,13 @@ AND W0, W8, W9
 CMP W0, W9
 BNE isHoldDown //; L and D-Pad Up not held together
 
-MOV W0, #2
+MOV W0, #PENDING_EXIT_SHORT
 STRB W0, [X28, #0x10A]
 B end
 
 isHoldDown:
 LDRB W0, [X28, #0x10A]
-CMP W0, #2
+CMP W0, #PENDING_EXIT_SHORT
 BNE end
 
 MOV X0, X19
@@ -98,5 +115,5 @@ LDP X27, X28, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
 RET
 
-buttons_L_Up: .word 0x12000
-buttons_L_Down: .word 0x22000
+buttons_L_Up: .word BUTTON_L | BUTTON_DPAD_UP
+buttons_L_Down: .word BUTTON_L | BUTTON_DPAD_DOWN

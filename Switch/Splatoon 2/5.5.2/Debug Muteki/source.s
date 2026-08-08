@@ -3,8 +3,10 @@
 //; Code: Debug Muteki
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,17 @@
 //; 0xD5D68 -> BL 0x1AA96AC
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
+
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -60,9 +66,13 @@ RET
 
 //; Disables Debug Moving when toggled
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_L, 13
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -75,10 +85,10 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 ADRP X9, #0x29E7000
 
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isInDebugMuteki //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #13, isInDebugMuteki //; L button not triggered
+TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; Not triggered
 
 LDR W8, [X19, #0x10C4]
 EOR W8, W8, #1
@@ -286,6 +296,7 @@ RET
 //; Register reference:
 //; X19 = Game::PlayerInkActionUmbrella*
 
+.set BUTTONBIT_DPAD_UP, 16
 
 LDR W8, [X8, #0x454] //; Original instruction
 
@@ -303,7 +314,7 @@ LDR X8, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
 
 LDR W0, [X0, #0x94]
-TBZ W0, #16, end //; D-Pad Up not triggered
+TBZ W0, #BUTTONBIT_DPAD_UP, end //; D-Pad Up not triggered
 
 MOV W8, W21
 
@@ -361,6 +372,7 @@ RET
 
 //; Print text outline first, then text after
 
+
 //; Register reference:
 //; X0 = SP address
 //; X1 = String address
@@ -368,6 +380,7 @@ RET
 //; W3 = Blink Timer
 //; X4 = Player Coords Address
 
+.set TEXT_FLASH_TIMER_MASK, 96
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -381,10 +394,10 @@ ADRP X8, #0x2CFE000
 LDR X9, [X8, #0x440] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
-AND W3, W3, #0x60
-CMP W3, #0x60
-CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
-CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
+AND W3, W3, #TEXT_FLASH_TIMER_MASK
+CMP W3, #TEXT_FLASH_TIMER_MASK
+CSEL X22, X9, X8, EQ (Text)
+CSEL X8, X9, X8, NE (Text Outline, inverted)
 
 LDP X8, X9, [X8]
 STR X8, [X19, #0x460]

@@ -3,8 +3,10 @@
 //; Code: Debug Muteki
 
 
-//; Hooks are placed in unused functions because there is no space left in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+// Hooks are written over unused functions (never executed).
+// There is a bit of free space in .text, but for some reason the emulator
+// crashes when executing code in that space. Writing over unused functions
+// doesn't cause a crash.
 
 
 //; Disable player inputs if Minus is held
@@ -13,13 +15,17 @@
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
+
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
 
 
-.set BUTTON_MINUS, 0x200
+.set BUTTONBIT_MINUS, 9
+
+.set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 
 LDR W8, [X19, #0x10]
 TST W8, #BUTTON_MINUS
@@ -56,9 +62,14 @@ RET
 
 //; Disables Debug Moving when toggled
 
+
 //; Register reference:
 //; X19 = Game::Player*
 
+.set BUTTONBIT_MINUS, 9
+.set BUTTONBIT_L, 13
+
+.set TEXT_FLASH_TIMER_MASK, 96
 
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
@@ -68,10 +79,10 @@ STP X29, X30, [SP, #-0x40]!
 MOV W0, WZR
 BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #9, isInDebugMuteki //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #13, isInDebugMuteki //; L button not triggered
+TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; Not triggered
 
 LDR W8, [X19, #0xD94]
 EOR W8, W8, #1
@@ -86,7 +97,6 @@ LDRB W8, [X19, #0xD94]
 CBZ W8, restore
 
 //; Setup stack for text draw call
-
 MOV X8, #0x100000000
 STR X8, [SP, #0x10]
 
@@ -100,14 +110,14 @@ ADRP X8, #0x2968000
 LDR W9, [X8, #0xC]
 ADD W9, W9, #1
 STR W9, [X8, #0xC]
-AND W9, W9, #0x60
-CMP W9, #0x60
+AND W9, W9, #TEXT_FLASH_TIMER_MASK
+CMP W9, #TEXT_FLASH_TIMER_MASK
 
 ADRP X8, #0x2B6D000
 LDR X9, [X8, #0x870] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x878] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -306,6 +316,8 @@ RET
 //; X19 = Game::PlayerInkActionUmbrella*
 
 
+.set BUTTONBIT_DPAD_UP, 16
+
 LDR W9, [X8, #0x44C] //; Original instruction
 
 LDR X11, [X19]
@@ -322,7 +334,7 @@ LDP X8, X9, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
 
 LDR W0, [X0, #0x94]
-TBZ W0, #16, end //; D-Pad Up not triggered
+TBZ W0, #BUTTONBIT_DPAD_UP, end //; D-Pad Up not triggered
 
 MOV W9, W8
 
