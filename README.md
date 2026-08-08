@@ -8,6 +8,16 @@ You'll find a variety of codes, including quality-of-life improvements, gameplay
 
 It only includes codes made by me.
 
+## Consoles
+
+Codes for the following consoles:
+
+- [3DS](./3DS)
+- [DS](./DS)
+- [GameCube](./GameCube)
+- [Switch](./Switch)
+- [Wii](./Wii)
+
 ## Update in Progress
 
 > [!IMPORTANT]
