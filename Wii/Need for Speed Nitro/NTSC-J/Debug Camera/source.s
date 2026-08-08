@@ -1,5 +1,5 @@
 # Game: Need for Speed Nitro (Wii)
-# Code: Debug Cameras
+# Code: Debug Camera
 
 
 # CameraAI::Director::SelectAction + 0x410

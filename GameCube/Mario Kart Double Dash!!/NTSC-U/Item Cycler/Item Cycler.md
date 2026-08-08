@@ -182,4 +182,4 @@ B8610008 38210080
 ```
 </details>
 
-You can find the ASM source code by clicking [here](source.s)
+[ASM source](source.s)

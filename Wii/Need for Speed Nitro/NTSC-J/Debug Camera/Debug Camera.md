@@ -1,4 +1,4 @@
-## Debug Cameras
+## Debug Camera
 
 Restores the Debug Camera enable toggle and assigns buttons for Turbo and Super Turbo movement speeds.
 
@@ -22,21 +22,21 @@ This code restores the toggle, allowing `Minus` to enter Debug Camera mode, and 
 Note that you must be using a Wiimote and Nunchuk on port 2 (Wiimote 2).
 
 #### Controls:
-`Minus` cycles camera modes.
+`Minus`: Cycle camera mode
 
-`D-Pad` moves camera (Debug World Camera).
+`D-Pad`: Move camera (Debug World Camera)
 
-`Plus` drops the car (Debug World Camera).
+`Plus`: Drop car (Debug World Camera)
 
-`A` moves camera up (Debug World Camera).
+`A`: Move camera up (Debug World Camera)
 
-`B` moves camera down (Debug World Camera).
+`B`: Move camera down (Debug World Camera)
 
-`C` moves camera faster (Debug World Camera Turbo mode).
+`C`: Move camera faster (Debug World Camera Turbo mode)
 
-`Z` moves camera way faster (Debug World Camera Super Turbo mode).
+`Z`: Move camera way faster (Debug World Camera Super Turbo mode)
 
-`Stick` rotates camera (both modes).
+`Stick`: Rotate camera (both modes)
 
 <details>
 <summary>Show code</summary>
@@ -59,4 +59,4 @@ C20653E0 0000000D
 ```
 </details>
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)
