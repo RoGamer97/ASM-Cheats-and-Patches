@@ -15,7 +15,8 @@
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
@@ -38,9 +39,9 @@ RET
 
 //; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x758984
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -83,7 +84,7 @@ RET
 //; Game::Player::calcControl(void) + 0x9A4
 //; 0x722D00 -> BL 0x11802A0
 
-//; Holding Minus outside of Debug Move makes you fall slowly.
+//; Holding Minus when not Debug Moving makes you fall slowly.
 //; I'd like to suppose that Nintendo did this because:
 //; It makes falling when cancelling Debug Move in air slighty
 //; smoother because you hold Minus for a few frames, so the 
@@ -174,7 +175,7 @@ ADRP X8, #0x2B6D000
 LDR X9, [X8, #0x870] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x878] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -319,7 +320,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::Player*
-
+//; S10 = Move velocity (Input and output)
 
 FMUL S10, S10, S11 //; Original instruction
 
@@ -353,6 +354,7 @@ walkVel: .float 3.6
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S11 = Move speed (Input and output)
 
 
 LDR S0, [X19, #0x914] //; Original instruction
@@ -625,7 +627,7 @@ RET
 //; uses the one from the hook instead
 
 //; Register reference:
-//; X20 = Game::Player*GrindRail
+//; X20 = Game::PlayerGrindRail*
 
 
 LDR X0, [X20, #0x128]
@@ -653,8 +655,9 @@ RET
 //; and branches to function end if it is
 
 //; Register reference:
+//; W0 = currMode (Input and output)
+//; X19 = Game::PlayerGrindRail*
 
-//; X19 = Game::Player*GrindRail
 
 LDR W8, [SP, #0x38] //; Original instruction
  

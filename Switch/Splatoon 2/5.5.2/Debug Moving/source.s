@@ -15,7 +15,8 @@
 //; 0xD5D68 -> BL 0x1AA96AC
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
@@ -38,9 +39,9 @@ RET
 
 //; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -86,7 +87,7 @@ RET
 //; Game::Player::calcControl(void) + 0xFE4
 //; 0xFF4978 -> BL 0x1AA9780
 
-//; Holding Minus outside of Debug Move makes you fall slowly.
+//; Holding Minus when not Debug Moving makes you fall slowly.
 //; I'd like to suppose that Nintendo did this because:
 //; It makes falling when cancelling Debug Move in air slighty
 //; smoother because you hold Minus for a few frames, so the 
@@ -217,6 +218,7 @@ RET
 //; When preparing for a Super Jump, Debug Moving is disabled.
 //; Set Debug Moving bool to false
 
+
 //; Register reference:
 //; X21 = Game::Player*
 
@@ -238,6 +240,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S10 = Move velocity (Input and output)
 
 
 MOV W8, #0x10C0
@@ -272,6 +275,7 @@ walkVel: .float 3.6
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S11 = Move speed (Input and output)
 
 
 MOV W8, #0x10C0
@@ -657,7 +661,7 @@ RET
 //; uses the one from the hook instead
 
 //; Register reference:
-//; X19 = Game::Player*GrindRail
+//; X19 = Game::PlayerGrindRail*
 
 
 LDR X8, [X19, #0x18]
@@ -724,6 +728,7 @@ RET
 //; and branches to function end if it is
 
 //; Register reference:
+//; W0 = currMode (Input and output)
 //; X19 = Game::Player*
 
 
@@ -929,8 +934,8 @@ LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
 AND W3, W3, #TEXT_FLASH_TIMER_MASK
 CMP W3, #TEXT_FLASH_TIMER_MASK
-CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
-CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
+CSEL X22, X9, X8, EQ (Text)
+CSEL X8, X9, X8, NE (Text Outline, inverted)
 
 LDP X8, X9, [X8]
 STR X8, [X19, #0x460]

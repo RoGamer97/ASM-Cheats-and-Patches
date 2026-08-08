@@ -15,7 +15,9 @@
 //; 0x8ADE0 -> BL 0x1B61088
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
+
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
@@ -38,9 +40,9 @@ RET
 
 //; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0xEA1988
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -86,7 +88,7 @@ RET
 //; Game::Player::calcControl(void) + 0xE0C
 //; 0xE23484 -> BL 0x1B610FC
 
-//; Holding Minus outside of Debug Move makes you fall slowly.
+//; Holding Minus when not Debug Moving makes you fall slowly.
 //; I'd like to suppose that Nintendo did this because:
 //; It makes falling when cancelling Debug Move in air slighty
 //; smoother because you hold Minus for a few frames, so the 
@@ -178,7 +180,7 @@ ADRP X8, #0x4156000
 LDR X9, [X8, #0xE90] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0xE98] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -278,6 +280,7 @@ positionString: .asciz "Pos : %.2f, %.2f, %.2f"
 //; Game::Player::isInDebugMove
 //; 0xE32EF0 -> B 0x1B612D0 (NORMAL BRANCH)
 
+
 //; Register reference:
 //; X0 = Game::Player*
 
@@ -316,6 +319,7 @@ RET
 //; When preparing for a Super Jump, Debug Moving is disabled.
 //; Set Debug Moving bool to false
 
+
 //; Register reference:
 //; X21 = Game::Player*
 
@@ -337,6 +341,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S10 = Move velocity (Input and output)
 
 
 MOV W8, #0x1088
@@ -371,6 +376,7 @@ walkVel: .float 3.6
 
 //; Register reference:
 //; X19 = Game::Player*
+//; S11 = Move speed (Input and output)
 
 
 MOV W8, #0x1088
@@ -693,7 +699,7 @@ RET
 //; uses the one from the hook instead
 
 //; Register reference:
-//; X19 = Game::Player*GrindRail
+//; X19 = Game::PlayerGrindRail*
 
 
 LDR X8, [X19, #0x18]
@@ -732,6 +738,7 @@ RET
 //; Register reference:
 //; X19 = Game::PlayerInkRailVersus*
 
+
 LDR X0, [X19, #0x120]
 MOV X8, #0x1088
 LDRB W8, [X0,X8]
@@ -758,6 +765,7 @@ RET
 //; and branches to end if so
 
 //; Register reference:
+//; W0 = currMode (Input and output)
 //; X19 = Game::Player*
 
 
@@ -893,6 +901,7 @@ RET
 
 //; Register reference:
 //; X19 = Game::PlayerBehindCamera*
+//; S14 = 
 
 
 LDR X9, [X19]

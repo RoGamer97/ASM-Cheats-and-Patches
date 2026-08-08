@@ -15,7 +15,8 @@
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Register reference:
 //; X19 = Lp::Sys::Ctrl*
@@ -38,9 +39,9 @@ RET
 
 //; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x758984
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -71,17 +72,16 @@ RET
 
 //; Fix Rival crash
 
-//; Controlling rivals doesn't really work and will crash the game, 
-//; even in the debug build, so fix the crash to avoid it just in case.
-//; You will still be unable to control them, and may bug them out,
-//; making them not move anymore if you try, so don't it.
-//; Adding this for safety
+//; Controlling rivals doesn't really work and crashes the game, 
+//; even in the debug build. Fix it just in case, for safety.
+//; You will still be unable to control them, and they will bug
+//; out if you try to.
 
 //; Game::PlayerGamePad::isHold(ulong) + 0xC
 //; 0x75885C -> BL 0x118083C
 
 //; If X0 is nullptr, skip original instruction and return to
-//; function's return false and end
+//; function's return false
 
 //; Return to function end by modifying hook's return address: LR + 0xC = 0X75886C
 
@@ -102,8 +102,8 @@ RET
 //; Debug Marching & Leading
 
 //; Nintendo coded Debug Marching differently, 
-//; it doesn't transform the player into an AI and
-//; it checks for Marching mode in 189 different
+//; it doesn't transform the player into AI and
+//; it checks for Marching mode in almost 200 different
 //; functions, likely patching each thing for 
 //; every marching player
 
@@ -116,7 +116,7 @@ RET
 //; the exact same as the debug build, copying Nintendo's code
 //; (but changing offsets etc because of version difference ofc),
 //; with minor changes but Marching is different, it does transform 
-//; the player into an AI and copies the controlled player's inputs and
+//; the player into AI and copies the controlled player's inputs and
 //; stick to the AI. Works perfectly, I don't know why Nintendo didn't do this
 
 //; For changing players to AI and changing mode, it
@@ -236,7 +236,7 @@ BLT changeRemoteAILoop
 
 isMarchOrLead:
 LDRB W24, [X25, #0x14]
-CBZ W24, end //; Disabled
+CBZ W24, end
 
 LDR W8, [X19, #0x358]
 CBNZ W8, calcMarchAndLead //; Not controlled player
@@ -261,7 +261,7 @@ ADRP X8, #0x2B6D000
 LDR X9, [X8, #0x870] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x878] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -282,7 +282,7 @@ ADD X3, SP, #0x10
 CMP W24, #DEBUG_MARCHING
 ADR X4, marchingString
 ADR X5, leadingString
-CSEL X4, X4, X5, EQ //; Choose string based on mode
+CSEL X4, X4, X5, EQ
 BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
 LDR S0, posYCancel
@@ -297,11 +297,10 @@ BL 0xFF9EC8 //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> 
 B end
 
 calcMarchAndLead:
-CMP W24, #DEBUG_MARCHING //; Debug Marching
+CMP W24, #DEBUG_MARCHING
 BEQ marchingCopyStick
 
 //; Calculate controlled player point for AI follow
-
 LDR W8, [X26, #0x328]
 LDR W9, [X19, #0x328]
 

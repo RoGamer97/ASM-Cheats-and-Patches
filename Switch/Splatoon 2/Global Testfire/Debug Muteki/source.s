@@ -15,7 +15,8 @@
 //; 0x64074 -> BL 0x1180260
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 
 //; Register reference:
@@ -116,7 +117,7 @@ ADRP X8, #0x2B6D000
 LDR X9, [X8, #0x870] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x878] //; _ZN4sead7Color4f6cWhiteE
 
-CSEL X8, X9, X8, EQ //; Load black or white color depending on text timer
+CSEL X8, X9, X8, EQ
 LDP X0, X1, [X8] 
 STR X0, [SP, #0x24]
 STR X1, [SP, #0x2C]
@@ -315,6 +316,8 @@ RET
 //; X19 = Game::PlayerInkActionUmbrella*
 
 
+.set BUTTONBIT_DPAD_UP, 16
+
 LDR W9, [X8, #0x44C] //; Original instruction
 
 LDR X11, [X19]
@@ -331,7 +334,7 @@ LDP X8, X9, [SP, #0x10]
 LDP X29, X30, [SP], #0x20
 
 LDR W0, [X0, #0x94]
-TBZ W0, #16, end //; D-Pad Up not triggered
+TBZ W0, #BUTTONBIT_DPAD_UP, end //; D-Pad Up not triggered
 
 MOV W9, W8
 

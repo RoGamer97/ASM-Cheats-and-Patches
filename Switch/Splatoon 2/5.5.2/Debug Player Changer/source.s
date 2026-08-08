@@ -15,7 +15,8 @@
 //; 0xD5D68 -> BL 0x1AA96AC
 
 //; If Minus is held, replace requested input mask with zero.
-//; Done in the debug build for some reason, so replicating it
+
+//; Done in the debug build, so reimplementing this too for accuracy
 
 
 //; Register reference:
@@ -39,9 +40,9 @@ RET
 
 //; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
-//; (since Vector2 address is loaded instead)
+//; (Use Vec2 zero address instead)
 
-//; Done in the debug build for some reason, so replicating it
+//; Done in the debug build, so reimplementing this too for accuracy
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
 //; Returns past the getRightStick call, where the stick values are loaded
