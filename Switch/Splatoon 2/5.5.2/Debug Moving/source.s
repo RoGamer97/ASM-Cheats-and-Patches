@@ -36,12 +36,11 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x107BCE4 -> BL 0x1AA96C0
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
 //; (since Vector2 address is loaded instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build for some reason, so replicating it
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x107BCF8
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -59,7 +58,7 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x2CFD000
 LDR X0, [X0, #0x850] //; _ZN4sead7Vector2IfE4zeroE
@@ -130,7 +129,7 @@ ADRP X23, #0x29E7000
 MOV W9, #0x10C0
 
 LDR W8, [X0, #0x10]
-TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; Not held
 
 LDR S0, [X19, #0x910]
 LDR S1, velMultiplier
@@ -139,7 +138,7 @@ STR S0, [X19, #0x910]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; Minus button not triggered
+TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; Not triggered
 
 LDRB W8, [X23, #0x14]
 CBNZ W8, isInDebugMove //; Debug Marching/Leading enabled
@@ -905,6 +904,7 @@ RET
 
 //; Print text outline first, then text after
 
+
 //; Register reference:
 //; X0 = SP address
 //; X1 = String address
@@ -912,6 +912,8 @@ RET
 //; W3 = Blink Timer
 //; X4 = Player Coords Address
 
+
+.set TEXT_FLASH_TIMER_MASK, 96
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -925,8 +927,8 @@ ADRP X8, #0x2CFE000
 LDR X9, [X8, #0x440] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
-AND W3, W3, #0x60
-CMP W3, #0x60
+AND W3, W3, #TEXT_FLASH_TIMER_MASK
+CMP W3, #TEXT_FLASH_TIMER_MASK
 CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
 CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
 
@@ -1051,7 +1053,7 @@ MOV W3, W24
 MOV X4, XZR
 BL 0x185165C //; My own text draw function
 
-BL 0x1354BD0 //; Game::Utl::isSpectatorStation
+BL 0x1354BD0 //; Game::Utl::isSpectatorStation(void)
 CBNZ X0, end
 
 MOV X0, X26

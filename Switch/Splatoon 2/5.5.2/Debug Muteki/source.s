@@ -84,10 +84,10 @@ BL 0x19EC714 //; Lp::Utl::getCtrl(int)
 ADRP X9, #0x29E7000
 
 LDR W8, [X0, #0x10]
-TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; L button not triggered
+TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; Not triggered
 
 LDR W8, [X19, #0x10C4]
 EOR W8, W8, #1
@@ -370,6 +370,7 @@ RET
 
 //; Print text outline first, then text after
 
+
 //; Register reference:
 //; X0 = SP address
 //; X1 = String address
@@ -377,6 +378,7 @@ RET
 //; W3 = Blink Timer
 //; X4 = Player Coords Address
 
+.set TEXT_FLASH_TIMER_MASK, 96
 
 STP X29, X30, [SP, #-0x30]!
 STP X19, X20, [SP, #0x10]
@@ -390,8 +392,8 @@ ADRP X8, #0x2CFE000
 LDR X9, [X8, #0x440] //; _ZN4sead7Color4f6cBlackE
 LDR X8, [X8, #0x448] //; _ZN4sead7Color4f6cWhiteE
 
-AND W3, W3, #0x60
-CMP W3, #0x60
+AND W3, W3, #TEXT_FLASH_TIMER_MASK
+CMP W3, #TEXT_FLASH_TIMER_MASK
 CSEL X22, X9, X8, EQ //; Load black or white color depending on text timer (Text)
 CSEL X8, X9, X8, NE //; Load black or white color depending on text timer (Text Outline, inverted)
 

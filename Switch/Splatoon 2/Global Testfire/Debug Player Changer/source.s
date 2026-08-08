@@ -36,12 +36,11 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0x758970 -> BL 0x1180274
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
 //; (since Vector2 address is loaded instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build for some reason, so replicating it
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0x758984
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -59,7 +58,7 @@ BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x2B6D000
 LDR X0, [X0, #0x298] //; _ZN4sead7Vector2IfE4zeroE
@@ -93,22 +92,22 @@ RET
 
 STP X29, X30, [SP, #-0x10]!
 
-BL 0x9122D8 //; Game::Utl::isOfflineScene
+BL 0x9122D8 //; Game::Utl::isOfflineScene(void)
 TBZ W0, #0, end
 
 MOV W0, WZR
 BL 0x10A4808 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #BUTTONBIT_MINUS, end //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, end //; Not held
 
 LDR W12, [X0, #0x94]
 MOV W8, #(BUTTON_RIGHT_STICK_LEFT | BUTTON_RIGHT_STICK_RIGHT)
 TST W12, W8
-BEQ end//; Right Stick Left/Right not triggered
+BEQ end //; Not triggered
 
 LDR W9, [X19, #0x52C]
 CMP W9, #1
-BLE end //; 1 player or less in a match
+BLE end
 
 SUB W9, W9, #1
 MOV W10, #1

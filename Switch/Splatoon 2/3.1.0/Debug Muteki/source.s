@@ -68,6 +68,8 @@ RET
 .set BUTTONBIT_MINUS, 9
 .set BUTTONBIT_L, 13
 
+.set TEXT_FLASH_TIMER_MASK, 96
+
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
 
@@ -76,10 +78,10 @@ STP X29, X30, [SP, #-0x40]!
 MOV W0, WZR
 BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 LDR W8, [X0, #0x10]
-TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isInDebugMuteki //; Not held
 
 LDR W0, [X0, #0x94]
-TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; L button not triggered
+TBZ W0, #BUTTONBIT_L, isInDebugMuteki //; Not triggered
 
 LDR W8, [X19, #0x108C]
 EOR W8, W8, #1
@@ -95,7 +97,6 @@ LDR W8, [X19, #0x108C]
 CBZ W8, restore
 
 //; Setup stack for text draw call
-
 MOV X8, #0x100000000
 STR X8, [SP, #0x10]
 
@@ -109,8 +110,8 @@ ADRP X8, #0x3DFE000
 LDR W9, [X8, #0xC]
 ADD W9, W9, #1
 STR W9, [X8, #0xC]
-AND W9, W9, #0x60
-CMP W9, #0x60
+AND W9, W9, #TEXT_FLASH_TIMER_MASK
+CMP W9, #TEXT_FLASH_TIMER_MASK
 
 ADRP X8, #0x4156000
 LDR X9, [X8, #0xE90] //; _ZN4sead7Color4f6cBlackE

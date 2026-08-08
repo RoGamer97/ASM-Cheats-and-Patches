@@ -2,7 +2,7 @@
 
 Reimplements the Debug Marching and Debug Leading features from the debug build in retail.
 
-Hold `Minus` and push `Right Stick Up` to enable and change the mode (`Debug Marching -> Debug Leading -> Cancel`). You can cancel it by pressing `Minus` as well.
+Hold `Minus` and push `Right Stick Up` to enable and change the mode (`Debug Marching -> Debug Leading -> Disabled`). You can cancel it by pressing `Minus` as well.
 
 ### Debug Marching 
 Every dummy player will copy your movements and actions, making you control everyone.

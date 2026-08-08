@@ -36,12 +36,11 @@ RET
 //; Game::PlayerGamePad::getRightStick(void) + 0x20
 //; 0xEA1974 -> BL 0x1B6109C
 
-//; If Minus is held, load Vector2 zero address and
+//; If Minus is held, load address of Vector2 of zeroes and
 //; skip getting the controller's right stick address
 //; (since Vector2 address is loaded instead)
 
-//; Probably done to avoid the camera from moving when enabling debug features
-//; or other reason that I don't know (Similar to player inputs being disabled)
+//; Done in the debug build for some reason, so replicating it
 
 //; Skip by modifying hook's return address: LR + 0x10 = 0xEA1988
 //; Returns past the getRightStick call, where the stick values are loaded
@@ -59,7 +58,7 @@ BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 LDP X29, X30, [SP], #0x10
 
 LDR W0, [X0, #0x10]
-TBZ W0, #BUTTONBIT_MINUS, end //; Minus button not held
+TBZ W0, #BUTTONBIT_MINUS, end //; Not held
 
 ADRP X0, #0x4156000
 LDR X0, [X0, #0x818] //; _ZN4sead7Vector2IfE4zeroE
@@ -121,6 +120,8 @@ RET
 
 .set BUTTONBIT_MINUS, 9
 
+.set TEXT_FLASH_TIMER_MASK, 96
+
 LDR W8, [X19, #0x358]
 CBNZ W8, end //; Not controlled player
 
@@ -133,7 +134,7 @@ BL 0x1A65E14 //; Lp::Utl::getCtrl(int)
 
 MOV W9, #0x1088
 LDR W8, [X0, #0x10]
-TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; Minus button not held
+TBZ W8, #BUTTONBIT_MINUS, isToggleTrig //; not held
 
 LDR S0, [X19, #0x910]
 LDR S1, velMultiplier
@@ -142,7 +143,7 @@ STR S0, [X19, #0x910]
 
 isToggleTrig:
 LDR W0, [X0, #0x94]
-TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; Minus button not triggered
+TBZ W0, #BUTTONBIT_MINUS, isInDebugMove //; not triggered
 
 LDRB W8, [X26, #0x14]
 CBNZ W8, isInDebugMove //; Debug Leading/Marching enabled
@@ -158,7 +159,6 @@ LDRB W8, [X19,X9]
 CBZ W8, restore
 
 //; Setup stack for text draw call
-
 MOV X8, #0x100000000
 STR X8, [SP, #0x10]
 
@@ -171,8 +171,8 @@ STR WZR, [SP, #0x20]
 LDR W9, [X26, #8]
 ADD W9, W9, #1
 STR W9, [X26, #8]
-AND W9, W9, #0x60
-CMP W9, #0x60
+AND W9, W9, #TEXT_FLASH_TIMER_MASK
+CMP W9, #TEXT_FLASH_TIMER_MASK
 
 ADRP X8, #0x4156000
 LDR X9, [X8, #0xE90] //; _ZN4sead7Color4f6cBlackE
@@ -220,8 +220,8 @@ ADD X3, SP, #0x10
 ADR X4, youCanFlyString
 BL 0x19BC22C //; Lp::Sys::DbgTextWriter::productEntryF(int, sead::Vector2<float> const&, Lp::Sys::DbgTextWriter::ArgEx const*, char const*, ...)
 
-BL 0x116F5F0 //; Game::Utl::isSpectatorStation
-CBNZ W0, restore //; Spectator mode
+BL 0x116F5F0 //; Game::Utl::isSpectatorStation(void)
+CBNZ W0, restore
 
 MOV X0, X26
 MOV W1, #0x1E
