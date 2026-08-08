@@ -74,11 +74,14 @@ RET
 //; Game::PlayerMgr::firstCalc(void) + 0x38
 //; 0x10E70C8 -> BL 0x1AA96EC
 
-//; Changes the controlled player if holding Minus and Right Stick Left/Right,
-//; but only if playing offline and at least 2 players are in a match
+//; Holding Minus and pushing Right Stick Left/Right changes controlled player,
+//; except if it's not an offline scene or player amount is <= 1
 
-//; Disables AI if Debug Marching is enabled on change (To allow controlling the 
-//; player you just changed to - fix because of how my Marching implementation works)
+//; Increments/decrements controlled player index based on Right Stick Left/Right
+//; and calls Game::PlayerMgr::onChangeControlledPlayer(void)
+
+//; Disables AI if Debug Marching is enabled on player change to allow controlling the 
+//; player you just changed to - fix because of how my Marching implementation works
 
 
 //; Register reference:

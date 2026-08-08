@@ -18,8 +18,8 @@
 //; Added match checks to avoid resets and reloads in menus (Avoids crash)
 
 //; Store action hold to padding bytes (0x10A and 0x10B) to avoid spamming the 
-//; action or happening on trig, and to make it only happen after releasing
-//; the button
+//; action or happening on button trigger, and to make it only happen after releasing
+//; the buttons
 
 
 //; Register reference:
