@@ -9,14 +9,47 @@
 # DoTandemItemRelease__8KartItemFv + 0x34
 # 802BCA08
 
-# Current item in the cycle is stored in padding byte
-# Cycling items in Bob-omb Blast will give Bob-ombs instead
-# Can't cycle during driver swap in Bob-omb Blast to avoid a bug
-# where it can give Bomb-ombs past the max limit
-# Cycling while in an active Chain Chomp item will separate you from
-# it (Avoids a crash, and to be able to get out of it at will)
-# When giving item, some race2D item window value is set to force the 
-# item to appear and update on the slot HUD
+# Holding R and D-Pad Left/Right cycles through items
+
+# Pressing X or Y gives the last cycled item as long as
+# it's not the "No Item", no item is on hand/slot and slot
+# is not spinning
+
+# Only allow cycling for local player's kart
+# Don't allow cycling if slot is spinning
+
+# If in Bob-omb Blast, give Bob-ombs on cycle instead
+# Item use button does not give items
+
+# Don't give Bob-ombs if changing drivers or having
+# maximum amount of Bob-ombs on the hand
+# Don't allow it while changing drivers because of a bug
+# where it incorrectly reads the Bob-omb amount, allowing
+# to give more than the maximum amount
+
+# When cycling:
+# Increment/decrement the current cycled item index
+# and store it in a padding byte
+# Wrap it between 0 and the last index of the list
+
+# If having an item on the hand, clear it and delete it
+# from the item list
+
+# If using a Chain Chomp, separate it from the kart instead
+# (avoid crash, plus you can't change items in Chain Chomp),
+# and set the cycled item index to Chain Chomp's to avoid desync
+# (item isn't given at that moment but index changes, so "undo"
+# the change)
+
+# When pressing item use button:
+# If no item is on the hand and slot is not spinning, give item
+
+# Giving item (cycle or item use button):
+# Get item from list by index; if item is "No Item", don't give item
+# Give item and set the item window HUD state to make the item appear
+# (same state used when stealing item by punch or getting a
+# dropped item with a Heart)
+
 
 # Register reference:
 # r3 = ItemObj* of hand item
@@ -58,6 +91,10 @@
 .set ITEMOBJ_STATE_RELEASE, 2
 .set ITEMOBJ_STATE_DISAPPEAR, 0xA
 
+.set KARTSTATUSBIT_CHANGING_DRIVER, 7
+
+.set KARTSTATUS_CHANGING_DRIVER, (1 << KARTSTATUSBIT_CHANGING_DRIVER)
+
 .set BUTTONBIT_X, 10
 .set BUTTONBIT_Y, 11
 .set BUTTONBIT_R, 5
@@ -70,9 +107,9 @@
 .set BUTTON_DPAD_LEFT, (1 << BUTTONBIT_DPAD_LEFT)
 .set BUTTON_DPAD_RIGHT, (1 << BUTTONBIT_DPAD_RIGHT)
 
-.set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
+.set BATTLETYPE_BOBOMB_BLAST, 6
 
-.SET RACE2D_ITEMWINDOWSTATE_FORCE_APPEAR, 9
+.SET ITEMWINDOWSTATE_APPEAR, 9
 
 
 stwu sp, -0x80 (sp)
@@ -90,10 +127,10 @@ cmplwi r3, 0
 beq end
 
 lwz r31, -0x54E0 (r13) # ItemObjMgr
-subi r16, r31, 0x30 # Address of index of current item in cycle
-lbzx r24, r16, r27 # Index of current item in cycle for that player (Not item ID! Table index)
+subi r16, r31, 0x30
+lbzx r24, r16, r27
 lbz r26, 0x5B2 (r30)
-xori r26, r26, 1 # Slot ID, but inverted
+xori r26, r26, 1 # Slot index, but inverted
 
 mr r3, r31
 mr r4, r27
@@ -113,15 +150,15 @@ add r12, r12, r4 # Controller address
 lwz r5, 4 (r12)
 lwz r12, 0 (r12)
 
-li r6, 0 # Is in Bob-omb Blast bool (False by default)
+li r6, 0
 
 lwz r4, -0x5C38 (r13)
 lwz r4, 0x38 (r4)
 lwz r4, 8 (r4)
-cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
+cmpwi r4, BATTLETYPE_BOBOMB_BLAST
 bne isUseButton
 
-li r6, 1 # Set Bob-omb Blast bool
+li r6, 1
 b isCycle
 
 isUseButton:
@@ -139,7 +176,7 @@ cmpwi r6, 0
 beq isCycleLeft
 
 lwz r3, 0x574 (r30)
-andi. r3, r3, 0x80 # Swapping drivers
+andi. r3, r3, KARTSTATUS_CHANGING_DRIVER
 bne end
 
 mr r3, r31
@@ -152,7 +189,7 @@ bctrl
 
 lbz r4, -0x7610 (r13)
 cmpw r3, r4
-bge end # Max Bob-omb count on hand/item slot
+bge end
 
 mr r3, r31
 mr r4, r27
@@ -189,7 +226,7 @@ store:
 stbx r24, r16, r27
 
 cmpwi r29, 0
-beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
+beq isKartEquipItem
 
 lwz r4, 0x7C (r29)
 cmpwi r4, ITEMSLOT_CHAIN_CHOMP
@@ -232,7 +269,7 @@ bctrl
 cmpwi r3, 0
 bne end
 
-bl getTableItemByIndex
+bl getListItemByIdx
 
 itemList:
 .byte ITEMSLOT_EMPTY
@@ -256,12 +293,12 @@ itemListEnd:
 
 .balign 4
 
-# Labels used for index bounds
+# Labels used for index wrap
 .set ITEMSLOT_LIST_COUNT, itemListEnd - itemList
 .set ITEMSLOT_LIST_LAST_INDEX, ITEMSLOT_LIST_COUNT - 1
 .set ITEMSLOT_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
 
-getTableItemByIndex:
+getListItemByIdx:
 mflr r4
 lbzx r4, r4, r24
 cmpwi r4, ITEMSLOT_EMPTY
@@ -287,7 +324,7 @@ lwzx r5, r3, r4
 cmpwi r5, 0
 bne end
 
-li r5, RACE2D_ITEMWINDOWSTATE_FORCE_APPEAR
+li r5, ITEMWINDOWSTATE_APPEAR
 stwx r5, r3, r4
 
 end:
@@ -302,16 +339,43 @@ mr. r29, r3 # Original instruction
 # DoTandemItemRelease__8KartItemFv + 0x34
 # 802BCA08
 
-# Current item in the cycle is stored in padding byte
-# Cycling items in Bob-omb Blast will toggle infinite Bob-ombs
-# Can't cycle during driver swap in Bob-omb Blast to avoid a bug
-# where it can give Bomb-ombs past the max limit
-# Cycling while in an active Chain Chomp item will separate you from
-# it (Avoids a crash, and to be able to get out of it at will)
-# When giving item, some race2D item window value is set to force the 
-# item to appear and update on the slot HUD
+# Holding R and D-Pad Left/Right cycles through items
 
-# Globals
+# Only allow cycling for local player's kart
+# Don't allow cycling if slot is spinning
+
+# If in Bob-omb Blast, toggle infinite Bob-ombs on cycle
+# instead. It'll always give Bob-ombs when enabled,
+# except if the maximum amount of Bob-ombs on the hand
+# has been hit
+# Don't allow it while changing drivers because of a bug
+# where it incorrectly reads the Bob-omb amount, allowing
+# to give more than the maximum amount
+
+# When cycling:
+# Increment/decrement the current cycled item index
+# and store it in a padding byte
+# Wrap it between 0 and the last index of the list
+
+# If having an item on the hand, clear it and delete it
+# from the item list
+
+# If using a Chain Chomp, separate it from the kart instead
+# (avoid crash, plus you can't change items in Chain Chomp),
+# and set the cycled item index to Chain Chomp's to avoid desync
+# (item isn't given at that moment but index changes, so "undo"
+# the change)
+
+# When using the cycled item, it'll automatically be given again,
+# making it "infinite"
+
+# Giving item (cycle or automatically give):
+# Get item from list by index; if item is "No Item", don't give item
+# Give item and set the item window HUD state to make the item appear
+# (same state used when stealing item by punch or getting a
+# dropped item with a Heart)
+
+
 .set addr_buttons, 0x803A4D9C
 .set addr_race2D_itemSlotWindow, 0x8037FF70
 
@@ -325,7 +389,6 @@ mr. r29, r3 # Original instruction
 .set getKartEquipItem__10ItemObjMgrFiUc, 0x80209A18
 .set equipItemToKart__10ItemObjMgrFiiUcbUc, 0x80209120
 
-# Defines
 .set ITEMSLOT_GREEN_SHELL, 0
 .set ITEMSLOT_BOWSER_SHELL, 1
 .set ITEMSLOT_RED_SHELL, 2
@@ -347,6 +410,10 @@ mr. r29, r3 # Original instruction
 .set ITEMOBJ_STATE_RELEASE, 2
 .set ITEMOBJ_STATE_DISAPPEAR, 0xA
 
+.set KARTSTATUSBIT_CHANGING_DRIVER, 7
+
+.set KARTSTATUS_CHANGING_DRIVER, (1 << KARTSTATUSBIT_CHANGING_DRIVER)
+
 .set BUTTONBIT_X, 10
 .set BUTTONBIT_Y, 11
 .set BUTTONBIT_R, 5
@@ -359,9 +426,9 @@ mr. r29, r3 # Original instruction
 .set BUTTON_DPAD_LEFT, (1 << BUTTONBIT_DPAD_LEFT)
 .set BUTTON_DPAD_RIGHT, (1 << BUTTONBIT_DPAD_RIGHT)
 
-.set GAMEMODE_BATTLE_BOBOMB_BLAST, 6
+.set BATTLETYPE_BOBOMB_BLAST, 6
 
-.SET RACE2D_ITEMWINDOWSTATE_FORCE_APPEAR, 9
+.SET ITEMWINDOWSTATE_APPEAR, 9
 
 stwu sp, -0x80 (sp)
 stmw r3, 8 (sp)
@@ -378,10 +445,10 @@ cmplwi r3, 0
 beq end
 
 lwz r31, -0x54E0 (r13) # ItemObjMgr
-subi r16, r31, 0x30 # Address of index of current item in cycle
-lbzx r24, r16, r27 # Index of current item in cycle for that player (Not item ID! Table index)
+subi r16, r31, 0x30
+lbzx r24, r16, r27
 lbz r26, 0x5B2 (r30)
-xori r26, r26, 1 # Slot ID, but inverted
+xori r26, r26, 1 # Slot index, but inverted
 
 mr r3, r31
 mr r4, r27
@@ -396,20 +463,20 @@ bne end
 lis r12, addr_buttons@h
 ori r12, r12, addr_buttons@l
 mulli r4, r27, 0x30
-add r12, r12, r4 # Controller address
+add r12, r12, r4
 
 lwz r5, 4 (r12)
 lwz r12, 0 (r12)
 
-li r6, 0 # Is in Bob-omb Blast bool (False by default)
+li r6, 0
 
 lwz r4, -0x5C38 (r13)
 lwz r4, 0x38 (r4)
 lwz r4, 8 (r4)
-cmpwi r4, GAMEMODE_BATTLE_BOBOMB_BLAST
+cmpwi r4, BATTLETYPE_BOBOMB_BLAST
 bne isCycle
 
-li r6, 1 # Set Bob-omb Blast bool
+li r6, 1
 
 isCycle:
 andi. r12, r12, BUTTON_R
@@ -434,7 +501,7 @@ cmpwi r24, 0
 beq end 
 
 lwz r3, 0x574 (r31)
-andi. r3, r3, 0x80 # Swapping drivers
+andi. r3, r3, KARTSTATUS_CHANGING_DRIVER
 bne end
 
 mr r3, r31
@@ -447,7 +514,7 @@ bctrl
 
 lbz r4, -0x7610 (r13)
 cmpw r3, r4
-bge end # Max Bob-omb count on hand/item slot
+bge end
 
 mr r3, r31
 mr r4, r27
@@ -484,7 +551,7 @@ store:
 stbx r24, r16, r27
 
 cmpwi r29, 0
-beq isKartEquipItem # Hand ItemObj is nullptr, no item on hand
+beq isKartEquipItem
 
 lwz r4, 0x7C (r29)
 cmpwi r4, ITEMSLOT_CHAIN_CHOMP
@@ -527,7 +594,7 @@ bctrl
 cmpwi r3, 0
 bne end
 
-bl getTableItemByIndex
+bl getListItemByIdx
 
 itemList:
 .byte ITEMSLOT_EMPTY
@@ -551,12 +618,12 @@ itemListEnd:
 
 .balign 4
 
-# Labels used for index bounds
+# Labels used for index wrap
 .set ITEMSLOT_LIST_COUNT, itemListEnd - itemList
 .set ITEMSLOT_LIST_LAST_INDEX, ITEMSLOT_LIST_COUNT - 1
 .set ITEMSLOT_CHAIN_CHOMP_INDEX, itemChainChomp - itemList
 
-getTableItemByIndex:
+getListItemByIdx:
 mflr r4
 lbzx r4, r4, r24
 cmpwi r4, ITEMSLOT_EMPTY
@@ -582,7 +649,7 @@ lwzx r5, r3, r4
 cmpwi r5, 0
 bne end
 
-li r5, RACE2D_ITEMWINDOWSTATE_FORCE_APPEAR
+li r5, ITEMWINDOWSTATE_APPEAR
 stwx r5, r3, r4
 
 end:
