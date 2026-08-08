@@ -1,3 +1,3 @@
 ## Action Replay Codes
 
-Action Replay codes for 3DS games
+Action Replay codes for 3DS games.

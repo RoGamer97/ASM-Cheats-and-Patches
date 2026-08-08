@@ -1,3 +1,3 @@
 ## Gecko Codes
 
-Gecko Codes for Wii games
+Gecko Codes for Wii games.

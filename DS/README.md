@@ -1,3 +1,3 @@
 ## Action Replay Codes
 
-Action Replay codes for DS games
+Action Replay codes for DS games.
