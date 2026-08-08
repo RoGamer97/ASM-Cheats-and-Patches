@@ -4,7 +4,7 @@
 
 This is a collection of public ASM cheat codes, patches, and hacks for various Nintendo console games.
 
-You'll find a variety of codes, including quality-of-life improvements, gameplay fixes and changes, debug features, customization, cheats, experimental and fun modifications, various hacks, and much more.
+You'll find a variety of codes, including quality-of-life improvements, gameplay fixes and changes, debug features, customization, cheats, experimental and fun modifications, hacks, and much more.
 
 It only includes codes made by me.
 
