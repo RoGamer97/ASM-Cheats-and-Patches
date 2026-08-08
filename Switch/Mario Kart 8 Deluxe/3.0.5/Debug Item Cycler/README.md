@@ -8,4 +8,4 @@ Press the item use button to give yourself the last item cycled to. No item will
 
 Does not work in Time Trials, Bob-omb Blast, or online by design.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)

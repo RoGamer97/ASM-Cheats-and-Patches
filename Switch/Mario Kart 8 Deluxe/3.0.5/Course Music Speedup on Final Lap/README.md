@@ -4,4 +4,4 @@ The normal lap music will not be interrupted when the final lap jingle plays, an
 
 This is useful for custom music packs, as it removes the need to create separate final lap BFSTMs and allows long songs to play uninterrupted.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)

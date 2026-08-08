@@ -4,4 +4,4 @@ An arrow showing the kart's direction is shown on the minimap. The same one from
 
 Note that the arrow may be rotated incorrectly in specific parts of the course.
 
-The ASM source code can be found [here](source.s).
+[ASM source](source.s)
