@@ -3,10 +3,10 @@
 //; Code: Display Dirty (D) Debug Mark
 
 
-// Hooks are written over unused functions (never executed).
-// There is a bit of free space in .text, but for some reason the emulator
-// crashes when executing code in that space. Writing over unused functions
-// doesn't cause a crash.
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; gsys::SystemTask::invokeDrawTV_(agl::DrawContext *) + 0x24

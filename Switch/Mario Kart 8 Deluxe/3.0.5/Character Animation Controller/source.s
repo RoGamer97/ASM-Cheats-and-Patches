@@ -3,10 +3,10 @@
 //; Code: Character Animation Controller
 
 
-// Hooks are written over unused functions (never executed).
-// There is a bit of free space in .text, but for some reason the emulator
-// crashes when executing code in that space. Writing over unused functions
-// doesn't cause a crash.
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 //; Character animation controller
 //; object::DriverKart::calcSkeletalAnim_(void) + 0x1C

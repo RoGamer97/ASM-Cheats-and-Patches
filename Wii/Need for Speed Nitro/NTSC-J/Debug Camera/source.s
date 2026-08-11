@@ -20,7 +20,6 @@
 .set addr_Wiimote2ButtonTrig, 0x806F3D86
 .set addr_CDActionDebug_string, 0x80557838
 
-<<<<<<< HEAD:Wii/Need for Speed Nitro/NTSC-J/Debug Camera/source.s
 .set BUTTONBIT_MINUS, 12
 .set BUTTONBIT_Z_NUNCHUK, 13
 .set BUTTONBIT_C_NUNCHUK, 14
@@ -28,11 +27,6 @@
 .set BUTTON_MINUS, (1 << BUTTONBIT_MINUS)
 .set BUTTON_Z_NUNCHUK, (1 << BUTTONBIT_Z_NUNCHUK)
 .set BUTTON_C_NUNCHUK, (1 << BUTTONBIT_C_NUNCHUK)
-=======
-.set BUTTON_MINUS, 0x1000
-.set BUTTON_Z_NUNCHUK, 0x2000
-.set BUTTON_C_NUNCHUK, 0x4000
->>>>>>> ba5ad483375f4e5cc4ea3a7d358921b18d444f5a:Wii/Need for Speed Nitro (NTSC-J)/Debug Cameras/source.s
 
 li r3, 0
 li r4, 0

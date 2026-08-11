@@ -6,10 +6,10 @@
 //; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
 
-// Hooks are written over unused functions (never executed).
-// There is a bit of free space in .text, but for some reason the emulator
-// crashes when executing code in that space. Writing over unused functions
-// doesn't cause a crash.
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; Continue playing normal lap music in final lap and store bool for speedup 
