@@ -25,7 +25,7 @@
 
 //; Makes a list for set kart, tire, glider and character for every individual CPU
 
-//; You can set a part to the "RANDOM" ID to have that part be randomly chosen
+//; You can set a part to the "RANDOM" ID to have that part be randomly chosen, using the game's default behavior
 
 //; Register reference:
 //; W20 = CPU ID
