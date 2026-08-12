@@ -237,20 +237,25 @@ RET
 
 //; Automatically warps camera to the kart when enabling Free Cam for the first time.
 //; Done by checking if camera's XYZ coordinate shift offset are zero and warping cam to
-//; kart if so (This shift offset is never stored to when controlling the camera, it moves
+//; kart if so. This shift offset is never stored to when controlling the camera, it moves
 //; differently, so controlling the camera in menu then going to a race for the first time
-//; is not a problem).
+//; is not a problem
 
 //; To warp the camera, load the first kart (index 0, always you offline) object::KartVehicleMove*,
-//; reset camera's XYZ coordinates to 0,0,0, load kart's XYZ rotation and store to camera's XYZ rotation, 
-//; multiply X and Z rotation by 50, load kart's XYZ coordinates, add the multiplied X and Z rotations to
-//; X and Z coordinates to move camera back to the kart, and subtract Y coordinate by 18 to move camera
-//; slighty down, that way, the camera is positioned exactly at the back of the kart, and store it to
-//; the camera's XYZ coordinate shift offset.
+//; reset camera's XYZ coordinates to 0,0,0, load kart's XYZ rotation and store to camera's XYZ rotation,
+//; multiply X and Z rotation by 50 (distance), load kart's XYZ coordinates, add the multiplied X and Z 
+//; rotations to X and Z coordinates to move camera back to the kart, and subtract Y coordinate by 18 (height)
+//; to move camera slightly down. That way, the camera is positioned exactly at the back of the kart, 
+//; and store it to the camera's XYZ coordinate shift offset.
+//
 //; The shift offset is similar to coordinates, but coordinates don't work exactly the same, so when
 //; trying to set the kart's coordinates to the camera, the camera would not be at the right location,
-//; needing some calculation, and the speed become super fast. Resetting the coords to 0,0,0 and setting 
-//; shift the offset works without any problems and changes the speed to slow
+//; and the speed becomes super fast. Resetting the coords to 0,0,0 and setting the shift offset works
+//; without any problems and changes the speed to slow.
+
+
+//; Register reference:
+//; X19 = agl::utl::DevTools*
 
 
 .set RACERULE_TITLERACE, 4
@@ -328,21 +333,40 @@ height: .float 18
 
 //; Warp Kart to Camera
 //; object::KartVehicleMove::calcApply(void) + 0x18
-//; 0x183FDC -> BL 0xAAFC80
+//; 0x183FDC -> BL 00AAFECC
 
 //; Holding ZR and pressing Right Stick In warps your kart to the camera
+//
+//; Skip the code if not local player kart or net send kart
+//
+//; When warping, load agl::lyr::Layer* object pointer stored in R-W and
+//; load agl::utl::DevTools* from it to access the camera's coords and rotation.
+//; SP + 0x10 (0x30 bytes) will hold the kart's gear::MtxT for resetMatrix call,
+//; kart position and rotation will be stored there. Mentions of storing to
+//; the kart's coords and rotation below means storing to the stack
 
-//; Skip the code if net send kart
+//; Set some angles to zero and set some Y rotation to 1.0
 
-//; When warping, the kart is reset, then the camera's coordinates and
-//; shift offset are loaded, and added together to calculate the correct
-//; coordinate, and then are stored to the kart's XYZ coordinates.
-//; Lakitu respawn is finished, AI is reset if kart is an AI, to correct
-//; CPU route, character is reset, and a bool is stored to
-//; object::KartVehicleMove* + 0x3EE, which is a padding byte.
-//; This bool will be used as a way to determine if the kart was dropped
-//; from warp to cam. It'll be checked in this hook to constantly correct
-//; checkpoints if it's true, and in another hook to ignore checkpoint
+//; Load camera's XYZ right vector, invert X rotation and store to kart's
+//; Z rotation, store Z rotation to kart's X rotation and Y rotation to
+//; kart's Y rotation. That converts it to forward vector so kart faces
+//; the camera's direction
+
+//; Load camera's XYZ coordinates and XYZ shift offset, then add coordinates
+//; with shift offset. That makes the XYZ coords be exactly where the camera
+//; is, regardless of zoom or anything else, and store it to kart's XYZ coords
+
+//; Finally, reset the kart to reset speed and many other things, then reset
+//; matrix with the one stored at the stack and pass the gear::MtxT from stack
+//; and -10.0 as the Y height shift to warp the kart to camera's location but 
+//; slightly under it
+//
+//; Finish Lakitu respawn, reset AI if a CPU to correct CPU route, reset character, 
+//; and store a bool to object::KartVehicleMove* + 0x3EE, which is a padding byte.
+//; This bool will be used as a way to determine if the kart is landing from 
+//; warp to camera. It'll be checked in this hook to constantly correct
+//; checkpoints if it's true (even if not warping to cam this frame), 
+//; and in another hook to ignore checkpoint
 //; boundaries when true. It is set to false when the kart touches the
 //; ground (no air frames).
 
@@ -354,8 +378,14 @@ height: .float 18
 .set BUTTONBIT_ZR, 5
 .set BUTTONBIT_RIGHT_STICK_IN, 6
 
-.set BUTTON_ZR, (BUTTONBIT_ZR << 1)
-.set BUTTON_RIGHT_STICK_IN, (BUTTONBIT_RIGHT_STICK_IN << 1)
+.set FREECAM_BIT, 0
+
+//; Register reference:
+//; X19 = object::KartVehicleMove*
+
+
+.set BUTTONBIT_ZR, 5
+.set BUTTONBIT_RIGHT_STICK_IN, 6
 
 .set FREECAM_BIT, 0
 
@@ -381,26 +411,46 @@ ADRP X8, #0x11A7000
 LDRH W9, [X8, #8]
 TBZ W9, #FREECAM_BIT, end
 
-MOV X0, X20
-MOV W1, #1
-BL 0x171004 //; object::KartVehicle::reset(bool)
-
 ADRP X8, #0x11A7000
 LDR X8, [X8, #0x10] 
 LDR X8, [X8, #0x1E8]
 ADD X8, X8, #0x68 //; agl::utl::DevTools*
+
+STR XZR, [SP, #0x10]
+STR XZR, [SP, #0x18]
+
+MOV X9, #0x000000003F800000
+STR X9, [SP, #0x20]
+
+LDP S0, S1, [X8, #8]
+LDR S2, [X8, #0x10]
+
+FNEG S0, S0
+
+STP S2, S1, [SP, #0x28]
+STR S0, [SP, #0x30]
 
 LDP S0, S1, [X8, #0x38]
 LDR S2, [X8, #0x40]
 
 LDP S3, S4, [X8, #0x68]
 LDR S5, [X8, #0x70]
+
 FADD S0, S0, S3
 FADD S1, S1, S4
 FADD S2, S2, S5
 
-STP S0, S1, [X19, #0x2C]
-STR S2, [X19, #0x34]
+STP S0, S1, [SP, #0x34]
+STR S2, [SP, #0x3C]
+
+MOV X0, X20
+MOV W1, #1
+BL 0x171004 //; object::KartVehicle::reset(bool)
+
+LDR X0, [X20, #8]
+ADD X1, SP, #0x10
+FMOV S0, #-10.0
+BL 0x16C2F8 //; object::KartUnit::resetMatrix(gear::MtxT const&,float)
 
 LDR X0, [X20, #0x90]
 ADD X1, X19, #8
