@@ -46,9 +46,9 @@ RET
 //; object::DriverKart::calcELink(void) + 0xD6C //; wrong function?
 //; 0xDDB30 -> BL 0x89A50
 
-//; Angry Wiggler crashes on the menu when trying to
+//; Angry Wiggler crashes in menus when trying to
 //; play the angry smoke SFX because kart audio
-//; is not created in menus.
+//; is not created in menus
 
 //; Fix the crash by skipping audio::AudSoundObjKart::requestHoldKartSE(audio::AudSoundObjKart::EHoldKartSE,int,int)
 //; call if audio::AudSoundObjKart* is nullptr
@@ -56,8 +56,10 @@ RET
 //; Skip by modifying hook's return address: LR + 4 = 0xDDB38
 //; Returns after the requestHoldKartSE call
 
+
 //; Register reference:
 //; X0 = audio::AudSoundObjKart*
+
 
 CBNZ X0, end
 

@@ -57,7 +57,7 @@ BNE loop
 ADRP X0, #0x1301000
 LDR X0, [X0, #0xE70]
 LDR X0, [X0]
-ADD X0, X0, #0x88
+ADD X0, X0, #0x88 //; sead::Random*
 BL 0x62B5FC //; sead::Random::getU32(void)
 
 LDRB W1, [X1, #1]

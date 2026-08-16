@@ -39,7 +39,7 @@ MOV X19, X0 //; Original instruction
 
 LDR X8, [X19, #0xB8]
 LDR X8, [X8, #0x48]
-LDR X9, [X19, #0xD8] //; Character icon
+LDR X9, [X19, #0xD8]
 
 LDR S0, [X8, #0x110]
 LDR S1, [X8, #0x114]

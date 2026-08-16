@@ -61,11 +61,12 @@
 //; the item image. Needed for updating the item image on the item slot.
 //; Only call it if cycling to be accurate with the debug build behavior
 
+
 //; Register reference:
 //; W19 = Player ID
 //; X20 = gear::ItemOwner*
 //; W21 = Item slot index
-//; W24 = Item use button pressed bool
+//; W24 = Item use button triggered bool
 
 
 .set RACERULE_TIME_TRIALS, 2
@@ -117,7 +118,7 @@ CBZ W9, end //; Not local player kart
 LDRB W9, [X8, #0xE6]
 CBNZ W9, end //; Net send kart
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 
 LDR W8, [X0, #8]
 CMP W8, #RACERULE_TIME_TRIALS
@@ -137,7 +138,7 @@ BL 0x40494 //; gear::ItemOwner::isSlotRotate(int)
 CBZ W0, isCycleItem
 
 MOV W23, WZR
-CBNZ W24, getListItemByIdx //; Item use button pressed
+CBNZ W24, getListItemByIdx //; Item use button triggered
 
 isCycleItem:
 LDR W0, [X20, #0x40]

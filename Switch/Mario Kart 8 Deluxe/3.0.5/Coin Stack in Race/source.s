@@ -27,6 +27,7 @@
 //; Done by overriding the kart's isBattle bool with false if in menu, and
 //; true otherwise
 
+
 //; Register reference:
 //; W8 = Kart's isBattle bool (Input and output)
 
@@ -47,4 +48,4 @@ RET
 //; Create object::KartBattleCoinEffect anywhere (Part 2)
 //; object::KartChassisEffect::KartChassisEffect(object::KartVehicle *,gsys::Model *,gsys::Model *,gsys::ModelUnit *,gear::RaceKartInfo const&,int,repl::Recorder *) + 0x120
 //; 0x124764 -> MOV W8, #0
-//; Override the loaded kart's battle type with Coin Runners (0) to create object::KartBattleCoinEffect anywhere
+//; Overrides the loaded kart's battle type with Coin Runners (0) to create object::KartBattleCoinEffect anywhere

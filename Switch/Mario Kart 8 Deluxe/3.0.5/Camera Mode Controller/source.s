@@ -140,11 +140,12 @@ RET
 //; Can rotate camera with Right Stick
 //; Invert rotation in Mirror Mode
 
-//; If camera zoom is greather than original zoom by 100.0, disable culling
+//; If camera zoom is greater than original zoom by 100.0, disable culling
 
 
 //; Register reference:
 //; X20 = gear::DemoCameraController*
+
 
 .set BUTTONBIT_X, 3
 .set BUTTONBIT_Y, 4
@@ -314,7 +315,7 @@ RET
 
 
 //; Prevent kart inputs with Right Stick
-//; ??? + 0x28 (Not a hook)
+//; ??? Unknown + 0x28 (Not a hook)
 //; 0x7DCED8 -> RET
 //; Remove a branch to gear::ControllerWrapper::updateStickToCross(sead::Vector2<float> const&,float,uint const*)
 //; in some function that converts the Right Stick to kart input

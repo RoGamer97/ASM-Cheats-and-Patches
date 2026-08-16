@@ -2,6 +2,8 @@
 //; Game version: 3.0.5
 //; Code: Trick Chaining (Mario Kart World)
 
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
 //; Hooks are written over unused functions (never executed).
 //; There is a bit of free space in .text, but for some reason the emulator
@@ -35,9 +37,9 @@
 
 //; Register reference:
 //; X8 = object::KartVehicle* (Input)
-//; W9 = Should trick bool (Input and output)
-//; W21 = Bool for some kart status (Input and output)
-//; W22 = Trick button not pressed bool (Input)
+//; W9 = Force trick bool (Input and output)
+//; W21 = In a trick animation bool (Input and output)
+//; W22 = Trick button not triggered bool (Input)
 //; X19 = object::KartVehicleDrift*
 
 

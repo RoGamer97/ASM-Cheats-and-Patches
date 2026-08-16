@@ -10,28 +10,28 @@
 //; doesn't cause a crash.
 
 
-//; Create and setuo crown model anywhere
+//; Create and setup crown model anywhere
 //; object::DriverKart::createCrown_(void) + 0x2C (Not a hook)
 //; 0xD5684 -> MOV W9, #1
-//; Overrides the loaded kart's isBattle bool with true to avoid branching to function's
-//; end in race
+//; Overrides the loaded kart's isBattle bool with true to avoid branching
+//; to function's end in race (Skips kart crown calculation)
 
 
-//; Calculate kart crown in race but not in Time Trials
+//; Calculate kart crown in race, but not in Time Trials
 //; object::KartDirector::calcCrownVisible_(void) + 0x20 and 0x24 (Not a hook)
 //; 0x13DF24 -> CMP W8, #2
 //; 0x13DF28 -> BEQ 0x13E08C
-//; Replace Battle check and branch to function's end if not equal
+//; Replaces the Battle check and branch to function's end if not equal
 //; with check for Time Trials and branch to function's end if equal,
-//; to make the function run in race but not Time Trials, to calculate
-//; if kart should have crown or not in both races and battles
+//; to make the function run in race but not in Time Trials, to calculate
+//; if karts should have crown or not in both races and battles
 
 
 //; Crown in 1st place
 //; object::KartDirector::calcCrownVisible_(void) + 0x160
 //; 0x13DF24 -> BL 0x89A0C
 
-//; Makes kart in first place have a crown
+//; Makes the kart in first place have a crown
 
 //; At this location, W0 is a returned bool from
 //; object::RaceCheckerBase::isCrownedKart(int)
@@ -39,17 +39,19 @@
 //; Skip the code if kart's isBattle bool is true, for
 //; default behavior in Battle
 
-//; The bool is used to check if the kart's crown
-//; flag should be set or cleared
+//; The kart's crown flag is set if the bool is true,
+//; and cleared if false
 
-//; Load the kart's current rank position from gear::RaceKartChecker and
-//; override the boolean result to true if the kart is in 1st place, and false
+//; Load the kart's current rank position from gear::RaceKartChecker* and
+//; override the boolean with true if the kart is in 1st place, and false
 //; otherwise
 
+
 //; Register reference:
-//; W0 = isCrownedKart bool
+//; W0 = isCrownedKart bool (Input and output)
 //; X20 = gear::RaceCheckerBase*
 //; X22 = object::KartVehicle*
+
 
 .set RANK_1ST_PLACE, 0
 

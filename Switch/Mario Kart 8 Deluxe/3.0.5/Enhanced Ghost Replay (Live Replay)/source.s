@@ -65,6 +65,7 @@ RET
 //; Overrides the loaded player type to player for
 //; ghost if racer amount is 1 (Only ghost present = Replay)
 
+
 //; Register reference:
 //; X8 = gear::RaceKartInfo*
 //; X0 = gear::RaceInfo*
