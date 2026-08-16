@@ -1,6 +1,6 @@
 //; Game: Mario Kart 8 Deluxe
 //; Game version: 3.0.5
-//; Code: Show Coin Stack in Race
+//; Code: Coin Stack in Race
 
 //; You can find some documented headers here to learn more about the game
 //; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers

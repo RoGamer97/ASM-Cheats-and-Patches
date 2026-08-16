@@ -1,7 +1,7 @@
 @nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
 @flag offset_shift 0x100
 
-// Show Coin Stack in Race
+// Coin Stack in Race
 @enabled
 0011B8C0 08008052
 00124740 D8F71994

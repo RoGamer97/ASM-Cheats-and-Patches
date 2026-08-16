@@ -1,5 +1,5 @@
 ## Timer in Race
 
-Timer will be present in singleplayer offline and online races.
+Shows the timer in singleplayer and online races.
 
 [ASM source](source.s)

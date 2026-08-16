@@ -1,4 +1,4 @@
-## Show Coin Stack in Race
+## Coin Stack in Race
 
 Shows a coin stack on top of other players' karts, displaying how many coins they have. The same one from Coin Runners.
 
