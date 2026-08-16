@@ -192,7 +192,7 @@ end:
 RET
 
 //; Example
-combos:                                                                                //  CPU,   Driver, Vehicle, Tire and Glider Examples
+combos:                                                                                //;  CPU,   Driver, Vehicle, Tire and Glider Examples
 .byte BODY_STANDARD_KART,    TIRE_STANDARD,        WING_SUPER_GLIDER,   DRIVER_MARIO   //; CPU 1: Mario, Standard Kart, Standard Tire, Super Glider
 .byte BODY_MACH_8,           TIRE_SLIM,            WING_SUPER_GLIDER,   DRIVER_LUIGI   //; CPU 2: Luigi, Mach 8, Roller Tire, Super Glider
 .byte BODY_STANDARD_BIKE,    TIRE_STANDARD,        WING_SUPER_GLIDER,   DRIVER_PEACH   //; CPU 3: Peach, Standard Bike, Standard Tire, Super Glider

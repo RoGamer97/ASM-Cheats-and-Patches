@@ -1,5 +1,5 @@
 ## Show Invincibility Frames in Race
 
-Kart will blink during invincibility frames, like in Battle Mode.
+Karts will blink during invincibility frames, like in Battle.
 
 [ASM source](source.s)
