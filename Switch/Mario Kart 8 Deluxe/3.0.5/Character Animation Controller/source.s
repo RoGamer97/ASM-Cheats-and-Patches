@@ -23,6 +23,7 @@
 //; Use them for the code:
 //; 0x336 = Animation modes (0 for None, 1 for Play Repeat Anim and 2 for Control Anim)
 //; 0x337 = Selected animation ID
+//; Wrap animation IDs between 0 and the last animation IDs
 
 //; W9 is checked, if it's < 1, it branches to the function end, skipping animation
 //; calculation. Override it with 0 in Control Animation Mode to freeze character Animation

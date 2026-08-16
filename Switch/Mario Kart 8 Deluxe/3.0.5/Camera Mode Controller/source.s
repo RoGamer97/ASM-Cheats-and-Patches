@@ -54,8 +54,12 @@ RET
 //; Cycles through replay camera modes by holding Right Stick In
 //; and pressing D-Pad Left/Right
 
-//; Stores the current camera mode in DemoCameraController* + 0x16E,
-//; which is a padding byte. The value will be the forced camera
+//; Increments/decrements the current camera mode and stores it in
+//; DemoCameraController* + 0x16E, which is a padding byte. 
+//; Wrap the mode between 0 and the "last" camera mode
+//; (not truly the last, the one next to it is bad, so it's not
+//; included).
+//; The value will be the forced camera and the last camera mode
 //; mode, but subtracted by 1, because camera modes start at 0, 
 //; but 0 should be the default camera mode/not forced, so don't 
 //; force mode if 0, and if the value is not 0, use it but subtracted

@@ -39,9 +39,9 @@
 
 //; Finish Lakitu respawn if it's happening, reset the kart,
 //; reset the kart's matrix to the TestStart gear::MtxT stored in stack,
-//; to warp there, reset the AI to correct CPU routes if a CPU, reset character 
-//; and adapt the current section to correct checkpoints.
-//; Doing exactly what Nintendo did in the debug build.
+//; to warp there, passing 5.0 as the Y height to be added, reset the AI
+//; to correct CPU routes if a CPU, reset character and adapt the current
+//; section to correct checkpoints.
 
 //; If Minus and Right Stick Left/Right is still held down next frame,
 //; avoid warping because KartVehicle* + 0x349 is still true and
