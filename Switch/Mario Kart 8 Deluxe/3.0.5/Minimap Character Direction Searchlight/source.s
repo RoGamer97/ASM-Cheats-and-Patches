@@ -2,25 +2,33 @@
 //; Game version: 3.0.5
 //; Code: Minimap Character Direction Searchlight
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; Enable direction arrow anywhere
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x34 (Not a hook)
-//; 0x506F7C -> MOV W8, #3 // Battle
-//; Override loaded gamemode value with Battle (3) to enable
+//; 0x506F7C -> MOV W8, #3 (Battle)
+//; Overrides the loaded gamemode value with Battle to enable
 //; direction arrow anywhere
 
 
 //; Replace arrow with searchlight
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x44
-//; 0x506F8C -> BL 0xB51538
+//; 0x506F8C -> BL 0x62F8F0
 
 //; Replaces arrow with searchlight for local players only by
 //; overriding the loaded Battle mode with Renegade Round up for check
+
+//; Registerr reference:
+//; X0 = gear::RaceInfo*
+//; W22 = Player type
+
 
 .set BATTLETYPE_RENEGADE_ROUNDUP, 2
 
@@ -36,15 +44,19 @@ RET
 
 //; Enable searchlight without being a Cop
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x60
-//; 0x506FA8 -> BL 0xB51548
+//; 0x506FA8 -> BL 0x62F900
 
 //; Enables searchlight when not being a cop, for local players only
-//; by overriding return value from object::KartInfoProxy::isPolice 
+//; by overriding return value from object::KartInfoProxy::isPolice(void)
 //; call to true
+
+//; Registerr reference:
+//; W22 = Player type
+
 
 STP X29, X30, [SP, #-0x10]!
 
-BLR X8 //; Original instruction
+BLR X8 //; object::KartInfoProxy::isPolice(void) - Original instruction
 
 CBNZ W0, end //; Cop
 
@@ -59,7 +71,7 @@ RET
 
 //; Fix wrong direction in Mount Wario and BCP courses
 //; ui::Control_RaceMiniMap::loadMap(void) + 0x600
-//; 0x504A98 -> BL 0xB51630
+//; 0x504A98 -> BL 0x62F894
 
 //; In Mount Wario and every Booster Course Pass DLC course, the
 //; arrow direction is wrong at all times.
@@ -79,6 +91,10 @@ RET
 //; In Mirror Mode, they're inverted, so fix it by inverting the values
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
+
+//; Register reference:
+//; X19 = ui::Control_RaceMiniMap*
+ 
  
 STP X29, X30, [SP, #-0x10]!
 
@@ -96,7 +112,7 @@ FCSEL S2, S3, S2, EQ
 FCMP S1, S3
 FCSEL S1, S3, S1, LT
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDRB W8, [X0, #0x26]
 CBZ W8, store //; Not mirror mode
 

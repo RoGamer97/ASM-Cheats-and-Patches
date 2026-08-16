@@ -2,16 +2,19 @@
 //; Game version: 3.0.5
 //; Code: Show More Kart Status Effects on Minimap
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x14
-//; 0x507170 -> BL 0xB51494
+//; 0x507170 -> BL 0x7A26F0
 
-//; Load the kart's X and Y scales and cap ther minimum
+//; Load the kart's X and Y scales and cap their minimum
 //; and maximum scale, and store it to the minimap character
 //; icons to make the icon match the kart scale. Capping it
 //; to prevent a very small icon if shocked or squished, and
@@ -22,7 +25,11 @@
 //; do it if kart is a ghost from Time Trials to avoid transparent
 //; ghost icon
 
-//; Change character icon to black if inked
+//; Change character icon material color icon to black if inked
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 //; Little endian, bytes are inverted
 .set WHITE_RGBA, 0xFFFFFFFF
@@ -32,7 +39,7 @@ MOV X19, X0 //; Original instruction
 
 LDR X8, [X19, #0xB8]
 LDR X8, [X8, #0x48]
-LDR X9, [X19, #0xD8] //; Character icon
+LDR X9, [X19, #0xD8]
 
 LDR S0, [X8, #0x110]
 LDR S1, [X8, #0x114]

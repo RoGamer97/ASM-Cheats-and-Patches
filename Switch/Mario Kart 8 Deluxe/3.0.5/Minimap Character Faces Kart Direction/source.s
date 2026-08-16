@@ -2,10 +2,13 @@
 //; Game version: 3.0.5
 //; Code: Minimap Character Faces Kart Direction
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; Calculate arrow direction anywhere
@@ -16,13 +19,17 @@
 
 //; Store arrow rotation to character icon
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x1F4
-//; 0x507350 -> BL 0xB5168C
+//; 0x507350 -> BL 0x62F91C
 
 //; Loads the calculated arrow rotation and stores it to
 //; character icon rotation (Replicate add logic)
 
 //; If arrow icon is nullptr, skip storing rotation to it
 //; to avoid crash by skipping part of the code
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
 
 LDR X9, [X19, #0xD8]
 FADD S1, S0, S2
@@ -39,7 +46,7 @@ RET
 
 //; Fix wrong direction in Mount Wario and BCP courses
 //; ui::Control_RaceMiniMap::loadMap(void) + 0x600
-//; 0x504A98 -> BL 0xB51630
+//; 0x504A98 -> BL 0x62F894
 
 //; In Mount Wario and every Booster Course Pass DLC course, the
 //; arrow direction is wrong at all times.
@@ -59,6 +66,10 @@ RET
 //; In Mirror Mode, they're inverted, so fix it by inverting the values
 
 //; Thanks to Max_XD/Varnat for letting me know about the Unk2 value
+
+//; Register reference:
+//; X19 = ui::Control_RaceMiniMap*
+ 
  
 STP X29, X30, [SP, #-0x10]!
 
@@ -76,7 +87,7 @@ FCSEL S2, S3, S2, EQ
 FCMP S1, S3
 FCSEL S1, S3, S1, LT
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDRB W8, [X0, #0x26]
 CBZ W8, store //; Not mirror mode
 

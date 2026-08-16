@@ -2,24 +2,36 @@
 //; Game version: 3.0.5
 //; Code: CPU Combo Modifier
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
-//; Force team mode to use non team mode characters selection
+//; Force team mode to use non-team mode combo randomization
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2064 (Not a hook)
 //; 0x4FC208 -> MOV W8, #0
-//; Set W8 to zero for a check to always branch, so that team mode uses the regular character random (Avoid multiple hooks)
+//; Overrides the loaded W8 value with zero for a check to always branch, so that team mode 
+//; uses the regular combo randomization code, which is where the CPU Combo Modifier is hooked,
+//; to avoid multiple hooks
 
 
 //; CPU Combo Modifier
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2134
-//; 0x4FC2D8 -> BL 0xB51564
+//; 0x4FC2D8 -> BL 0x89AC0
 
-//; Makes a list for every CPU kart, tire, glider and character for every individual CPU
-//; You can set the "RANDOM" ID to have that part be randomly chosen
+//; Makes a list for set kart, tire, glider and character for every individual CPU
+
+//; You can set a part to the "RANDOM" ID to have that part be randomly chosen, using the game's default behavior
+
+
+//; Register reference:
+//; W20 = CPU ID (Input and output)
+//; X23 = CPU combo address (Input and output ) - 0 = Kart, 4 = Tire, 8 = Glider, 0xC = Character)
+
 
 .set DRIVER_MARIO, 0
 .set DRIVER_LUIGI, 1
@@ -164,22 +176,23 @@ ADR X1, combos
 ADD X1, X1, X20, LSL#2
 MOV W2, WZR
 
-loop:
+loopParts:
 LDRB W8, [X1,X2]
 CMP W8, #RANDOM
-BEQ next
+BEQ nextPart
 
 STR W8, [X23,X2,LSL#2]
 
-next:
+nextPart:
 ADD W2, W2, #1
 CMP W2, #4
-BLT loop
+BLT loopParts
 
 end:
 RET
 
-combos:                                                                                //  CPU,   Driver, Vehicle, Tire and Glider Examples
+//; Example
+combos:                                                                                //;  CPU,   Driver, Vehicle, Tire and Glider Examples
 .byte BODY_STANDARD_KART,    TIRE_STANDARD,        WING_SUPER_GLIDER,   DRIVER_MARIO   //; CPU 1: Mario, Standard Kart, Standard Tire, Super Glider
 .byte BODY_MACH_8,           TIRE_SLIM,            WING_SUPER_GLIDER,   DRIVER_LUIGI   //; CPU 2: Luigi, Mach 8, Roller Tire, Super Glider
 .byte BODY_STANDARD_BIKE,    TIRE_STANDARD,        WING_SUPER_GLIDER,   DRIVER_PEACH   //; CPU 3: Peach, Standard Bike, Standard Tire, Super Glider

@@ -2,18 +2,26 @@
 //; Game version: 3.0.5
 //; Code: Show HUD Before Countdown
 
-//; You can find some documented headers here to learn more about the game: https://github.com/fishguy6564/MK8DX-Headers
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-//; Hooks are placed in free space in .text
-//; Format is: *ADDRESS IT IS HOOKED AT* -> BL *ADDRESS OF HOOK*
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
 
 
 //; Invoke window layout on load
 //; ui::Page_Race::onIn_(void) + 0x6C8
-//; 0x530630 -> BL 0xB51414
+//; 0x530630 -> BL 0x7A26BC
 
 //; Replicates the game's invoke window layout call but somewhere else that runs
 //; on race load, to immediately show the HUD
+
+
+//; Register reference:
+//; X19 = ui::Page_Race*
+
 
 STP X29, X30, [SP, #-0x10]!
 
@@ -39,15 +47,15 @@ RET
 
 //; ui::Page_Race::onUpdateRun_(void) + 0x100 (Not a hook)
 //; 0x530B64 -> MOV W8, #0
-//; Override the loaded player count with zero. It branches to skip
-//; calling ui::Page_Race::invokeWindowLayout_(void) if it's less
-//; than 1. Done to avoid invoking the layout again (It plays 
+//; Overrides the loaded player count with zero. It branches to skip
+//; calling ui::Page_Race::invokeWindowLayout_(void) if it's < 1.
+//; Done to avoid invoking the layout again (It plays 
 //; the In animation again)
 
 
 //; Instantly show HUD
 //; ui::RaceWindow::invokeLayout(void) + 0x14 (Not a hook)
 //; 0x54D74C -> MOV W8, #1
-//; Change HUD appear delay from 360 frames (6 seconds) to one
+//; Changes the HUD appear delay from 360 frames (6 seconds) to 1
 //; frame (0 breaks) to make HUD elements like Lap, Coin, Timer
 //; to appear instantly
