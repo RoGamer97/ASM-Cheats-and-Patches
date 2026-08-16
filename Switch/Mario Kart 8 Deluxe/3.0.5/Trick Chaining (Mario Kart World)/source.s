@@ -13,7 +13,9 @@
 
 //; Trick chaining
 //; object::KartVehicleDrift::calcJumpAction_(object::KartVehicleDrift::DriftInfo &, int, bool) + 0x90
-//; 0x17C828 -> BL 0xAAF858
+//; 0x17C828 -> BL 0xAAFCC4
+
+//; Skip the code if net send or receive kart
 
 //; Allows tricking if:
 //; * In trick timing for one second (Went off a trick collision and didn't land yet)
@@ -38,7 +40,7 @@
 //; Register reference:
 //; X8 = object::KartVehicle* (Input)
 //; W9 = Force trick bool (Input and output)
-//; W21 = In a trick animation bool (Input and output)
+//; W21 = In trick animation bool (Input and output)
 //; W22 = Trick button not triggered bool (Input)
 //; X19 = object::KartVehicleDrift*
 
@@ -47,13 +49,13 @@
 .set TRICK_CHAIN_DELAY, 18
 
 .set KARTSTATUSBIT_WING, 4
-.set KARTSTATUSBIT_WINGPATHCANNON, 5
 .set KARTSTATUSBIT_DURINGJUMPACTION, 18
 
-.set KARTSTATUS_WING, (1 << KARTSTATUSBIT_WING)
-.set KARTSTATUS_WINGPATHCANNON, (1 << KARTSTATUSBIT_WINGPATHCANNON)
-
 STP X29, X30, [SP, #-0x20]!
+
+LDRH W10, [X8, #0xE6]
+CBNZ W10, end //; Net send or receive kart
+
 STR W9, [SP, #0x10]
 
 LDR X0, [X8, #0x28]
@@ -64,8 +66,7 @@ LDR X8, [X19, #8]
 LDR W9, [SP, #0x10]
 
 LDR W10, [X8, #0x1CC]
-TST W10, #(KARTSTATUS_WING | KARTSTATUS_WINGPATHCANNON)
-BEQ calcNormalTrick
+TBZ W10, #KARTSTATUSBIT_WING, calcNormalTrick
 
 TBNZ W10, #KARTSTATUSBIT_DURINGJUMPACTION, end
 B allowTrick
@@ -86,7 +87,7 @@ MOV W9, WZR
 MOV W21, WZR
 
 end:
-ORR W9, W9, W22 //; Original instruction
+ORR W9, W22, W9 //; Original instruction
 LDP X29, X30, [SP], #0x20
 RET
 
@@ -94,7 +95,9 @@ RET
 
 //; Set glider trick types based on stick and fix trick direction
 //; object::KartVehicleDrift::calcJumpAction_(object::KartVehicleDrift::DriftInfo &, int, bool) + 0xE4
-//; 0x17C87C -> BL 0xAAF8BC
+//; 0x17C87C -> BL 0xAAFD28
+
+//; Skip the code if net send or receive kart
 
 //; Overrides the loaded trick type with roll or pitch trick type in glider based on stick and also loads the correct stick values for
 //; the direction
@@ -117,16 +120,13 @@ RET
 .set TRICKTYPE_ROLL, 4
 
 .set KARTSTATUSBIT_WING, 4
-.set KARTSTATUSBIT_WINGPATHCANNON, 5
-
-.set KARTSTATUS_WING, (1 << KARTSTATUSBIT_WING)
-.set KARTSTATUS_WINGPATHCANNON, (1 << KARTSTATUSBIT_WINGPATHCANNON)
 
 LDR X8, [X19, #8]
+LDRH W9, [X8, #0xE6]
+CBNZ W9, end //; Net send or receive kart
 
 LDR W9, [X8, #0x1CC]
-TST w9, #(KARTSTATUS_WING | KARTSTATUS_WINGPATHCANNON)
-BEQ end
+TBZ W9, #KARTSTATUSBIT_WING, end
 
 LDR S0, [X8, #0x17C]
 LDR S1, [X8, #0x180]
@@ -161,7 +161,9 @@ stick: .float 0.3
 
 //; Allow steering in air
 //; object::KartVehicleMove::calcSteerVolForDrive_(float, float, bool) + 0xA0
-//; 0x18B2BC -> BL 0xAAF914
+//; 0x18B2BC -> BL 0xAAFD84
+
+//; Skip the code if net send or receive kart
 
 //; Allows steering in the air on the first 18 frames of the trick
 
@@ -184,6 +186,9 @@ stick: .float 0.3
 MOV X9, X8
 LDR W8, [X8, #0x1CC] //; Original instruction
 TBZ W8, #KARTSTATUSBIT_DURINGJUMPACTION, end //; Not in trick animation
+
+LDRH W8, [X9, #0xE6]
+CBNZ W8, end //; Net send or receive kart
 
 LDR W9, [X9, #0x204]
 CMP W9, #TRICK_ALLOWED_STEER_FRAMES
