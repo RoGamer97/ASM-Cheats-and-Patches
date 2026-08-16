@@ -27,6 +27,7 @@
 //; Prevent this if racer amount is 1 by overriding the value it checks
 //; with 2 (It sets the end bool to true if less than 2)
 
+
 // Register reference:
 //; X19 = object::RaceBattleChecker*
 

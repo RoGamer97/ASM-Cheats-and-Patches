@@ -21,7 +21,7 @@
 
 STP X29, X30, [SP, #-0x10]!
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDR W8, [X0, #8]
 CMP W8, #RACERULE_TIME_TRIALS
 BGE end
@@ -38,7 +38,7 @@ RET
 //; ui::RaceWindow::RaceWindow(int,gear::FrameworkWindow const*,ui::Page_Race *) + 0x21C
 //; 0x54C4B8 -> BL 0x7A2610
 
-//; Override loaded W0 value with 0 if mode ID is less than Time Trials (Grand Prix and Versus)
+//; Overrides the loaded W0 value with 0 if mode ID is less than Time Trials (Grand Prix and Versus)
 //; W0 is the ghost's index in the race. -1 if no ghost (Normal FINISH! particle), 0 if there's
 //; a ghost (Pink FINISH! particle for YOU WIN!) - "YOU LOSE" has no particle by default
 
@@ -93,7 +93,7 @@ STP X29, X30, [SP, #-0x20]!
 
 MOV W20, WZR //; Original instruction
 
-BL 0x87C244 //; gear::GetRaceInfo
+BL 0x87C244 //; gear::GetRaceInfo(void)
 LDR W8, [X0, #8]
 CMP W8, #RACERULE_TIME_TRIALS
 BGE end
@@ -123,6 +123,6 @@ RET
 //; Disable "YOU LOSE" finish particle in race
 //; ui::RaceWindow::onFakeGoal(void) + 0x1FC (Not a hook)
 //; 0x54CAC4 -> BLE 0x54CBCC 
-//; Replace BEQ with BLE to branch in GP and VS too. It checks for Time Trials and
+//; Replaces BEQ with BLE to branch in GP and VS too. It checks for Time Trials and
 //; branches if so skip emitter particle when result is "YOU LOSE". Changing it to BLE
 //; makes it hide it on GP and VS too because the IDs are lower than TTs ID

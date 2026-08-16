@@ -21,6 +21,7 @@
 //; minimap icon is mii face, but only if player is 
 //; not a CPU (For Friend Rooms and Tournament)
 
+
 //; Register reference:
 //; X19 = ui::Control_RaceDRCCharaIcon*
 

@@ -5,7 +5,6 @@
 //; You can find some documented headers here to learn more about the game
 //; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-
 //; Hooks are written over unused functions (never executed).
 //; There is a bit of free space in .text, but for some reason the emulator
 //; crashes when executing code in that space. Writing over unused functions
@@ -15,7 +14,7 @@
 //; object::KartVehicle::calcXluAlpha_(void) + 0x14
 //; 0x177104 -> BL 0x89A94
 
-//; Changes local player kart to CPU
+//; Changes local players karts to CPU
 
 //; Register reference:
 //; X19 = object::KartVehicle*

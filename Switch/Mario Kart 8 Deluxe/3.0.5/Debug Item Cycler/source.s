@@ -5,7 +5,6 @@
 //; You can find some documented headers here to learn more about the game
 //; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
 
-
 //; Hooks are written over unused functions (never executed).
 //; There is a bit of free space in .text, but for some reason the emulator
 //; crashes when executing code in that space. Writing over unused functions
@@ -15,58 +14,51 @@
 //; gear::ItemOwner::calcKeyInput_(void) + 0x324
 //; 0x3F46C -> BL 0x62F528
 
-//; Skip the code if not local player or online kart, or if in Time Trials or
+//; Skip the code if not local player kart, online kart, in Time Trials or
 //; Bob-omb Blast
 
-//; Cycles items if R is held and D-Pad Left/Right is pressed
-//; D-Pad Left goes to the previous item, D-Pad Right goes to the next item
+//; Hold R and press D-Pad Left/Right to cycle through items
 
-//; Pressing the item use button will give you the last cycled item if
-//; the slot is empty and not rotating, but only if the last item is not
-//; "NONE"
+//; Press the item use button to give the last cycled item, as long as it's
+//; not the "No Item", no item is on hand/slot and slot is not spinning
 
-//; W23 is a bool that determines if the item was given by cycling or by
-//; pressing the item use button. It will be checked for deciding if the
-//; item slot UI should settle or not
+//; W23 is a bool that determines if the item was given by cycling
+//; or by pressing the item use button
 
-//; Make a list of items. The first item is "NONE", which is no item. 
-//; It is the initial item so that pressing the item use button will give you no
-//; item until you cycle to another item. You can cycle back to "NONE" to
-//; clear your slot and prevent getting items if pressing the item use button.
+//; When cycling:
+//; Sets W23 to true
+//; Increment/decrement the current item index and store it in
+//; ItemOwner* + 0x39, which is a padding byte
+//; Wrap the index between 0 and the last item in the list
 
-//; When cycling items, it'll increment/decrement an index for the item in the
-//; list. Reset it to 0 if going past the last index of the list, or reset it to
-//; the last index of the list if going below 0.
-//; Store an index to ItemOwner* + 0x39, which is a padding byte.
+//; Clear the item slot (doesn't clear the hand/equipped item), then loop 
+//; through the hand item and all 8 possible equipped items (dragged or 
+//; rotating the kart), clearing existing items if their ItemObjBase* isn't null.
+//; For the hand item, set ItemObjBase* + 0x22A to true (purpose unknown)
+//; Clear the item by calling exitVanish from its vtable
+//; (Some items have different exitVanish implementations)
 
-//; Then, clear the slot (doesn't clear the hand item), then loop through the hand item
-//; and all 8 possible equipped items (dragged or rotating the kart), and clear
-//; the ones that exists (object is not null pointer). Then, try to give item:
+//; Giving item (cycling or item use button):
+//; Get the item from the list by index; if it's "No Item", don't give it
+//; Store the item to the stack, then call gear::ItemNumManager* functions
+//; to check if the item limit has been reached; if it has, replace the
+//; stored item with a Coin
 
-//; For giving item (After cycling or pressing item use button), it'll get the
-//; index from ItemOwner* + 0x39 to get the item from the list indexed by it.
-//; If the item is "NONE", don't give any item, otherwise store the item ID
-//; to stack, then update gear::ItemNumManager for items in play count, and
-//; then call gear::ItemNumManager::checkCreateNum(gear::EItemSlot) to check
-//; if that item's limit has been reached or not.
-//; If it has been reached, replace the item with a Coin.
-//; Finally, call gear::ItemOwner::startSlot(int,gear::EItemSlot,bool), which
-//; starts rotating the slot, but passing the bool as true will immediately
-//; decide the item (bool is internally called "isDebug" or "isSlotDebug")
+//; Start slot rotate, passing true to the "isDebug" bool to receive
+//; the item instantly
 
-//; After starting the slot, if W23 bool is false, item was given by item use
-//; button, skip ui::SettleItem(int,signed char,int,bool) call
-
-//; ui::SettleItem(int,signed char,int,bool) forces the slot to settle and updates
-//; the item image. Needed for updating the item image on the item slot.
-//; Only call it if cycling to be accurate with the debug build behavior
+//; If W23 is true, settle the item slot UI
+//; This forces the item slot UI to appear instantly, sets the item image
+//; to the item passed as an argument, and plays the item receive animation
+//; Due to how Nintendo coded the Debug Item Cycler, cycling items doesn't
+//; update the item slot UI, so this function is called to settle it
 
 
 //; Register reference:
-//; W19 = Player ID
+//; W19 = Player ID (Input and output)
 //; X20 = gear::ItemOwner*
-//; W21 = Item slot index
-//; W24 = Item use button triggered bool
+//; W21 = Item slot index (Input and output)
+//; W24 = Item use button triggered bool (Input and output)
 
 
 .set RACERULE_TIME_TRIALS, 2
@@ -146,12 +138,12 @@ BL 0x8B9544 //; gear::GetControllerIndexFromKartIndex(int)
 BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
-TBZ W8, #BUTTONBIT_R, end //; R button not held
+TBZ W8, #BUTTONBIT_R, end //; Not held
 
 LDR W8, [X0, #8]
 MOV W9, #(BUTTON_DPAD_LEFT | BUTTON_DPAD_RIGHT)
 TST W8, W9
-BEQ end
+BEQ end //; Not triggered
 
 MOV W23, #1
 
@@ -220,12 +212,12 @@ MOV X0, X27
 ADD X1, SP, #0x10
 MOV W2, WZR
 BL 0xE8B4 //; gear::ItemNumManager::checkCreateNum(gear::EItemSlot,int)
-CBNZ W0, slotRotate //; Limit not reached
+CBNZ W0, startSlot //; Limit not reached
 
 MOV W8, #ITEMSLOT_COIN
 STR W8, [SP, #0x10]
 
-slotRotate:
+startSlot:
 MOV X0, X20
 MOV W1, W21
 ADD X2, SP, #0x10

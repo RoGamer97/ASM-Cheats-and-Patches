@@ -14,7 +14,7 @@
 //; ui::Control_RaceDRCCharaIcon::onCalc_(void) + 0x14
 //; 0x507170 -> BL 0x7A26F0
 
-//; Load the kart's X and Y scales and cap ther minimum
+//; Load the kart's X and Y scales and cap their minimum
 //; and maximum scale, and store it to the minimap character
 //; icons to make the icon match the kart scale. Capping it
 //; to prevent a very small icon if shocked or squished, and

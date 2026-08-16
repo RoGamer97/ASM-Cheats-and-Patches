@@ -26,10 +26,10 @@ BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X0, [X0, #0x158]
 
 LDR W8, [X0, #0x114]
-TBZ W8, #BUTTONBIT_Y, end //; Y button not held
+TBZ W8, #BUTTONBIT_Y, end //; Not held
 
 LDR W8, [X0, #8]
-TBZ W8, #BUTTONBIT_DPAD_UP, end //; D-Pad Up not triggered
+TBZ W8, #BUTTONBIT_DPAD_UP, end //; Not triggered
 
 LDRB W8, [X19, #0xAA]
 EOR W8, W8, #1

@@ -15,7 +15,10 @@
 //; ui::Page_Race::onCreate_(void) + 0x3D0
 //; 0x52E560 -> BL 0x7A2798
 
-//; Create timer in race, except if it's Multiplayer
+//; Skip the code if in Multiplayer
+
+//; Create timer in race
+
 
 .set RACERULE_TIME_TRIALS, 2
 
@@ -50,6 +53,7 @@ RET
 //; getMyKartIndex returns -1 offline. Change it to
 //; 0 if this is the case since your ID is always
 //; 0 offline.
+
 
 STP X29, X30, [SP, #-0x20]!
 STR X8, [SP, #0x10]

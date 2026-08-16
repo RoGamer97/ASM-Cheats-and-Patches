@@ -14,7 +14,7 @@
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x1FAC, 0x20AC and 0x2148
 //; 0x4FC150, 0x4FC250 and 0x4FC2EC -> BL 0x62F978
 
-//; Make a list of characters who have variants, and how many variants they have.
+//; Makes a list of characters who have variants, and how many variants they have.
 //; If the character the CPU is using is in the list, load the variant count
 //; for that character and use it for the modulo of the random U32 value to
 //; limit the variant ID from 0 to count - 1

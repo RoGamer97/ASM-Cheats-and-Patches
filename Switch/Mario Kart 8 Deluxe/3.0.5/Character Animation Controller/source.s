@@ -29,7 +29,7 @@
 
 
 //; Register reference:
-//; W9 = Some member variable that if < 1, branches to function end (Input and output)
+//; W9 = Some member variable that branches to function end if < 1 (Input and output)
 //; X19 = object::DriverKart*
 
 
@@ -74,17 +74,17 @@ BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 LDR W8, [X0, #0x114]
 LDR W9, [X0, #8]
-TBZ W8, #BUTTONBIT_RIGHT_STICK_IN, isEnabled //; Right Stick In not held
+TBZ W8, #BUTTONBIT_RIGHT_STICK_IN, isEnabled //; Not held
 
 LDRB W8, [X19, #0x336]
 CBZ W8, isLeftStickTrig
 
 MOV W8, #(BUTTON_LEFT_STICK_LEFT | BUTTON_LEFT_STICK_RIGHT)
 TST W9, W8
-BNE changeAnim
+BNE changeAnim //; Not triggered
 
 isLeftStickTrig:
-TBZ W9, #BUTTONBIT_LEFT_STICK_IN, isEnabled //; Left Stick In not triggered
+TBZ W9, #BUTTONBIT_LEFT_STICK_IN, isEnabled //; Not triggered
 
 LDRB W8, [X19, #0x336]
 CMP W8, #0
@@ -93,9 +93,9 @@ STRB W8, [X19, #0x336]
 
 isEnabled:
 LDRB W8, [X19, #0x336]
-CBZ W8, end //; Not in any mode
+CBZ W8, end
 
-TBZ W9, #BUTTONBIT_RIGHT_STICK_IN, checkMode //; Right Stick In not triggered
+TBZ W9, #BUTTONBIT_RIGHT_STICK_IN, checkMode //; Not triggered
 
 MOV W8, #MODE_CONTROL_ANIM
 STRB W8, [X19, #0x336]
@@ -105,10 +105,10 @@ CMP W8, #MODE_PLAY_REPEAT_ANIM
 BEQ animPlay
 
 LDR W8, [X0, #0x114]
-TBZ W8, #BUTTONBIT_LEFT_STICK_IN, changeFaceAnim //; Left Stick In not held
+TBZ W8, #BUTTONBIT_LEFT_STICK_IN, changeFaceAnim //; Not held
 
 //; Replicate the game's way of loading this
-//; X20 + 0 is current keyframe and X20 + 8 is total keyframes
+//; X20 + 0 is current anim keyframe and X20 + 8 is total anim keyframes
 LDR X8, [X19, #0x38]
 LDR W9, [X8, #0x38]
 LDR X8, [X8, #0x40]
@@ -138,12 +138,12 @@ STR S1, [X20]
 
 changeFaceAnim:
 LDR W8, [X0, #0x114]
-TBZ W8, #BUTTONBIT_X, freezeCalc //; X button not held
+TBZ W8, #BUTTONBIT_X, freezeCalc //; Not held
 
 MOV W8, #(BUTTON_DPAD_LEFT | BUTTON_DPAD_RIGHT)
 LDR W9, [X0, #8]
 TST W9, W8
-BEQ freezeCalc
+BEQ freezeCalc //; Not triggered
 
 TST W9, #BUTTON_DPAD_LEFT
 MOV W9, #1
@@ -167,7 +167,7 @@ B end
 
 animPlay:
 LDR W8, [X19, #0x1AC]
-TBNZ W8, #31, startActionAnim //; Animation has ended
+TBNZ W8, #31, startActionAnim //; Animation has ended/not playing
 B end
 
 changeAnim:

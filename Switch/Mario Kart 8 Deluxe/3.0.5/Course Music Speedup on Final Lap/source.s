@@ -16,15 +16,15 @@
 //; 0x9E808 -> MOV W8, #1
 //; 0x9E80C -> STRB W8, [X19, #0x227]
 //; Prevents final lap music from playing by replacing argument and BL call to
-//; audio::AudBgmRace::setBgmVolume(float, int) with a bool store to audio::AudBgmRace* + 0x227.
-//; AudBgmRace* + 0x227 is a padding byte, so store a bool there to determine if music speedup
-//; should happen
+//; audio::AudBgmRace::setBgmVolume(float, int) with a true bool store to audio::AudBgmRace* + 0x227.
+//; AudBgmRace* + 0x227 is a padding byte, so store a bool there to determine that speedup should
+//; happen
  
  
 //; Fix music based objects freeze bug
 //; audio::AudSceneRace::changeRaceStateBgm_(void) + 0x20 (Not a hook)
 //; 0x9E78C -> NOP
-//; NOP the audio::AudBgmRace::changeRaceStateBgm(audio::AudSceneRace::ERaceState)
+//; NOPs the audio::AudBgmRace::changeRaceStateBgm(audio::AudSceneRace::ERaceState)
 //; call to avoid changing the race BGM state. When preventing the final lap music
 //; from playing, objects that move based on music will freeze because of race BGM
 //; state, so preventing it from changing fixes this issue 
@@ -38,9 +38,12 @@
 //; If the bool stored at audio::AudBgmRace* + 0x227 is true, speedup
 //; music by incrementing its speed by 0.0002 until it
 //; reaches ~1.1. Once reached, set bool to false to stop speedup
+//; (and for safety in case of online lag finish, where music speed
+//; resets and speeds up again because the bool is still true)
 
 //; Will not apply to GCN Baby Park. For that course, the music
 //; will speedup in the final lap like any normal lap does instead
+
 
 //; Register reference:
 //; X19 = audio::AudBgmRace*
@@ -49,7 +52,7 @@
 MOV X19, X0 //; Original instruction
 
 LDRB W8, [X19, #0x227]
-CBZ W8, end //; Not final lap
+CBZ W8, end //; Speedup bool not set
 
 LDR S0, maxSpeed
 LDR S1, incrementSpeed
@@ -73,5 +76,5 @@ incrementSpeed: .float 0.0002
 //; Allow final lap music speedup on GCN Baby Park
 //; audio::AudBgmRace::calcChangeByLapNum_(void) + 0x11C (Not a hook)
 //; 0x833BC -> NOP
-//; NOP the branch that skips GCN Baby Park's music speedup
+//; NOPs the branch that skips GCN Baby Park's music speedup
 //; on final lap

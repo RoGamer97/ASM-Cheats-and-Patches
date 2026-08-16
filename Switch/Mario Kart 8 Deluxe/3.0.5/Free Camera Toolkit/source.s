@@ -48,20 +48,20 @@
 //; agl::lyr::Layer::calc_(sead::Controller const*, int, bool) + 0x11C
 //; 0x672130 -> BL 0xAAFAE4
 
-//; Unsure what the "FREECAM_UNK" bit is, but it is needed
+//; Unsure what the "FREECAM_UNK" bit is, but it must be set
 
-//; Holding ZR and pressing D-Pad Up flips Free Camera bit
+//; Holding ZR and pressing D-Pad Up toggles Free Camera bit
 
-//; Holding ZR and pressing D-Pad Down flips Freeze Cam bit (Custom)
+//; Holding ZR and pressing D-Pad Down toggles Freeze Cam bit (Custom)
 
-//; Store bits in free address in R-W to load them in other hooks
-//; for checks. Also store agl::lyr::Layer* to have access to
+//; Store bits in free address in R-W to easily load them in other
+//; hooks for checks. Also store agl::lyr::Layer* to have access to
 //; camera coordinates in another hook
 
-//; After the hook, it checks if Free Camera bit is set and
+//; After the hook, the function checks if Free Camera bit is set and
 //; skips camera control if it isn't.
 //; At the end of the hook, override the loaded bits with zero if
-//; Freeze Cam bit is set to skip camera control
+//; Freeze Cam bit is set, to skip camera control
 
 
 //; Register reference:
@@ -85,23 +85,23 @@ LDRH W8, [X19, #0x7A]
 ORR W8, W8, #FREECAM_UNK
 
 LDR W0, [X20, #0x114]
-TBZ W0, #BUTTONBIT_ZR, isFreeCamFrozen //; ZR not held
+TBZ W0, #BUTTONBIT_ZR, isFreeCamFrozen //; Not held
 
 LDR W0, [X20, #8]
-TBZ W0, #BUTTONBIT_DPAD_UP, isFreeCamEnabled //; D-Pad Up not triggered
+TBZ W0, #BUTTONBIT_DPAD_UP, isFreeCamEnabled //; Not triggered
 
 EOR W8, W8, #FREECAM
 
 isFreeCamEnabled:
-TBZ W8, #FREECAM_BIT, storeCamState
+TBZ W8, #FREECAM_BIT, storeCamFlags
 
 isFreezeCamToggle:
 LDR W0, [X20, #8]
-TBZ W0, #BUTTONBIT_DPAD_DOWN, storeCamState
+TBZ W0, #BUTTONBIT_DPAD_DOWN, storeCamFlags
 
 EOR W8, W8, #FREEZECAM
 
-storeCamState:
+storeCamFlags:
 STRH W8, [X19, #0x7A]
 
 ADRP X9, #0x11A7000
@@ -121,8 +121,8 @@ RET
 //; agl::utl::DevTools::controlCamera(sead::LookAtCamera *,sead::Vector2<float> const&,sead::Vector2<float> const&,float,float,float,bool,agl::utl::DevTools::CameraControlType) + 0x84
 //; 0x654AAC -> BL 00AAFB30
 
-//; Fix camera sideways rotation and movement by inverting
-//; both Left and Right stick X values in Mirror Mode
+//; Fix Mirror Mode camera sideways rotation and movement
+//; by inverting both Left and Right stick X values in Mirror Mode
 
 //; Stick values are loaded from controller and stored in
 //; stack for later use in the function.
@@ -182,8 +182,9 @@ RET
 //; ui::UIEngineEx::onDraw_(const agl::lyr::RenderInfo *) + 0x18
 //; 0x3FDDB8 -> BL 00AAFB80
 
-//; Overrides some visibility bool with false
+//; Overrides some loaded visibility bool with false
 //; if Free Cam bit is set
+
 
 .set FREECAM_BIT, 0
 
@@ -202,7 +203,7 @@ RET
 //; object::FieldManualCulling::calc(void) + 0x24
 //; 0x110FA4 -> BL 0xAAFB98
 
-//; Calls function to force culling to not cull
+//; Calls a function that force culling to not cull
 //; and overrides the loaded W8 value with zero
 //; to skip calculating culling if Free Cam bit 
 //; is set
@@ -274,16 +275,16 @@ MOV W0, WZR
 BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X8, [X0, #0x158]
 LDR W9, [X8, #0x114]
-TBZ W9, #BUTTONBIT_ZR, hasEverMovedCam
+TBZ W9, #BUTTONBIT_ZR, hasEverMovedCam //; Not held
 
 LDR W9, [X8, #8]
-TBNZ W9, #BUTTONBIT_LEFT_STICK_IN, warpCam
+TBNZ W9, #BUTTONBIT_LEFT_STICK_IN, warpCam //; Not pressed
 
 hasEverMovedCam:
 LDR X8, [X19, #0x68]
 LDR W9, [X19, #0x70]
 ORR X8, X8, X9
-CBNZ X8, end
+CBNZ X8, end //; Has already moved
 
 warpCam:
 BL 0x7F41FC //; gear::FrameworkUtil::getCurrentGameScene(void)
@@ -402,10 +403,10 @@ MOV W0, WZR
 BL 0x8B94A4 //; gear::GetControllerRace(int)
 LDR X8, [X0, #0x158]
 LDR W9, [X8, #0x114]
-TBZ W9, #BUTTONBIT_ZR, isLandFromDrop
+TBZ W9, #BUTTONBIT_ZR, isLandFromDrop //; Not held
 
 LDR W9, [X8, #8]
-TBZ W9, #BUTTONBIT_RIGHT_STICK_IN, isLandFromDrop
+TBZ W9, #BUTTONBIT_RIGHT_STICK_IN, isLandFromDrop //; Not pressed
 
 ADRP X8, #0x11A7000
 LDRH W9, [X8, #8]
@@ -514,6 +515,7 @@ RET
 
 //; Skip by modifying hook's return address: LR + 0x94 = 0x141EA8
 //; Returns to the function's end
+
 
 MOV X19, X0 //; Original instruction
 

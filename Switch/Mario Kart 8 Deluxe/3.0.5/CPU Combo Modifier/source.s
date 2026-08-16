@@ -11,11 +11,12 @@
 //; doesn't cause a crash.
 
 
-//; Force team mode to use non-team mode characters selection
+//; Force team mode to use non-team mode combo randomization
 //; ui::SetRandomCPU(bool,bool,sead::SafeArray<mush::EDriverID,12> *) + 0x2064 (Not a hook)
 //; 0x4FC208 -> MOV W8, #0
-//; Overrides the loaded W8 value with zero for a check, to always branch, so that team mode 
-//; uses the regular character random code (To avoid multiple hooks for CPU Combo hook)
+//; Overrides the loaded W8 value with zero for a check to always branch, so that team mode 
+//; uses the regular combo randomization code, which is where the CPU Combo Modifier is hooked,
+//; to avoid multiple hooks
 
 
 //; CPU Combo Modifier
@@ -26,9 +27,10 @@
 
 //; You can set a part to the "RANDOM" ID to have that part be randomly chosen, using the game's default behavior
 
+
 //; Register reference:
-//; W20 = CPU ID
-//; X23 = CPU combo address (0 = Kart, 4 = Tire, 8 = Glider, 0xC = Character)
+//; W20 = CPU ID (Input and output)
+//; X23 = CPU combo address (Input and output ) - 0 = Kart, 4 = Tire, 8 = Glider, 0xC = Character)
 
 
 .set DRIVER_MARIO, 0
@@ -189,6 +191,7 @@ BLT loopParts
 end:
 RET
 
+//; Example
 combos:                                                                                //  CPU,   Driver, Vehicle, Tire and Glider Examples
 .byte BODY_STANDARD_KART,    TIRE_STANDARD,        WING_SUPER_GLIDER,   DRIVER_MARIO   //; CPU 1: Mario, Standard Kart, Standard Tire, Super Glider
 .byte BODY_MACH_8,           TIRE_SLIM,            WING_SUPER_GLIDER,   DRIVER_LUIGI   //; CPU 2: Luigi, Mach 8, Roller Tire, Super Glider

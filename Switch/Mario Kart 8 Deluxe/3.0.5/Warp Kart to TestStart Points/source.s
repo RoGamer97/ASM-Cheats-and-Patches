@@ -20,9 +20,7 @@
 //; skip the code if zero are present
 
 //; Subtract the count by 1 and store it to stack.
-//; It will be used for limiting the maximum point
-//; to that one and to warp to that one when decrementing
-//; below the first point
+//; It will be used for wrapping the current point
 
 //; Hold Minus and push Right Stick Left/Right to warp to
 //; the previous/next point. Store a bool to KartVehicle* +
@@ -31,22 +29,21 @@
 
 //; On first frame of held, it will run the warp code:
 //; Decrement/Increment the point ID based on the stick direction.
-//; Reset point ID to 0 if going past last point (count - 1 from stack),
-//; or reset to last point if going below point ID 0 (first).
+//; Wrap the poit ID between 0 and the count - 1 from stack.
 //; The point ID will be stored to KartVehicle* + 0x34A, which is
 //; a padding byte.
 
-//; Then, search that TestStart object by point ID, it'll
+//; Search that TestStart object by point ID, it'll
 //; return the pointer. Increment the pointer by +0x10 to point 
-//; to its gear::MtxT and store it to stack.
+//; to its gear::MtxT* and store it to stack.
 
-//; Then, finish Lakitu respawn if it's happening, reset the kart,
+//; Finish Lakitu respawn if it's happening, reset the kart,
 //; reset the kart's matrix to the TestStart gear::MtxT stored in stack,
-//; to warp there, then reset the AI to correct CPU if a CPU, reset character 
+//; to warp there, reset the AI to correct CPU routes if a CPU, reset character 
 //; and adapt the current section to correct checkpoints.
 //; Doing exactly what Nintendo did in the debug build.
 
-//; If Minus and Right Stick Left/Right is still held down,
+//; If Minus and Right Stick Left/Right is still held down next frame,
 //; avoid warping because KartVehicle* + 0x349 is still true and
 //; will branch to avoidCalc to avoid calculating some kart physics,
 //; preventing the kart from falling if it's in air until Minus or
@@ -87,7 +84,7 @@ BL 0x8B94F4 //; gear::GetControllerRaceNonConst(int)
 LDR X0, [X0, #0x158]
 
 LDR W9, [X0, #0x114]
-TBZ W9, #BUTTONBIT_MINUS, clearFlag //; Minus button not held
+TBZ W9, #BUTTONBIT_MINUS, clearFlag //; Not held
 
 LDR S0, [X0, #0x128]
 
@@ -128,7 +125,7 @@ ADD X0, X0, #0x10
 STR X0, [SP, #0x18]
 
 LDR W9, [X20, #0x1CC]
-TBZ W9, #22, reset //; Not respawning
+TBZ W9, #22, reset //; Not in Lakitu recover
 
 LDR X0, [X20, #0x90]
 LDR X1, [SP, #0x18]
@@ -189,4 +186,4 @@ stickMin: .float 0.8
 
 //; Disable game pausing with Minus button
 //; 0x5319E0 -> AND W8, W8, #8
-//; Remove UI Minus button bit from pause button check
+//; Removes the Minus button UI bit from pause button check

@@ -13,8 +13,8 @@
 
 //; Enable direction arrow anywhere
 //; ui::Control_RaceDRCCharaIcon::setupVisible(void) + 0x34 (Not a hook)
-//; 0x506F7C -> MOV W8, #3 // Battle
-//; Override loaded gamemode value with Battle (3) to enable
+//; 0x506F7C -> MOV W8, #3 (Battle)
+//; Overrides the loaded gamemode value with Battle to enable
 //; direction arrow anywhere
 
 
