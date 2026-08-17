@@ -126,7 +126,7 @@ BEQ end
 isSlotRotate:
 MOV X0, X20
 MOV W1, W21
-BL 0x40494 //; gear::ItemOwner::isSlotRotate(int)
+BL 0x40494 //; gear::ItemOwner::isSlotEmpty(int)
 CBZ W0, isCycleItem
 
 MOV W23, WZR
