@@ -35,8 +35,8 @@
 //; through the hand item and all 8 possible equipped items (dragged or 
 //; rotating the kart), clearing existing items if their ItemObjBase* isn't null.
 //; For the hand item, set ItemObjBase* + 0x22A to true (purpose unknown)
-//; Clear the item by calling exitVanish from its vtable
-//; (Some items have different exitVanish implementations)
+//; Clear the item by calling reactVanish from its vtable. Depending on the item,
+//; it may call its own ItemObj* reactVanish, and some just calls ItemObjBase*'s one
 
 //; Giving item (cycling or item use button):
 //; Get the item from the list by index; if it's "No Item", don't give it
