@@ -11,7 +11,7 @@
 //; doesn't cause a crash.
 
 
-//; Continue playing normal lap music in final lap and store bool for speedup 
+//; Continue playing normal lap music on final lap and store bool for speedup 
 //; audio::AudSceneRace::changeRaceStateBgm_(void) + 0x9C and 0xA0 (Not a hook)
 //; 0x9E808 -> MOV W8, #1
 //; 0x9E80C -> STRB W8, [X19, #0x227]
@@ -19,6 +19,13 @@
 //; audio::AudBgmRace::setBgmVolume(float, int) with a true bool store to audio::AudBgmRace* + 0x227.
 //; AudBgmRace* + 0x227 is a padding byte, so store a bool there to determine that speedup should
 //; happen
+
+
+//; Continue playing normal lap music after star ends if starting final lap in a star 
+//; 0x9EC44 -> NOP
+//; NOPs the audio::AudBgmRace::prepareFinalLapBgm(void) call to prevent final lap
+//; music from starting if starting the final lap in a star. It also prevents the
+//; star music from being interrupted
  
  
 //; Fix music based objects freeze bug
@@ -27,8 +34,7 @@
 //; NOPs the audio::AudBgmRace::changeRaceStateBgm(audio::AudSceneRace::ERaceState)
 //; call to avoid changing the race BGM state. When preventing the final lap music
 //; from playing, objects that move based on music will freeze because of race BGM
-//; state, so preventing it from changing fixes this issue 
-
+//; state, so preventing it from changing fixes this issue
 
 
 //; Music speedup on final lap
