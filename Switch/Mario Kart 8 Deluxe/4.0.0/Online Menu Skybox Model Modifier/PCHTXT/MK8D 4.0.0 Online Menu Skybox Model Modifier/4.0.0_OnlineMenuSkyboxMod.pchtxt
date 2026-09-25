@@ -1,0 +1,12 @@
+@nsobid-2C336A9BCF79C3040CE506CDD391B578
+@flag offset_shift 0x100
+
+// Online Menu Skybox Modifier
+@enabled
+00EE8A25 "UI3D/VRNetwork/VRNetwork.bfres"
+00EE8A44 "VRNetwork"
+
+// Replace the path with the path of the skybox you want to use, example "MapObj/VRCnsw38/VRCnsw38.bfres" for the first one and "VRCnsw38" for the second one, for 3DS Rainbow Road Skybox 
+// Note that the not every skybox is possible because of string length
+
+@stop

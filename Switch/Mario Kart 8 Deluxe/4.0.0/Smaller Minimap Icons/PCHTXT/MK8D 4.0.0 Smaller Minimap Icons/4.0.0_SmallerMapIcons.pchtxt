@@ -1,0 +1,9 @@
+@nsobid-2C336A9BCF79C3040CE506CDD391B578
+@flag offset_shift 0x100
+
+// Smaller Minimap Icons
+@enabled
+00532B18 00102D1E
+
+@stop
+
