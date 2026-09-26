@@ -1,0 +1,8 @@
+@nsobid-2C336A9BCF79C3040CE506CDD391B578
+@flag offset_shift 0x100
+
+// Default Item Roulette Sounds in All Courses
+@enabled
+0009C860 08008052
+
+@stop

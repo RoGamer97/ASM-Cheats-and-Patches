@@ -1,0 +1,8 @@
+@nsobid-2C336A9BCF79C3040CE506CDD391B578
+@flag offset_shift 0x100
+
+// Restore Previous Racer Button in Live View
+@enabled
+00536D54 A8438052
+
+@stop

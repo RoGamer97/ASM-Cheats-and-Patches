@@ -1,0 +1,49 @@
+//; Game: Mario Kart 8 Deluxe
+//; Game version: 4.0.0
+//; Code: Mii Heads on Minimap
+
+//; You can find some documented headers here to learn more about the game
+//; and know some offsets: https://github.com/fishguy6564/MK8DX-Headers
+
+
+//; Hooks are written over unused functions (never executed).
+//; There is a bit of free space in .text, but for some reason the emulator
+//; crashes when executing code in that space. Writing over unused functions
+//; doesn't cause a crash.
+
+
+//; ui::Control_RaceDRCCharaIcon::setDriverID(mush::EDriverID,int,uchar,bool) + 0x150
+//; 0x50ACEC -> BL 0x633100
+
+//; Skip the code if offline mode
+
+//; Override the loaded character ID Mii's ID so
+//; minimap icon is mii face, but only if player is 
+//; not a CPU (For Friend Rooms and Tournament)
+
+
+//; Register reference:
+//; X19 = ui::Control_RaceDRCCharaIcon*
+
+
+.set DRIVER_MII, 0x1D
+
+STP X29, X30, [SP, #-0x10]!
+
+BL 0x87FCD0 //; gear::GetRaceInfo(void)
+
+LDR W8, [X0]
+CBZ W8, original //; Offline mode
+
+LDR W0, [X19, #0xB4]
+BL 0x863308 //; gear::NetworkUtil::isCPU(int)
+
+MOV W8, #DRIVER_MII
+CBZ W0, end //; Not a CPU
+
+original:
+LDR W8, [X23] //; Original instruction
+
+end:
+LDP X29, X30, [SP], #0x10
+RET
