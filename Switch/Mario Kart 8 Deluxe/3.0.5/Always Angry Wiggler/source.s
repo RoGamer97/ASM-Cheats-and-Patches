@@ -43,7 +43,7 @@ RET
 
 
 // Fix Menu Crash
-//; object::DriverKart::calcELink(void) + 0xD6C //; wrong function?
+//; object::DriverKart::calcELink(void) + 0xD6C
 //; 0xDDB30 -> BL 0x89A50
 
 //; Angry Wiggler crashes in menus when trying to

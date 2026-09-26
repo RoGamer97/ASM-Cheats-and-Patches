@@ -117,13 +117,13 @@ CMP W8, #RACERULE_TIME_TRIALS
 BEQ end
 
 CMP W8, #RACERULE_BATTLE
-BNE isSlotRotate
+BNE isSlotEmpty
 
 LDR W8, [X0, #0xC]
 CMP W8, #BATTLETYPE_BOMB
 BEQ end
 
-isSlotRotate:
+isSlotEmpty:
 MOV X0, X20
 MOV W1, W21
 BL 0x40494 //; gear::ItemOwner::isSlotEmpty(int)
