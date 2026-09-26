@@ -161,7 +161,7 @@ stick: .float 0.3
 
 //; Allow steering in air
 //; object::KartVehicleMove::calcSteerVolForDrive_(float, float, bool) + 0xA0
-//; 0x18B2BC -> BL 0xAAFD84
+//; 0x18B2BC -> BL 0xAB0780
 
 //; Skip the code if net send or receive kart
 

@@ -12,10 +12,13 @@
 
 
 //; Allow battle blinking in race (Visual)
-//; object::KartVehicle::calcXluAlpha_(void) + 0x58 (Not a hook)
-//; 0x177148 -> MOV w9, #1
-//; Overrides the loaded kart's isBattle bool with true to avoid
-//; skipping Battle blink calculation in race
+//; object::KartVehicle::calcXluAlpha_(void) + 0x58 and 0x5C (Not a hook)
+//; 0x177148 -> LDRB W9, [X19, #0xD4]
+//; 0x17714C -> CBNZ W9, 0x177210
+//; Replace kart's "isBattle" check that skips the blinking code if it's
+//; not Battle with "isGhost" check to skip blinking code if kart is a
+//; Time Trials ghost (Makes blinking code execute in races but not for
+//; TT ghost, to avoid an issue where ghost is not transparent)
 
 
 //; Battle blinking when having invincibility frames (Visual)
