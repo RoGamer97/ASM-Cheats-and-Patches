@@ -1,8 +1,8 @@
-@nsobid-FE941ED5BA14BE5D505698DA1BBF4FE7
+@nsobid-2C336A9BCF79C3040CE506CDD391B578
 @flag offset_shift 0x100
 
 // Disable Dolphin Shoals Lap 2 Music Change
 @enabled
-00083770 08008052
+0008459C 08008052
 
 @stop
