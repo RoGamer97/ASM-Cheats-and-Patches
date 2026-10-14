@@ -13,7 +13,7 @@
 
 //; Trick chaining
 //; object::KartVehicleDrift::calcJumpAction_(object::KartVehicleDrift::DriftInfo &, int, bool) + 0x90
-//; 0x17DB64 -> BL 0xAB4344
+//; 0x17DD54 -> BL 0xAB46E4
 
 //; Skip the code if net send or receive kart
 
@@ -59,7 +59,7 @@ CBNZ W10, end //; Net send or receive kart
 STR W9, [SP, #0x10]
 
 LDR X0, [X8, #0x28]
-BL 0x186C6C //; object::KartVehicleMove::isJumpActionTiming(void)
+BL 0x186E5C //; object::KartVehicleMove::isJumpActionTiming(void)
 
 LDR X8, [X19, #8]
 
@@ -95,7 +95,7 @@ RET
 
 //; Set glider trick types based on stick and fix trick direction
 //; object::KartVehicleDrift::calcJumpAction_(object::KartVehicleDrift::DriftInfo &, int, bool) + 0xE4
-//; 0x17DBB8 -> BL 0xAB43A8
+//; 0x17DDA8 -> BL 0xAB4748
 
 //; Skip the code if net send or receive kart
 
@@ -161,7 +161,7 @@ stick: .float 0.3
 
 //; Allow steering in air
 //; object::KartVehicleMove::calcSteerVolForDrive_(float, float, bool) + 0xA0
-//; 0x18C69C -> BL 0xAB4C20
+//; 0x18C88C -> BL 0xAB4FC0
 
 //; Skip the code if net send or receive kart
 

@@ -12,7 +12,7 @@
 
 
 //; ui::Control_RaceResultPanel::setDriverID(mush::EDriverID, int, unsigned char, bool) + 0x38
-//; 0x52047C -> BL 0x63312C
+//; 0x520604 -> BL 0x622AA0
 
 //; Skip the code if offline mode
 

@@ -13,7 +13,7 @@
 
 
 //; ui::Control_RaceDRCCharaIcon::setDriverID(mush::EDriverID,int,uchar,bool) + 0x150
-//; 0x50ACEC -> BL 0x633100
+//; 0x50AE74 -> BL 0x622A74
 
 //; Skip the code if offline mode
 
