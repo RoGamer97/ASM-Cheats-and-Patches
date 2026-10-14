@@ -99,12 +99,29 @@ RET
 //; Needed because race intro causes the game to crash when restarting
 
 
-//; Don't reset current race count when going to menu
+//; Don't reset current race count when going to menu (Offline only)
 //; ui::MenuPrepare(void) + 0xA4
-//; 0x4F9F5C -> NOP
-//; NOPs the store zero to race count. When coming to menu from
-//; "Change Course" and "Change Character", race count is reset,
-//; avoid resetting it to keep the race count you're in
+//; 0x4F9F5C -> BL 0xAB4EC0
+
+//; Avoid race count from resetting when going to menu (Coming from
+//; "Change Course" and "Change Character", but only if in offline
+//; menu to avoid issues with online
+
+//; Race count will be reset in the next hook in case it should really
+//; reset
+
+
+STP X29, X30, [SP, #-0x10]!
+
+BL 0x7C644 //; ui::IsMenuOffline(void)
+CBNZ W0, skipOriginal
+
+STR WZR, [X20, #0x1A44] //; Original instruction
+
+skipOriginal:
+LDP X29, X30, [SP], #0x10
+MOV X0, SP //; X0 is lost, so restore it
+RET
 
 
 //; Reset current race count when going to character selection from menu
@@ -116,6 +133,9 @@ RET
 
 //; Since the race count reset is disabled when going to menus, it must
 //; be manually reset
+
+//; Only reset in offline menus to avoid race count from resetting when
+//; changing character online
 
 //; Reset it when going to character selection screen, except if 
 //; previous page ID is kart select (Coming from vehicle parts screen)
@@ -138,6 +158,9 @@ BEQ end
 
 CMP W8, #PAGEID_RACE
 BEQ end
+
+BL 0x7C644 //; ui::IsMenuOffline(void)
+CBZ W0, end
 
 MOV W8, #3
 STR W8, [SP, #0x18]
