@@ -99,17 +99,34 @@ RET
 //; Needed because race intro causes the game to crash when restarting
 
 
-//; Don't reset current race count when going to menu
+//; Don't reset current race count when going to menu (Offline only)
 //; ui::MenuPrepare(void) + 0xA4
-//; 0x4F68BC -> NOP
-//; NOPs the store zero to race count. When coming to menu from
-//; "Change Course" and "Change Character", race count is reset,
-//; avoid resetting it to keep the race count you're in
+//; 0x4F68BC -> BL 0xAB07C8
+
+//; Avoid race count from resetting when going to menu (Coming from
+//; "Change Course" and "Change Character", but only if in offline
+//; menu to avoid issues with online
+
+//; Race count will be reset in the next hook in case it should really
+//; reset
+
+
+STP X29, X30, [SP, #-0x10]!
+
+BL 0x7B810 //; ui::IsMenuOffline(void)
+CBNZ W0, skipOriginal
+
+STR WZR, [X20, #0x1744] //; Original instruction
+
+skipOriginal:
+LDP X29, X30, [SP], #0x10
+MOV X0, SP //; X0 is lost, so restore it
+RET
 
 
 //; Reset current race count when going to character selection from menu
 //; ??? (Unknown + 0xAC)
-//; 0x4B41A4 -> BL 0xAB0458
+//; 0x4B41A4 -> BL 0xAB0780
 
 //; The function this hook is placed at only runs when going to character
 //; selection screen
@@ -138,6 +155,9 @@ BEQ end
 
 CMP W8, #PAGEID_RACE
 BEQ end
+
+BL 0x7B810 //; ui::IsMenuOffline(void)
+CBZ W0, end
 
 MOV W8, #3
 STR W8, [SP, #0x18]
