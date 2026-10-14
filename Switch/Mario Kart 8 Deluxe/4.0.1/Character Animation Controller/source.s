@@ -168,7 +168,7 @@ B end
 
 animPlay:
 LDR W8, [X19, #0x1B4]
-TBNZ W8, #31, startActionAnim //; Animation has ended/not playing
+TBNZ W8, #31, startActionAnim //; Animation has ended/not playing (-1)
 B end
 
 changeAnim:

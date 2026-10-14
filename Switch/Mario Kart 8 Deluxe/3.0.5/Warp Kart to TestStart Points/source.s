@@ -50,7 +50,9 @@
 //; the Right Stick is released
 
 
-.set OBJECT_TESTSTART, 0x1772
+.set OBJECT_TESTSTART, 6002
+
+.set KARTSTATUSBIT_JUGEMRECOVER, 22
 
 .set BUTTONBIT_MINUS, 12
 
@@ -125,7 +127,7 @@ ADD X0, X0, #0x10
 STR X0, [SP, #0x18]
 
 LDR W9, [X20, #0x1CC]
-TBZ W9, #22, reset //; Not in Lakitu recover
+TBZ W9, #KARTSTATUSBIT_JUGEMRECOVER, reset //; Not in Lakitu recover
 
 LDR X0, [X20, #0x90]
 LDR X1, [SP, #0x18]

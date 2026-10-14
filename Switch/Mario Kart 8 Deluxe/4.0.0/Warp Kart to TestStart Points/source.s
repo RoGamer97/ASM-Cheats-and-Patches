@@ -50,7 +50,7 @@
 //; the Right Stick is released
 
 
-.set OBJECT_TESTSTART, 0x1772
+.set OBJECT_TESTSTART, 6002
 
 .set BUTTONBIT_MINUS, 12
 
