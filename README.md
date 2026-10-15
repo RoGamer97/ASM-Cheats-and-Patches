@@ -49,6 +49,12 @@ Games that had their codes updated and source code included after **May 27, 2026
 
 ---
 
+## Report Issues
+
+> [!IMPORTANT]
+> If you find a bug or issue with any code/patch, please [open an issue](https://github.com/RoGamer97/ASM-Cheats-and-Patches/issues) so I can investigate and fix it. Bug reports are greatly appreciated and help me keep the codes and patches working as intended. 
+
+
 Please enjoy these codes as much as I enjoyed making them!
 
 **Made with ❤️ by Ro**
