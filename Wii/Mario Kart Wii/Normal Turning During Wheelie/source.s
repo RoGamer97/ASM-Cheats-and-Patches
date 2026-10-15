@@ -7,12 +7,12 @@
 # NTSC-J 80587ABC
 # NTSC-K 80576194
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 lwz r4, 0 (r30)
 lwz r4, 4 (r4)
 lwz r4, 0x14 (r4)
-andi. r4, r4, KARTFLAGS_LOCAL
+andi. r4, r4, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 li r3, 0

@@ -4,12 +4,12 @@
 
 # Does float calculations with ints which usually is bad, but works for this
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 lwz r0, 8 (r4) # Original instruction
 
 lwz r12, 0x14 (r4)
-andi. r12, r12, KARTFLAGS_LOCAL
+andi. r12, r12, KARTFLAGS_LOCAL_PLAYER
 beq end
  
 lhz r12, 0x160 (r3)

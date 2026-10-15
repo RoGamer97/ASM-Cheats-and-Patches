@@ -36,7 +36,7 @@
 
 .set CONTROLLER_NUNCHUK, 2
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 
 fmuls f3, f26, f7 # Original instruction
@@ -47,7 +47,7 @@ lwz r3, 0x10 (r12)
 lwz r10, 4 (r3)
 
 lwz r11, 0x14 (r10)
-andi. r12, r11, KARTFLAGS_LOCAL
+andi. r12, r11, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 bl FlightValues

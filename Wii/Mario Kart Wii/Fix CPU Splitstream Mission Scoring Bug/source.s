@@ -6,12 +6,12 @@
 # NTSC-J 80586D68
 # NTSC-K 80575440
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 lwz r12, 0 (r27)
 lwz r12, 4 (r12)
 lwz r12, 0x14 (r12)
-andi. r12, r12, KARTFLAGS_LOCAL
+andi. r12, r12, KARTFLAGS_LOCAL_PLAYER
 bne skip
 
 stw r0, 8 (r4) # Original instruction

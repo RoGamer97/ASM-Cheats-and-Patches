@@ -67,13 +67,13 @@
 .set ITEMSLOT_STATE_SPIN, 1
 .set ITEMSLOT_STATE_LAST_SPIN, 2
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 
 lwz r3, 0 (r29)
 lwz r3, 4 (r3)
 lwz r3, 0x14 (r3)
-andi. r3, r3, KARTFLAGS_LOCAL
+andi. r3, r3, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 mr r3, r29
@@ -267,12 +267,12 @@ lhz r0, 0xC (r29)
 .set ITEMSLOT_STATE_SPIN, 1
 .set ITEMSLOT_STATE_LAST_SPIN, 2
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 lwz r3, 0 (r29)
 lwz r3, 4 (r3)
 lwz r3, 0x14 (r3)
-andi. r3, r3, KARTFLAGS_LOCAL
+andi. r3, r3, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 mr r3, r29

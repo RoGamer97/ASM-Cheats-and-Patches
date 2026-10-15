@@ -52,14 +52,14 @@
 
 .set DESIRED_ITEM, ITEMSLOT_STAR # Change to the item you want (Star as placeholder)
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 mr r28, r3
 
 lwz r4, 0 (r29)
 lwz r4, 4 (r4)
 lwz r4, 0x14 (r4)
-andi. r4, r4, KARTFLAGS_LOCAL
+andi. r4, r4, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 lwz r3, 0x8C (r29)

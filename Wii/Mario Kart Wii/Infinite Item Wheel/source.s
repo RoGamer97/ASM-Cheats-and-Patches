@@ -122,7 +122,7 @@
 
 .set ITEMSLOT_STATE_STOPPED, 0
 
-.set KARTFLAGS_LOCAL, 1 << 1 # 2
+.set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
 mr r28, r5
 
@@ -133,7 +133,7 @@ bne end
 lwz r4, 0 (r29)
 lwz r4, 4 (r4)
 lwz r4, 0x14 (r4)
-andi. r4, r4, KARTFLAGS_LOCAL
+andi. r4, r4, KARTFLAGS_LOCAL_PLAYER
 beq end
 
 
