@@ -4,11 +4,13 @@
 
 # Does float calculations with ints which usually is bad, but works for this
 
+.set KARTFLAGS_LOCAL, 1 << 1 # 2
+
 lwz r0, 8 (r4) # Original instruction
 
 lwz r12, 0x14 (r4)
-andi. r12, r12, 2
-beq end # Not local player kart
+andi. r12, r12, KARTFLAGS_LOCAL
+beq end
  
 lhz r12, 0x160 (r3)
 addi r12, r12, 8

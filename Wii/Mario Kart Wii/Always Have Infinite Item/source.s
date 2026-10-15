@@ -2,6 +2,7 @@
 # Code: Always Have Item
 # NOTE: Mario Kart Wii has no official symbols. Function names are either custom names, borrowed from other Mario Kart games, or community names
 
+
 # Local Player Only
 # NTSC-U 8078E958
 # PAL 80797964
@@ -51,14 +52,15 @@
 
 .set DESIRED_ITEM, ITEMSLOT_STAR # Change to the item you want (Star as placeholder)
 
+.set KARTFLAGS_LOCAL, 1 << 1 # 2
+
 mr r28, r3
 
 lwz r4, 0 (r29)
 lwz r4, 4 (r4)
 lwz r4, 0x14 (r4)
-andi. r4, r4, 2
-beq end # Not local player kart
-
+andi. r4, r4, KARTFLAGS_LOCAL
+beq end
 
 lwz r3, 0x8C (r29)
 cmpwi r3, ITEMSLOT_NONE

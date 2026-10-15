@@ -36,6 +36,8 @@
 
 .set CONTROLLER_NUNCHUK, 2
 
+.set KARTFLAGS_LOCAL, 1 << 1 # 2
+
 
 fmuls f3, f26, f7 # Original instruction
 
@@ -45,8 +47,8 @@ lwz r3, 0x10 (r12)
 lwz r10, 4 (r3)
 
 lwz r11, 0x14 (r10)
-andi. r12, r11, 2
-beq end # Not local player kart
+andi. r12, r11, KARTFLAGS_LOCAL
+beq end
 
 bl FlightValues
 

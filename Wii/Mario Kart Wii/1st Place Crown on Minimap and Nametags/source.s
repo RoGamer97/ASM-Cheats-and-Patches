@@ -191,6 +191,5 @@ li r0, 1
 storeVisibility:
 stb r0, 0xBB (r3)
 
-# End
 end:
 lwz r0, 0x44 (sp) # Original instruction

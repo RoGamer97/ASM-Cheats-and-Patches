@@ -326,6 +326,8 @@ stwu sp, -0x30 (sp)
 .set ITEMTYPE_BLUE_SHELL, 5
 .set ITEMTYPE_BOBOMB, 9
 
+.set MODEFLAGS_TEAM, 2
+
 
 li r0, 0
 
@@ -336,7 +338,7 @@ bne end
 lis r12, ptr_raceData@ha
 lwz r12, ptr_raceData@l (r12)
 lwz r25, 0xB90 (r12)
-andi. r25, r25, 2 # Team mode flag
+andi. r25, r25, MODEFLAGS_TEAM
 beq removeTeamLight
 
 lwz r25, 4 (r3)

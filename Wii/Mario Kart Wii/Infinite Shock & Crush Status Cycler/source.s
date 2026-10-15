@@ -37,12 +37,14 @@
 .set KARTSTATUS_THUNDER, 0x80
 .set KARTSTATUS_PRESS, 0x10000
 
+.set KARTFLAGS_LOCAL, 1 << 1 # 2
+
 
 mr r31, r3 # Original instruction
 
 lwz r12, 0x14 (r3)
-andi. r12, r12, 2
-beq end # Not local player kart
+andi. r12, r12, KARTFLAGS_LOCAL
+beq end
 
 mr r3, r29
 lis r12, getControllerHolder@h

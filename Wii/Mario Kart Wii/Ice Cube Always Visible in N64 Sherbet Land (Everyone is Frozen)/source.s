@@ -25,6 +25,8 @@
 
 .set COURSE_N64_SHERBET_LAND, 0x1B
 
+.set KARTFLAGS_LOCAL, 1 << 1 # 2
+
 
 li r0, 0 # Original instruction
 
@@ -38,7 +40,7 @@ lwz r12, 0x118 (r31)
 lwz r12, 0 (r12)
 lwz r12, 4 (r12)
 lwz r12, 0x14 (r12)
-andi. r12, r12, 2
+andi. r12, r12, KARTFLAGS_LOCAL
 beq end
 
 stb r0, 0x794 (r31)
