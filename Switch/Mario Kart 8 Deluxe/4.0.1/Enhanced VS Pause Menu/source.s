@@ -89,14 +89,24 @@ end:
 RET
 
 
-//; Remove course intro
-//; ui::Page_RaceStart::onIn_ + 0xB0 (Not a hook)
-//; 0x4995E8 -> MOV W8, #1
-//; Overrides some UI page mode value with 1. If it's 1, the game 
-//; skips the course intro by loading the race page ID, otherwise
-//; it loads the race intro page ID (or something like this). 1 is used
-//; in Time Trials.
-//; Needed because race intro causes the game to crash when restarting
+//; Remove course intro in VS
+//; ui::Page_RaceStart::onIn_ + 0xB4
+//; 0x4995EC -> BL 0xAB4EDC
+
+//; Add check for VS in Time Trials
+//; check to remove course intro in
+//; both modes
+
+//; Needed to avoid a crash when
+//; restarting the race
+
+
+.set RACERULE_TIME_TRIALS, 1
+.set RACERULE_VS, 2
+
+CMP W8, #RACERULE_TIME_TRIALS //; Original instruction
+CCMP W8, #RACERULE_VS, #4, NE
+RET
 
 
 //; Don't reset current race count when going to menu (Offline only)

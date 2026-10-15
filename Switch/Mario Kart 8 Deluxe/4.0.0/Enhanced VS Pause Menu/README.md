@@ -6,4 +6,6 @@ Note that changing characters will also reselect CPU characters, teams, and mode
 
 This patch disables the course intro, as it crashes the game when trying to restart.
 
+Note that there is a bug where, when setting Courses option to "In Order" or "Random" in VS settings menu, the 2nd course will be the same one as the 1st. Side effect of disable course intro.
+
 [ASM source](source.s)
