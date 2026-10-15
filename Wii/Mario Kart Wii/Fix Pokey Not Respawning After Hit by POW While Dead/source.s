@@ -1,6 +1,5 @@
 # Game: Mario Kart Wii
 # Code: Fix Pokey Never Respawning After Hit by POW While Destroyed
-# Description:
 # NOTE: Mario Kart Wii has no official symbols. Function names are either custom names, borrowed from other Mario Kart games, or community names
 
 

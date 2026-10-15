@@ -1,5 +1,5 @@
 # Game: Mario Kart Wii
-# Code: Item Cycler (Debug and Infinite)
+# Code: Item Cycler
 # NOTE: Mario Kart Wii has no official symbols. Function names are either custom names, borrowed from other Mario Kart games, or community names
 
 
@@ -64,8 +64,8 @@
 .set CONTROLLER_CLASSIC, 2
 
 .set ITEMSLOT_STATE_STOPPED, 0
-.set ITEMSLOT_STATE_SPIN, 1
-.set ITEMSLOT_STATE_LAST_SPIN, 2
+
+.set KARTITEM_FLAGS_USE_BUTTON_TRIG, 0x40
 
 .set KARTFLAGS_LOCAL_PLAYER, 1 << 1 # 2
 
@@ -93,7 +93,7 @@ bne end
 lbz r4, 0xB3 (r29)
 
 lhz r0, 0xC (r29)
-andi. r0, r0, 0x40
+andi. r0, r0, KARTITEM_FLAGS_USE_BUTTON_TRIG
 beq isCycleItem
 
 lwz r0, 0x8C (r29)
@@ -102,7 +102,7 @@ bne isCycleItem
 
 lwz r0, 0xC8 (r29)
 cmpwi r0, ITEMTYPE_NONE
-beq getTableItemByIndex
+beq getListItemByIdx
 
 isCycleItem:
 lwz r0, 0x5C (r3)
@@ -154,7 +154,7 @@ ori r12, r12, ItemStock__clearItemAndDestroyDropItems@l
 mtctr r12
 bctrl
 
-getTableItemByIndex:
+getListItemByIdx:
 bl getIndexItem
 
 itemList:
@@ -345,7 +345,7 @@ lwz r0, 0x8C (r29)
 cmpwi r0, ITEMSLOT_NONE
 bne end
 
-getTableItemByIndex:
+getListItemByIdx:
 bl getIndexItem
 
 itemList:

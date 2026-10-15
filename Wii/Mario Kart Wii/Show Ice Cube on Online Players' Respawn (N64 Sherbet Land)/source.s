@@ -31,6 +31,8 @@
 
 .set COURSE_N64_SHERBET_LAND, 0x1B
 
+.set KARTFLAGS_NET_RECV, 1 << 3 # 8
+
 # Note: Ice breaks when player touches the ground or sends the "landed from Lakitu" flag
 
 
@@ -44,8 +46,8 @@ lwz r12, 0x118 (r31)
 lwz r11, 0 (r12)
 lwz r11, 4 (r11)
 lwz r11, 0x14 (r11)
-andi. r10, r11, 8
-beq end # Not net receive kart
+andi. r10, r11, KARTFLAGS_NET_RECV
+beq end
 
 andi. r11, r11, 0x1000
 beq isJugemHang

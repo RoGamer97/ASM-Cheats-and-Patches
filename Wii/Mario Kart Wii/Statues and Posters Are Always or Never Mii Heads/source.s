@@ -1,6 +1,6 @@
 # Game: Mario Kart Wii
 # Code: Small Items If Shocked
-# Description: Makes items smalls if thrown or dropped by players who are shocked by setting the "small items" flag (used when first throwing items)
+Makes items smalls if thrown or dropped by players who are shocked by setting the "small items" flag (used when first throwing items)
 # NOTE: Mario Kart Wii has no official symbols. Function names are either custom names, borrowed from other Mario Kart games, or community names
 
 # NTSC-U 8079678C

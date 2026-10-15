@@ -1,9 +1,14 @@
+# Game: Mario Kart Wii
+# Code: Golden Mushroom Timer Bar
+# NOTE: Mario Kart Wii has no official symbols. Function names are either custom names, borrowed from other Mario Kart games, or community names
+
+
 # NTSC-U 807E4CAC
 # PAL 807EEFBC
 # NTSC-J 807EE628
 # NTSC-K 807DD37C
 
-.set region, ''
+.set region, '' #Fill in E, P, J, or K within the quotes for your region when compiling (E for NTSC-U, P for PAL, J for NTSC-J, K for NTSC-K). Lowercase letters can also be used.
 
 .if (region == 'e' || region == 'E')
 		.set getPaneByName, 0x805D1C7C
@@ -22,6 +27,8 @@
 .endif
 
 .set ITEMSLOT_GOLDEN_MUSHROOM, 0xA
+
+.set KARTFLAGS_NET_RECV, 1 << 3 # 8
 
 
 stwu sp, -0x80 (sp)
@@ -77,7 +84,6 @@ bl goldenWindowBarValues
 
 goldenWindowBarValues:
 mflr r11
-lwz r28, 0xA0 (r28)
 
 lwz r0, 0xD8 (r3)
 stw r0, 0xD8 (r29)
@@ -100,7 +106,7 @@ li r0, 0
 lwz r12, 0 (r31)
 lwz r12, 4 (r12)
 lwz r12, 0x14 (r12)
-andi. r12, r12, 8
+andi. r12, r12, KARTFLAGS_NET_RECV
 bne end
 
 lfs f0, 0 (r11)
@@ -144,4 +150,4 @@ end:
 lmw r3, 8 (sp)
 addi sp, sp, 0x80
 
-lwz r0, 0x58 (r3)
+lwz r0, 0x58 (r3) # Original instruction
