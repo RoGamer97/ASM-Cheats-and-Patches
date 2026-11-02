@@ -11,7 +11,7 @@ Only affects you and other local players in Multiplayer.
 <details>
 <summary>NTSC-U</summary>
 
-Replace XX with desired item:
+Replace XX from 388000XX 38A00000 line with desired item:
 
 Green Shell = 00  
 Red Shell = 01  
@@ -54,7 +54,7 @@ A0BC002C 00000000
 <details>
 <summary>PAL</summary>
 
-Replace XX with desired item:
+Replace XX from 388000XX 38A00000 line with desired item:
 
 Green Shell = 00  
 Red Shell = 01  
@@ -97,7 +97,7 @@ A0BC002C 00000000
 <details>
 <summary>NTSC-J</summary>
 
-Replace XX with desired item:
+Replace XX from 388000XX 38A00000 line with desired item:
 
 Green Shell = 00  
 Red Shell = 01  
@@ -140,7 +140,7 @@ A0BC002C 00000000
 <details>
 <summary>NTSC-K</summary>
 
-Replace XX with desired item:
+Replace XX from 388000XX 38A00000 line with desired item:
 
 Green Shell = 00  
 Red Shell = 01  

@@ -1,6 +1,6 @@
 ## No Camera Height Shift in Air
 
-Makes the camera height not shift in air, making it be behind your kart as if you were on the ground instead of making it go a bit higher. This code can be used with Future Fly for better view.
+Makes the camera height not shift when the kart is in air, making it be behind your kart as if you were on the ground.
 
 <details>
 <summary>NTSC-U</summary>
