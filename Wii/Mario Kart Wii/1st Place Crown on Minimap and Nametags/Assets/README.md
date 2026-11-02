@@ -1,4 +1,4 @@
-Apply custom assets to your own Race.szs by replacing the original files with the ones provided.
+Apply custom assets to your own Race.szs by replacing the original files with the ones provided and also adding the new timg textures.
 
 For usage with 1st Place Crown on Minimap/Nametag or Show Kart Status Effects on Minimap.
 

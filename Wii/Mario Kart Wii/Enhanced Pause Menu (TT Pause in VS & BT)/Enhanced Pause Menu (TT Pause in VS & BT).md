@@ -142,4 +142,4 @@ C283DE84 00000007
 ```
 </details>
 
-ou can find the ASM source code by clicking [here](source.s)
+[ASM source](source.s)
